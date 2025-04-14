@@ -24,7 +24,7 @@ jobs:
           cache: 'npm'
           
       - name: Create .env file
-        run: echo "$DOTENV_CONTENT" > .env
+        run: echo "$DOTENV_CONTENT" > .env.production
           
       - name: Install dependencies
         run: npm ci

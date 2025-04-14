@@ -96,12 +96,13 @@ export const parseGitHubUrl = (githubUrl) => {
 export const fetchGitHubData = async (url) => {
   const headers = url.includes("raw.githubusercontent.com") ? {} : {
     'Authorization': `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`,
-    'Accept': 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28'
   }
-  const response = await fetch(url, { headers });
-
-  return response
+  const response = await fetch(url, { headers: headers });
+  if (!response.ok) {
+    throw new Error(`GitHub API returned ${response.status}`);
+  }
+  return response;
 }
 
 // Fetch repository data from GitHub API
