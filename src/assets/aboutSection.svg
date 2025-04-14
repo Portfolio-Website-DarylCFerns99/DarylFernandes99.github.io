@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+    <defs>
+<!--Gradients-->
+        <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1a1a2e"/>
+            <stop offset="100%" stop-color="#16213e"/>
+        </linearGradient>
+        <linearGradient id="textGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#4361ee">
+                <animate attributeName="stop-color" values="#4361ee; #3a0ca3; #4895ef; #4361ee" dur="5s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" stop-color="#4cc9f0">
+                <animate attributeName="stop-color" values="#4cc9f0; #7209b7; #f72585; #4cc9f0" dur="5s" repeatCount="indefinite"/>
+            </stop>
+        </linearGradient>
+<!--Filters-->
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="5" result="blur"/>
+            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+        </filter>
+    </defs>
+<!--Background-->
+    <rect width="100%" height="100%" fill="url(#bgGradient)"/>
+<!--Code bracket elements-->
+    <g fill="none" stroke="#4cc9f0" stroke-width="2" opacity="0.2">
+        <path d="M50,100 L150,100 L150,400 L50,400">
+            <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4s" repeatCount="indefinite"/>
+        </path>
+        <path d="M650,100 L750,100 L750,400 L650,400">
+            <animate attributeName="opacity" values="0.2;0.8;0.2" dur="4s" repeatCount="indefinite" begin="1s"/>
+        </path>
+    </g>
+<!--Binary background-->
+    <g fill="#4cc9f0" opacity="0.1">
+        <text font-family="monospace" font-size="14" x="20" y="80">01001100 01001111 01000111 01001001 01000011</text>
+        <text font-family="monospace" font-size="14" x="20" y="430">01000011 01001111 01000100 01000101</text>
+        <text font-family="monospace" font-size="14" x="600" y="80">01000100 01000001 01010100 01000001</text>
+        <text font-family="monospace" font-size="14" x="570" y="430">01000001 01000111 01001001 01001100 01000101</text>
+    </g>
+<!--Central hub-->
+    <circle cx="400" cy="250" r="120" fill="none" stroke="#4cc9f0" stroke-width="2" opacity="0.7">
+        <animate attributeName="r" values="120;125;120" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values="0.7;0.9;0.7" dur="4s" repeatCount="indefinite"/>
+    </circle>
+<!--Inner circle-->
+    <circle cx="400" cy="250" r="80" fill="none" stroke="#4cc9f0" stroke-width="1.5" opacity="0.5">
+        <animate attributeName="r" values="80;85;80" dur="4s" repeatCount="indefinite" begin="1s"/>
+    </circle>
+<!--Central text-->
+    <text x="400" y="250" font-family="Arial, sans-serif" font-size="22" fill="url(#textGradient)" text-anchor="middle" dominant-baseline="middle" font-weight="bold" filter="url(#glow)">SOFTWARE ENGINEERING</text>
+    <text x="400" y="280" font-family="Arial, sans-serif" font-size="14" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" opacity="0.9">INNOVATION • QUALITY • PERFORMANCE</text>
+<!--Tech terms around circle with animations-->
+    <g font-family="Arial, sans-serif" font-size="16" text-anchor="middle">
+<!--Term 1 - Frontend-->
+        <g transform="translate(400, 100)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">FRONTEND</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">UI/UX • REACT • CSS</text>
+            <line x1="0" y1="15" x2="0" y2="45" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+            </line>
+        </g>
+<!--Term 2 - Backend-->
+        <g transform="translate(580, 170)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">BACKEND</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">API • SERVICES • DB</text>
+            <line x1="-40" y1="0" x2="-70" y2="20" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </line>
+        </g>
+<!--Term 3 - Cloud Computing-->
+        <g transform="translate(580, 330)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">CLOUD</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">AWS • AZURE • GCP</text>
+            <line x1="-40" y1="0" x2="-70" y2="-20" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </line>
+        </g>
+<!--Term 4 - DevOps-->
+        <g transform="translate(400, 400)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">DEVOPS</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">CI/CD • DOCKER • K8S</text>
+            <line x1="0" y1="-15" x2="0" y2="-45" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </line>
+        </g>
+<!--Term 5 - Data Science-->
+        <g transform="translate(220, 330)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">DATA SCIENCE</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">ML • AI • ANALYTICS</text>
+            <line x1="40" y1="0" x2="70" y2="-20" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </line>
+        </g>
+<!--Term 6 - Architecture-->
+        <g transform="translate(220, 170)">
+            <text y="-15" fill="#4cc9f0" opacity="0.9">ARCHITECTURE</text>
+            <text y="5" fill="#ffffff" font-size="11" opacity="0.7">DESIGN • PATTERNS • SCALABILITY</text>
+            <line x1="40" y1="0" x2="70" y2="20" stroke="#4cc9f0" stroke-width="1.5" opacity="0.6">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="2.5s"/>
+            </line>
+        </g>
+    </g>
+<!--Connection lines-->
+    <g stroke="#4cc9f0" stroke-width="1" opacity="0.3">
+<!--Rays extending from center-->
+        <path d="M400,250 L220,170">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="0s"/>
+        </path>
+        <path d="M400,250 L220,330">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="0.8s"/>
+        </path>
+        <path d="M400,250 L400,400">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="1.6s"/>
+        </path>
+        <path d="M400,250 L580,330">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="2.4s"/>
+        </path>
+        <path d="M400,250 L580,170">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="3.2s"/>
+        </path>
+        <path d="M400,250 L400,100">
+            <animate attributeName="opacity" values="0.3;0.7;0.3" dur="5s" repeatCount="indefinite" begin="4s"/>
+        </path>
+    </g>
+<!--Floating tech terms-->
+    <g font-family="monospace" font-size="12" fill="#ffffff" opacity="0.4">
+        <text x="100" y="140">
+      <tspan x="100" dy="0">ALGORITHMS</tspan>
+      <tspan x="100" dy="20">PYTHON</tspan>
+      <tspan x="100" dy="20">JAVA</tspan>
+      <tspan x="100" dy="20">RUST</tspan>
+      <tspan x="100" dy="20">TYPESCRIPT</tspan>
+      <animate attributeName="opacity" values="0.4;0.6;0.4" dur="7s" repeatCount="indefinite"/>
+
+    </text>
+        <text x="100" y="300">
+      <tspan x="100" dy="0">SQL</tspan>
+      <tspan x="100" dy="20">NOSQL</tspan>
+      <tspan x="100" dy="20">ETL</tspan>
+      <tspan x="100" dy="20">BIG DATA</tspan>
+      <animate attributeName="opacity" values="0.4;0.6;0.4" dur="7s" repeatCount="indefinite" begin="2s"/>
+
+    </text>
+        <text x="700" y="140" text-anchor="end">
+      <tspan x="700" dy="0">GIT</tspan>
+      <tspan x="700" dy="20">TESTING</tspan>
+      <tspan x="700" dy="20">SECURITY</tspan>
+      <tspan x="700" dy="20">OPTIMIZATION</tspan>
+      <animate attributeName="opacity" values="0.4;0.6;0.4" dur="7s" repeatCount="indefinite" begin="1s"/>
+
+    </text>
+        <text x="700" y="300" text-anchor="end">
+      <tspan x="700" dy="0">MICROSERVICES</tspan>
+      <tspan x="700" dy="20">SERVERLESS</tspan>
+      <tspan x="700" dy="20">AGILE</tspan>
+      <tspan x="700" dy="20">SCRUM</tspan>
+      <animate attributeName="opacity" values="0.4;0.6;0.4" dur="7s" repeatCount="indefinite" begin="3s"/>
+
+    </text>
+    </g>
+<!--Small particles-->
+    <g fill="#4cc9f0">
+        <circle cx="250" cy="200" r="2">
+            <animate attributeName="cx" values="250;280;250" dur="6s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="200;230;200" dur="6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="550" cy="200" r="2">
+            <animate attributeName="cx" values="550;520;550" dur="7s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="200;230;200" dur="7s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="7s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="250" cy="300" r="2">
+            <animate attributeName="cx" values="250;280;250" dur="8s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="300;270;300" dur="8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="8s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="550" cy="300" r="2">
+            <animate attributeName="cx" values="550;520;550" dur="5s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="300;270;300" dur="5s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="5s" repeatCount="indefinite"/>
+        </circle>
+    </g>
+</svg>

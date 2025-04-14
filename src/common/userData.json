@@ -1,0 +1,228 @@
+{
+  "name": "Daryl Cletus",
+  "surname": "Fernandes",
+  "title": "Software Engineer",
+  "email": "daryl.fernandes50@gmail.com",
+  "phone": "+1 (857) 334-1383",
+  "location": "Based in Boston, MA",
+  "availability": "available for work",
+  "avatar": "/assets/profile.jpg",
+  "heroStats": {
+    "experience": "2+ Years"
+  },
+  "heroSkills": ["React.js", "Node.js", "TypeScript"],
+  "socialLinks": [
+    {
+      "platform": "linkedin",
+      "url": "https://www.linkedin.com/in/darylfernandes50/",
+      "icon": "linkedin",
+      "tooltip": "LinkedIn"
+    },
+    {
+      "platform": "github",
+      "url": "https://github.com/darylfernandes99",
+      "icon": "github",
+      "tooltip": "GitHub"
+    },
+    {
+      "platform": "document",
+      "url": "/assets/Daryl Fernandes (Resume).pdf",
+      "icon": "document",
+      "tooltip": "Resume"
+    }
+  ],
+  "contactLink": "/contact",
+  "about": {
+    "title": "More about",
+    "highlight": "Myself",
+    "subtitle": "About",
+    "description": "Hi, I'm Daryl Fernandes, a passionate software engineer dedicated to building intelligent and scalable solutions. I specialize in AI automation, cloud computing, and full-stack development, crafting efficient and user-centric applications. With experience in Python, FastAPI, and modern web technologies, I love solving complex problems through innovation. Let's connect and build something amazing!",
+    "shortdescription": "Experienced Software Engineer specializing in AI automation, cloud computing, and full-stack development. Passionate about building scalable, innovative solutions that enhance user experiences.",
+    "image": "/assets/about-image.jpg"
+  },
+  "projectsSection": {
+    "subtitle": "Projects",
+    "title": "My",
+    "highlight": "Projects"
+  },
+  "skillsSection": {
+    "subtitle": "Skills",
+    "title": "My",
+    "highlight": "Skills"
+  },
+  "timelineSection": {
+    "subtitle": "Experience & Education",
+    "title": "My",
+    "highlight": "Experience & Education"
+  },
+  "skills": [
+    "Product Design", 
+    "UX Design",
+    "UI Design",
+    "Framer",
+    "Branding",
+    "Animations",
+    "Interaction Design",
+    "Webflow",
+    "UX Research",
+    "Front-End Development",
+    "No-Code",
+    "Figma"
+  ],
+  "timelineData": {
+    "experience": [
+      {
+        "id": "exp1",
+        "type": "experience",
+        "title": "Software Engineer",
+        "company": "Infinite Analytics Pvt Ltd",
+        "period": "Aug 2021 - July 2023",
+        "year": 2021,
+        "description": "Delivering custom design solutions and frontend development for various clients across industries."
+      },
+      {
+        "id": "exp2",
+        "type": "experience",
+        "title": "Software Engineer Intern",
+        "company": "CareerGPT",
+        "period": "Dec 2024 - April 2025",
+        "year": 2024,
+        "description": "Delivering custom design solutions and frontend development for various clients across industries."
+      }
+    ],
+    "education": [
+      {
+        "id": "edu1",
+        "type": "education",
+        "degree": "Master of Science in Software Engineering Systems",
+        "institution": "Northeastern University",
+        "period": "Sept 2023 - Present",
+        "year": 2023,
+        "description": "Specialized in Human-Computer Interaction and User Experience Design."
+      },
+      {
+        "id": "edu2",
+        "type": "education",
+        "degree": "Bachelor of Engineering in Computer Science Branch",
+        "institution": "Xavier Institute of Engineering",
+        "period": "Aug 2016 - June 2021",
+        "year": 2016,
+        "description": "Focused on Digital Media and Interactive Design with minor in Computer Science."
+      }
+    ]
+  },
+  "projects": [
+    {
+      "type": "github",
+      "title": "AI Powered Question Answering with LangChain and Google Gemini",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/AI-Powered-Question-Answering-with-LangChain-and-Google-Gemini"
+    },
+    {
+      "type": "github",
+      "title": "Cloud Native API Deployment with CI CD on GCP",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Cloud-Native-API-Deployment-with-CI-CD-on-GCP"
+    },
+    {
+      "type": "github",
+      "title": "Image Captioning using TensorFlow",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Image-Captioning-using-TensorFlow"
+    },
+    {
+      "type": "github",
+      "title": "Enhancing LLM Responses with Elasticsearch and FAISS",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Enhancing-LLM-Responses-with-Elasticsearch-and-FAISS"
+    },
+    {
+      "type": "github",
+      "title": "Healthcare Plan Management API",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Healthcare-Plan-Management-API"
+    },
+    {
+      "type": "github",
+      "title": "Low-light Image Enhancement using GAN",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Low-light-Image-Enhancement-using-GAN"
+    },
+    {
+      "type": "github",
+      "title": "Optical Character Recognition",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Optical-Character-Recognition"
+    },
+    {
+      "type": "github",
+      "title": "Phrase-based Poem Generation",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Phrase-based-Poem-Generation"
+    },
+    {
+      "type": "github",
+      "title": "ProjectRepo",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/ProjectRepo"
+    },
+    {
+      "type": "github",
+      "title": "ProjectRepo Backend using Django",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/ProjectRepo_Django-Backend"
+    },
+    {
+      "type": "github",
+      "title": "India Population Kepler.GL using Django",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/india_population_react_django"
+    },
+    {
+      "type": "github",
+      "title": "India Population Kepler.GL using Dash",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/India_population_dash"
+    },
+    {
+      "type": "github",
+      "title": "Shopping Website",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Shopping-Website"
+    },
+    {
+      "type": "github",
+      "title": "Facebook Clone",
+      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
+      "image": "/assets/projects/project1.jpg",
+      "tags": ["Template", "Course"],
+      "url": "https://github.com/DarylFernandes99/Friends-Application"
+    }
+  ]
+} 

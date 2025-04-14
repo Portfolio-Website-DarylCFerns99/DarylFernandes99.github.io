@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <style>
+    @keyframes blink {
+      0% { opacity: 0.2; }
+      50% { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+    @keyframes moveRight {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(40px); }
+    }
+    @keyframes moveUp {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-40px); }
+    }
+    @keyframes grow {
+      0% { transform: scale(0.8); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(0.8); }
+    }
+    .neuron {
+      animation: blink 2s infinite;
+    }
+    .neuron-1 { animation-delay: 0.1s; }
+    .neuron-2 { animation-delay: 0.2s; }
+    .neuron-3 { animation-delay: 0.3s; }
+    .neuron-4 { animation-delay: 0.4s; }
+    .neuron-5 { animation-delay: 0.5s; }
+    .neuron-6 { animation-delay: 0.6s; }
+    .neuron-7 { animation-delay: 0.7s; }
+    .neuron-8 { animation-delay: 0.8s; }
+    .neuron-9 { animation-delay: 0.9s; }
+    .data-point {
+      animation: moveRight 3s infinite alternate;
+    }
+    .data-point-1 { animation-delay: 0.2s; }
+    .data-point-2 { animation-delay: 0.8s; }
+    .data-point-3 { animation-delay: 1.4s; }
+    .progress {
+      animation: grow 3s infinite ease-in-out;
+    }
+    .text {
+      font-family: monospace;
+      font-size: 14px;
+      fill: #333;
+    }
+  </style>
+  
+  <!-- Neural Network -->
+  <circle cx="100" cy="60" r="12" class="neuron neuron-1" fill="#4a86e8"/>
+  <circle cx="100" cy="100" r="12" class="neuron neuron-2" fill="#4a86e8"/>
+  <circle cx="100" cy="140" r="12" class="neuron neuron-3" fill="#4a86e8"/>
+  
+  <circle cx="180" cy="50" r="12" class="neuron neuron-4" fill="#ff9900"/>
+  <circle cx="180" cy="85" r="12" class="neuron neuron-5" fill="#ff9900"/>
+  <circle cx="180" cy="120" r="12" class="neuron neuron-6" fill="#ff9900"/>
+  <circle cx="180" cy="155" r="12" class="neuron neuron-7" fill="#ff9900"/>
+  
+  <circle cx="260" cy="70" r="12" class="neuron neuron-8" fill="#6aa84f"/>
+  <circle cx="260" cy="130" r="12" class="neuron neuron-9" fill="#6aa84f"/>
+  
+  <!-- Connections -->
+  <line x1="112" y1="60" x2="168" y2="50" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="60" x2="168" y2="85" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="60" x2="168" y2="120" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="60" x2="168" y2="155" stroke="#999" stroke-width="2"/>
+  
+  <line x1="112" y1="100" x2="168" y2="50" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="100" x2="168" y2="85" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="100" x2="168" y2="120" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="100" x2="168" y2="155" stroke="#999" stroke-width="2"/>
+  
+  <line x1="112" y1="140" x2="168" y2="50" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="140" x2="168" y2="85" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="140" x2="168" y2="120" stroke="#999" stroke-width="2"/>
+  <line x1="112" y1="140" x2="168" y2="155" stroke="#999" stroke-width="2"/>
+  
+  <line x1="192" y1="50" x2="248" y2="70" stroke="#999" stroke-width="2"/>
+  <line x1="192" y1="50" x2="248" y2="130" stroke="#999" stroke-width="2"/>
+  
+  <line x1="192" y1="85" x2="248" y2="70" stroke="#999" stroke-width="2"/>
+  <line x1="192" y1="85" x2="248" y2="130" stroke="#999" stroke-width="2"/>
+  
+  <line x1="192" y1="120" x2="248" y2="70" stroke="#999" stroke-width="2"/>
+  <line x1="192" y1="120" x2="248" y2="130" stroke="#999" stroke-width="2"/>
+  
+  <line x1="192" y1="155" x2="248" y2="70" stroke="#999" stroke-width="2"/>
+  <line x1="192" y1="155" x2="248" y2="130" stroke="#999" stroke-width="2"/>
+  
+  <!-- Data Flowing -->
+  <circle cx="140" cy="70" r="4" class="data-point data-point-1" fill="#cc0000"/>
+  <circle cx="160" cy="110" r="4" class="data-point data-point-2" fill="#cc0000"/>
+  <circle cx="210" cy="90" r="4" class="data-point data-point-3" fill="#cc0000"/>
+  
+  <!-- Progress Indicator -->
+  <rect x="300" y="60" width="30" height="80" rx="5" fill="#f3f3f3" stroke="#ccc"/>
+  <rect x="305" y="120" width="20" height="15" class="progress" fill="#6aa84f"/>
+  
+  <!-- Loading Text -->
+  <text x="200" y="180" class="text" text-anchor="middle">TRAINING AI MODEL...</text>
+</svg>

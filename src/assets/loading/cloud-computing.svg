@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <style>
+    @keyframes float {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes sparkle {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    @keyframes move {
+      0% { transform: translateX(0) translateY(0); }
+      100% { transform: translateX(0) translateY(-50px); }
+    }
+    @keyframes progress {
+      0% { width: 0px; }
+      100% { width: 120px; }
+    }
+    .cloud {
+      animation: float 4s infinite ease-in-out;
+    }
+    .sparkle {
+      animation: sparkle 2s infinite;
+    }
+    .sparkle-1 { animation-delay: 0.2s; }
+    .sparkle-2 { animation-delay: 0.7s; }
+    .sparkle-3 { animation-delay: 1.1s; }
+    .packet {
+      animation: move 2.5s infinite;
+    }
+    .packet-1 { animation-delay: 0.5s; }
+    .packet-2 { animation-delay: 1.5s; }
+    .packet-3 { animation-delay: 0s; }
+    .progress-bar-fill {
+      animation: progress 5s infinite linear;
+    }
+    .text {
+      font-family: monospace;
+      font-size: 14px;
+      fill: #333;
+    }
+  </style>
+  
+  <!-- Cloud -->
+  <g class="cloud">
+    <path d="M190,80 Q210,50 240,70 Q270,40 300,70 Q330,65 330,90 Q350,90 350,110 Q350,130 320,130 Q320,150 300,150 Q280,160 250,140 Q230,160 200,140 Q170,160 140,130 Q120,140 120,120 Q100,110 115,90 Q110,70 130,65 Q140,50 170,65 Q180,50 190,80" fill="#f1f1f1" stroke="#ccc" stroke-width="2"/>
+  </g>
+  
+  <!-- Code/Data Packets -->
+  <rect x="160" y="200" width="20" height="10" rx="2" class="packet packet-1" fill="#4a86e8"/>
+  <rect x="190" y="200" width="20" height="10" rx="2" class="packet packet-2" fill="#6aa84f"/>
+  <rect x="220" y="200" width="20" height="10" rx="2" class="packet packet-3" fill="#ff9900"/>
+  
+  <!-- Server Icon -->
+  <rect x="175" y="90" width="50" height="60" rx="3" fill="#ddd" stroke="#999"/>
+  <line x1="185" y1="100" x2="215" y2="100" stroke="#999" stroke-width="2"/>
+  <line x1="185" y1="110" x2="215" y2="110" stroke="#999" stroke-width="2"/>
+  <line x1="185" y1="120" x2="215" y2="120" stroke="#999" stroke-width="2"/>
+  
+  <!-- Sparkles -->
+  <path d="M160,80 L165,75 L170,80 L165,85 Z" class="sparkle sparkle-1" fill="#ffea00"/>
+  <path d="M260,70 L265,65 L270,70 L265,75 Z" class="sparkle sparkle-2" fill="#ffea00"/>
+  <path d="M310,115 L315,110 L320,115 L315,120 Z" class="sparkle sparkle-3" fill="#ffea00"/>
+  
+  <!-- Progress Bar -->
+  <rect x="140" y="170" width="120" height="10" rx="5" fill="#eee" stroke="#ccc"/>
+  <rect x="140" y="170" width="0" height="10" rx="5" class="progress-bar-fill" fill="#4a86e8"/>
+  
+  <!-- Loading Text -->
+  <text x="200" y="190" class="text" text-anchor="middle">DEPLOYING TO CLOUD...</text>
+</svg>

@@ -1,0 +1,23 @@
+#root {
+  max-width: 1280px;
+  /* margin: 0 auto;
+  padding: 2rem;
+  text-align: center; */
+  min-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root > div:nth-child(2) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  /* margin-top: 64px; */
+}
+
+/* @media only screen and (max-width: 600px) {
+  #root > div:nth-child(2) {
+    margin-top: 56px;
+  }
+} */

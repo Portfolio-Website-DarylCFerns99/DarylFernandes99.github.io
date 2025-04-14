@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <style>
+    @keyframes wiggle {
+      0% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+      100% { transform: rotate(-5deg); }
+    }
+    @keyframes flow {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-80px); }
+    }
+    @keyframes expand {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(0.9); }
+    }
+    @keyframes bounce {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes fade {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+    .python-logo {
+      animation: wiggle 4s infinite ease-in-out;
+    }
+    .data-bit {
+      animation: flow 3s infinite linear;
+    }
+    .data-bit-1 { animation-delay: 0s; }
+    .data-bit-2 { animation-delay: 0.3s; }
+    .data-bit-3 { animation-delay: 0.6s; }
+    .data-bit-4 { animation-delay: 0.9s; }
+    .data-bit-5 { animation-delay: 1.2s; }
+    .data-bit-6 { animation-delay: 1.5s; }
+    .output-database {
+      animation: expand 3s infinite ease-in-out;
+    }
+    .graph-bar {
+      animation: bounce 2s infinite ease-in-out;
+    }
+    .graph-bar-1 { animation-delay: 0.1s; }
+    .graph-bar-2 { animation-delay: 0.3s; }
+    .graph-bar-3 { animation-delay: 0.5s; }
+    .graph-bar-4 { animation-delay: 0.7s; }
+    .processing {
+      animation: fade 1.5s infinite;
+    }
+    .text {
+      font-family: monospace;
+      font-size: 14px;
+      fill: #333;
+    }
+  </style>
+  
+  <!-- Python Logo -->
+  <g class="python-logo">
+    <path d="M110,80 C105,70 115,60 125,65 C135,70 145,60 140,50 C135,40 145,30 155,35 C165,40 175,30 170,20" stroke="#4584b6" stroke-width="8" fill="none"/>
+    <path d="M110,80 C105,90 115,100 125,95 C135,90 145,100 140,110 C135,120 145,130 155,125 C165,120 175,130 170,140" stroke="#ffde57" stroke-width="8" fill="none"/>
+  </g>
+  
+  <!-- Data Stream -->
+  <rect x="150" y="200" width="15" height="15" rx="2" class="data-bit data-bit-1" fill="#4584b6"/>
+  <rect x="170" y="200" width="15" height="15" rx="2" class="data-bit data-bit-2" fill="#ffde57"/>
+  <rect x="190" y="200" width="15" height="15" rx="2" class="data-bit data-bit-3" fill="#4584b6"/>
+  <rect x="210" y="200" width="15" height="15" rx="2" class="data-bit data-bit-4" fill="#ffde57"/>
+  <rect x="230" y="200" width="15" height="15" rx="2" class="data-bit data-bit-5" fill="#4584b6"/>
+  <rect x="250" y="200" width="15" height="15" rx="2" class="data-bit data-bit-6" fill="#ffde57"/>
+  
+  <!-- Processing Circle -->
+  <circle cx="200" cy="80" r="25" class="processing" fill="#f5f5f5" stroke="#ccc" stroke-width="2"/>
+  <text x="200" y="85" text-anchor="middle" font-family="monospace" font-size="12" fill="#666">def</text>
+  
+  <!-- Output Database -->
+  <g class="output-database">
+    <path d="M280,80 C280,70 320,70 320,80 L320,120 C320,130 280,130 280,120 Z" fill="#d0e0e3" stroke="#999"/>
+    <path d="M280,80 C280,90 320,90 320,80" fill="none" stroke="#999"/>
+  </g>
+  
+  <!-- Results Graph -->
+  <rect x="250" y="150" width="10" height="20" class="graph-bar graph-bar-1" fill="#6aa84f"/>
+  <rect x="265" y="150" width="10" height="30" class="graph-bar graph-bar-2" fill="#6aa84f"/>
+  <rect x="280" y="150" width="10" height="15" class="graph-bar graph-bar-3" fill="#6aa84f"/>
+  <rect x="295" y="150" width="10" height="25" class="graph-bar graph-bar-4" fill="#6aa84f"/>
+  
+  <!-- Loading Text -->
+  <text x="200" y="180" class="text" text-anchor="middle">PROCESSING DATA...</text>
+</svg>
