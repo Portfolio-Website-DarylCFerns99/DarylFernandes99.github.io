@@ -6,7 +6,7 @@
   "phone": "+1 (857) 334-1383",
   "location": "Based in Boston, MA",
   "availability": "available for work",
-  "avatar": "/assets/profile.jpg",
+  "avatar": "/portfolio-website/assets/profile.jpg",
   "heroStats": {
     "experience": "2+ Years"
   },
@@ -26,7 +26,7 @@
     },
     {
       "platform": "document",
-      "url": "/assets/Daryl Fernandes (Resume).pdf",
+      "url": "/portfolio-website/assets/Daryl Fernandes (Resume).pdf",
       "icon": "document",
       "tooltip": "Resume"
     }
@@ -38,7 +38,7 @@
     "subtitle": "About",
     "description": "Hi, I'm Daryl Fernandes, a passionate software engineer dedicated to building intelligent and scalable solutions. I specialize in AI automation, cloud computing, and full-stack development, crafting efficient and user-centric applications. With experience in Python, FastAPI, and modern web technologies, I love solving complex problems through innovation. Let's connect and build something amazing!",
     "shortdescription": "Experienced Software Engineer specializing in AI automation, cloud computing, and full-stack development. Passionate about building scalable, innovative solutions that enhance user experiences.",
-    "image": "/assets/about-image.jpg"
+    "image": "/portfolio-website/assets/about-image.jpg"
   },
   "projectsSection": {
     "subtitle": "Projects",
@@ -116,7 +116,7 @@
       "type": "github",
       "title": "AI Powered Question Answering with LangChain and Google Gemini",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/AI-Powered-Question-Answering-with-LangChain-and-Google-Gemini"
     },
@@ -124,7 +124,7 @@
       "type": "github",
       "title": "Cloud Native API Deployment with CI CD on GCP",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Cloud-Native-API-Deployment-with-CI-CD-on-GCP"
     },
@@ -132,7 +132,7 @@
       "type": "github",
       "title": "Image Captioning using TensorFlow",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Image-Captioning-using-TensorFlow"
     },
@@ -140,7 +140,7 @@
       "type": "github",
       "title": "Enhancing LLM Responses with Elasticsearch and FAISS",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Enhancing-LLM-Responses-with-Elasticsearch-and-FAISS"
     },
@@ -148,7 +148,7 @@
       "type": "github",
       "title": "Healthcare Plan Management API",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Healthcare-Plan-Management-API"
     },
@@ -156,7 +156,7 @@
       "type": "github",
       "title": "Low-light Image Enhancement using GAN",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Low-light-Image-Enhancement-using-GAN"
     },
@@ -164,7 +164,7 @@
       "type": "github",
       "title": "Optical Character Recognition",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Optical-Character-Recognition"
     },
@@ -172,7 +172,7 @@
       "type": "github",
       "title": "Phrase-based Poem Generation",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Phrase-based-Poem-Generation"
     },
@@ -180,7 +180,7 @@
       "type": "github",
       "title": "ProjectRepo",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/ProjectRepo"
     },
@@ -188,7 +188,7 @@
       "type": "github",
       "title": "ProjectRepo Backend using Django",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/ProjectRepo_Django-Backend"
     },
@@ -196,7 +196,7 @@
       "type": "github",
       "title": "India Population Kepler.GL using Django",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/india_population_react_django"
     },
@@ -204,7 +204,7 @@
       "type": "github",
       "title": "India Population Kepler.GL using Dash",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/India_population_dash"
     },
@@ -212,7 +212,7 @@
       "type": "github",
       "title": "Shopping Website",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Shopping-Website"
     },
@@ -220,7 +220,7 @@
       "type": "github",
       "title": "Facebook Clone",
       "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
+      "image": "/portfolio-website/assets/projects/project1.jpg",
       "tags": ["Template", "Course"],
       "url": "https://github.com/DarylFernandes99/Friends-Application"
     }
