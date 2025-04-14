@@ -30,4 +30,7 @@ jobs:
         run: npm ci
         
       - name: Build and Deploy
-        run: npm run deploy
+        run: |
+          git config --global user.name "Daryl Fernandes"
+          git config --global user.email "daryl.fernandes50@gmail.com"
+          npm run deploy
