@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ vite-portfolio-template ]
+    branches: [ main ]
   
   workflow_dispatch:
 
