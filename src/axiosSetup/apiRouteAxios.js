@@ -1,19 +1,11 @@
 import axios from 'axios'
-import * as tunnel from 'tunnel'
 
-let host = process.env.REACT_APP_API_URL
-const agent = tunnel.httpsOverHttp({
-    proxy: {
-        host: 'http://localhost',
-        port: 3001,
-    },
-})
+let host = import.meta.env.VITE_API_URL
 const testAxios = axios.create({baseURL:host})
-
 
 const getToken = () => {
     return new Promise((resolve, reject)=>{
-        const temp_token = localStorage.getItem("userJwt")
+        const temp_token = localStorage.getItem("token")
         if (temp_token)
             resolve(temp_token)
         reject(null)

@@ -1,44 +1,42 @@
 {
-  "name": "Daryl Cletus",
-  "surname": "Fernandes",
-  "title": "Software Engineer",
-  "email": "daryl.fernandes50@gmail.com",
-  "phone": "+1 (857) 334-1383",
-  "location": "Based in Boston, MA",
+  "name": "John",
+  "surname": "Doe",
+  "title": "Full Stack Developer",
+  "email": "john.doe@example.com",
+  "phone": "+1 (555) 123-4567",
+  "location": "Boston, MA",
   "availability": "available for work",
-  "avatar": "/assets/profile.jpg",
+  "avatar": "",
   "heroStats": {
-    "experience": "2+ Years"
+    "experience": "7+ Years"
   },
-  "heroSkills": ["React.js", "Node.js", "TypeScript"],
   "socialLinks": [
     {
       "platform": "linkedin",
-      "url": "https://www.linkedin.com/in/darylfernandes50/",
+      "url": "https://www.linkedin.com/in/johndoe",
       "icon": "linkedin",
       "tooltip": "LinkedIn"
     },
     {
       "platform": "github",
-      "url": "https://github.com/darylfernandes99",
+      "url": "https://github.com/johndoe",
       "icon": "github",
       "tooltip": "GitHub"
     },
     {
-      "platform": "document",
-      "url": "/assets/Daryl Fernandes (Resume).pdf",
-      "icon": "document",
-      "tooltip": "Resume"
+      "platform": "twitter",
+      "url": "https://twitter.com/johndoe",
+      "icon": "twitter",
+      "tooltip": "Twitter"
     }
   ],
-  "contactLink": "/contact",
   "about": {
     "title": "More about",
     "highlight": "Myself",
     "subtitle": "About",
-    "description": "Hi, I'm Daryl Fernandes, a passionate software engineer dedicated to building intelligent and scalable solutions. I specialize in AI automation, cloud computing, and full-stack development, crafting efficient and user-centric applications. With experience in Python, FastAPI, and modern web technologies, I love solving complex problems through innovation. Let's connect and build something amazing!",
-    "shortdescription": "Experienced Software Engineer specializing in AI automation, cloud computing, and full-stack development. Passionate about building scalable, innovative solutions that enhance user experiences.",
-    "image": "/assets/about-image.jpg"
+    "description": "Hello! I'm John Doe, a Full Stack Developer with 7+ years of experience building web applications and digital solutions. I specialize in JavaScript frameworks like React and Angular on the frontend, and Node.js, Python, and Java on the backend. With a strong background in cloud infrastructure (AWS, Azure), database design, and system architecture, I pride myself on creating clean, efficient code that solves real business problems. I'm passionate about continuous learning and staying updated with emerging technologies.",
+    "shortdescription": "Full Stack Developer with expertise in JavaScript, Python, and cloud technologies. Passionate about creating elegant solutions to complex problems.",
+    "image": ""
   },
   "projectsSection": {
     "subtitle": "Projects",
@@ -55,174 +53,172 @@
     "title": "My",
     "highlight": "Experience & Education"
   },
-  "skills": [
-    "Product Design", 
-    "UX Design",
-    "UI Design",
-    "Framer",
-    "Branding",
-    "Animations",
-    "Interaction Design",
-    "Webflow",
-    "UX Research",
-    "Front-End Development",
-    "No-Code",
-    "Figma"
+  "skillGroups": [
+    {
+      "name": "Frontend",
+      "skills": [
+        {
+          "name": "React",
+          "proficiency": 5,
+          "color": "#61DAFB",
+          "icon": "react"
+        },
+        {
+          "name": "JavaScript",
+          "proficiency": 5,
+          "color": "#F7DF1E",
+          "icon": "javascript"
+        },
+        {
+          "name": "TypeScript",
+          "proficiency": 4,
+          "color": "#3178C6",
+          "icon": "typescript"
+        },
+        {
+          "name": "HTML/CSS",
+          "proficiency": 5,
+          "color": "#E34F26",
+          "icon": "html5"
+        },
+        {
+          "name": "Redux",
+          "proficiency": 4,
+          "color": "#764ABC",
+          "icon": "redux"
+        }
+      ]
+    },
+    {
+      "name": "Backend",
+      "skills": [
+        {
+          "name": "Node.js",
+          "proficiency": 5,
+          "color": "#339933",
+          "icon": "nodejs"
+        },
+        {
+          "name": "Python",
+          "proficiency": 4,
+          "color": "#3776AB",
+          "icon": "python"
+        },
+        {
+          "name": "FastAPI",
+          "proficiency": 4,
+          "color": "#009688",
+          "icon": "fastapi"
+        },
+        {
+          "name": "Express",
+          "proficiency": 5,
+          "color": "#000000",
+          "icon": "express"
+        },
+        {
+          "name": "MongoDB",
+          "proficiency": 4,
+          "color": "#47A248",
+          "icon": "mongodb"
+        }
+      ]
+    },
+    {
+      "name": "DevOps",
+      "skills": [
+        {
+          "name": "Docker",
+          "proficiency": 4,
+          "color": "#2496ED",
+          "icon": "docker"
+        },
+        {
+          "name": "AWS",
+          "proficiency": 4,
+          "color": "#FF9900",
+          "icon": "aws"
+        },
+        {
+          "name": "CI/CD",
+          "proficiency": 3,
+          "color": "#4285F4",
+          "icon": "jenkins"
+        },
+        {
+          "name": "Git",
+          "proficiency": 5,
+          "color": "#F05032",
+          "icon": "git"
+        }
+      ]
+    }
   ],
-  "timelineData": {
-    "experience": [
-      {
-        "id": "exp1",
-        "type": "experience",
-        "title": "Software Engineer",
-        "company": "Infinite Analytics Pvt Ltd",
-        "period": "Aug 2021 - July 2023",
-        "year": 2021,
-        "description": "Delivering custom design solutions and frontend development for various clients across industries."
-      },
-      {
-        "id": "exp2",
-        "type": "experience",
-        "title": "Software Engineer Intern",
-        "company": "CareerGPT",
-        "period": "Dec 2024 - April 2025",
-        "year": 2024,
-        "description": "Delivering custom design solutions and frontend development for various clients across industries."
-      }
-    ],
-    "education": [
-      {
-        "id": "edu1",
-        "type": "education",
-        "degree": "Master of Science in Software Engineering Systems",
-        "institution": "Northeastern University",
-        "period": "Sept 2023 - Present",
-        "year": 2023,
-        "description": "Specialized in Human-Computer Interaction and User Experience Design."
-      },
-      {
-        "id": "edu2",
-        "type": "education",
-        "degree": "Bachelor of Engineering in Computer Science Branch",
-        "institution": "Xavier Institute of Engineering",
-        "period": "Aug 2016 - June 2021",
-        "year": 2016,
-        "description": "Focused on Digital Media and Interactive Design with minor in Computer Science."
-      }
-    ]
-  },
+  "timelineData": [
+    {
+      "id": "exp1",
+      "type": "experience",
+      "title": "Senior Full Stack Developer",
+      "company": "TechSolutions Inc.",
+      "period": "Jan 2020 - Present",
+      "year": 2020,
+      "description": "Leading a team of 5 developers in building scalable web applications. Implementing microservices architecture using Node.js and React. Migrated legacy systems to cloud infrastructure, resulting in a 40% improvement in performance and reliability."
+    },
+    {
+      "id": "exp2",
+      "type": "experience",
+      "title": "Full Stack Developer",
+      "company": "Digital Innovations",
+      "period": "Mar 2017 - Dec 2019",
+      "year": 2017,
+      "description": "Developed and maintained multiple client websites and web applications. Designed and implemented RESTful APIs using Express and MongoDB. Collaborated with UX designers to create intuitive user interfaces."
+    },
+    {
+      "id": "edu1",
+      "type": "education",
+      "degree": "Master of Science in Computer Science",
+      "institution": "Boston University",
+      "period": "Sep 2015 - May 2017",
+      "year": 2015,
+      "description": "Specialized in Software Engineering and Artificial Intelligence. Completed thesis on 'Optimizing Database Performance in Cloud Environments'. Participated in various hackathons and coding competitions."
+    },
+    {
+      "id": "edu2",
+      "type": "education",
+      "degree": "Bachelor of Science in Computer Engineering",
+      "institution": "University of Massachusetts",
+      "period": "Sep 2011 - May 2015",
+      "year": 2011,
+      "description": "Graduated with honors. Key coursework included Data Structures, Algorithms, Computer Architecture, and Software Engineering."
+    }
+  ],
   "projects": [
     {
-      "type": "github",
-      "title": "AI Powered Question Answering with LangChain and Google Gemini",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/AI-Powered-Question-Answering-with-LangChain-and-Google-Gemini"
+      "id": "p1",
+      "type": "custom",
+      "title": "E-commerce Platform",
+      "description": "A full-featured e-commerce platform built with React, Node.js, and MongoDB. Features include product catalog, shopping cart, user authentication, payment processing, and admin dashboard. Implemented responsive design for optimal viewing on all devices.",
+      "image": "",
+      "tags": ["React", "Node.js", "MongoDB", "Express", "Redux"],
+      "url": "https://github.com/johndoe/ecommerce-platform"
     },
     {
-      "type": "github",
-      "title": "Cloud Native API Deployment with CI CD on GCP",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Cloud-Native-API-Deployment-with-CI-CD-on-GCP"
+      "id": "p2",
+      "type": "custom",
+      "title": "Task Management System",
+      "description": "A collaborative task management application designed for remote teams. Built with TypeScript, React, and Firebase. Features include real-time updates, task assignment, progress tracking, and team chat functionality.",
+      "image": "",
+      "tags": ["TypeScript", "React", "Firebase", "Material UI"],
+      "url": "https://github.com/johndoe/task-manager"
     },
     {
-      "type": "github",
-      "title": "Image Captioning using TensorFlow",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Image-Captioning-using-TensorFlow"
-    },
-    {
-      "type": "github",
-      "title": "Enhancing LLM Responses with Elasticsearch and FAISS",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Enhancing-LLM-Responses-with-Elasticsearch-and-FAISS"
-    },
-    {
-      "type": "github",
-      "title": "Healthcare Plan Management API",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Healthcare-Plan-Management-API"
-    },
-    {
-      "type": "github",
-      "title": "Low-light Image Enhancement using GAN",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Low-light-Image-Enhancement-using-GAN"
-    },
-    {
-      "type": "github",
-      "title": "Optical Character Recognition",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Optical-Character-Recognition"
-    },
-    {
-      "type": "github",
-      "title": "Phrase-based Poem Generation",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Phrase-based-Poem-Generation"
-    },
-    {
-      "type": "github",
-      "title": "ProjectRepo",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/ProjectRepo"
-    },
-    {
-      "type": "github",
-      "title": "ProjectRepo Backend using Django",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/ProjectRepo_Django-Backend"
-    },
-    {
-      "type": "github",
-      "title": "India Population Kepler.GL using Django",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/india_population_react_django"
-    },
-    {
-      "type": "github",
-      "title": "India Population Kepler.GL using Dash",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/India_population_dash"
-    },
-    {
-      "type": "github",
-      "title": "Shopping Website",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Shopping-Website"
-    },
-    {
-      "type": "github",
-      "title": "Facebook Clone",
-      "description": "Web Dev & Design made Simple, Better. A platform for creating and hosting online courses.",
-      "image": "/assets/projects/project1.jpg",
-      "tags": ["Template", "Course"],
-      "url": "https://github.com/DarylFernandes99/Friends-Application"
+      "id": "p3",
+      "type": "custom",
+      "title": "Weather Application",
+      "description": "A weather forecast application that provides real-time weather data from multiple locations. Built with Python (FastAPI) backend and React frontend. Integrates with OpenWeatherMap API and features interactive maps using Leaflet.js.",
+      "image": "",
+      "tags": ["Python", "FastAPI", "React", "API Integration", "Leaflet.js"],
+      "url": "https://github.com/johndoe/weather-app"
     }
   ]
-} 
+}

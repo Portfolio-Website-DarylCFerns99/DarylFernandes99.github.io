@@ -122,7 +122,7 @@ const Index = () => {
 								<Box sx={{ position: 'relative' }}>
 									<ProjectImageContainer>
 										<ProjectImage
-											src={project.image}
+											src={project.image || getRandomSvg()}
 											alt={project.title}
 											onError={(e) => {
 												e.target.src = getRandomSvg();
