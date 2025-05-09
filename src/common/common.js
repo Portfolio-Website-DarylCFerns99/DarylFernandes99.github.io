@@ -22,26 +22,83 @@ export const ROUTES = [
     {path: '/contact', title: 'Contact', component: ContactPage, icon: MailIcon},
 ]
 
-export const getSocialIcon = (platform) => {
-    switch (platform) {
-        case 'link':
-            return LinkIcon
-        case 'document':
-            return ArticleIcon
-        case 'linkedin':
-            return LinkedInIcon
-        case 'github':
-            return GitHubIcon
-        case 'twitter':
-            return TwitterIcon
-        case 'instagram':
-            return InstagramIcon
-        case 'facebook':
-            return FacebookIcon
-        default:
-            return null;
-    }
+export const typeMapping = {
+  linkedin: {
+    name: 'LinkedIn',
+    icon: LinkedInIcon,
+    inputType: 'link',
+    tooltip: 'LinkedIn'
+  },
+  github: {
+    name: 'GitHub',
+    icon: GitHubIcon,
+    inputType: 'link',
+    tooltip: 'GitHub'
+  },
+  twitter: {
+    name: 'Twitter',
+    icon: TwitterIcon,
+    inputType: 'link',
+    tooltip: 'Twitter'
+  },
+  instagram: {
+    name: 'Instagram',
+    icon: InstagramIcon,
+    inputType: 'link',
+    tooltip: 'Instagram'
+  },
+  facebook: {
+    name: 'Facebook',
+    icon: FacebookIcon,
+    inputType: 'link',
+    tooltip: 'Facebook'
+  },
+  link: {
+    name: 'Link',
+    icon: LinkIcon,
+    inputType: 'link',
+    tooltip: 'Link'
+  },
+  document: {
+    name: 'Document',
+    icon: ArticleIcon,
+    inputType: 'file',
+    tooltip: 'Document'
+  }
 }
+
+export const getTypeFromName = (name) => {
+  for (const type in typeMapping) {
+    if (typeMapping[type].name === name) {
+      return type
+    }
+  }
+  return null
+}
+
+export const getTypeName = (type) => {
+  if (type in typeMapping) {
+    return typeMapping[type].name
+  }
+  return null
+}
+
+export const getSocialIcon = (platform) => {
+  if (platform in typeMapping) {
+    return typeMapping[platform].icon
+  }
+  return null
+}
+
+// Convert file to base64
+export const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+};
 
 // Generate SVG array from loading folder
 export const generateSvgArray = (loadingSvgs) => {
@@ -230,3 +287,10 @@ export const fetchAllGitHubProjectsData = async (projects, dispatch, updateProje
     dispatch(setGithubDataLoading(false));
   }
 };
+
+export const getTopSkillsByProficiency = (data, count = 3) => {
+  const allSkills = data.flatMap(category => category.skills);
+  const sortedSkills = allSkills.sort((a, b) => b.proficiency - a.proficiency);
+  
+  return sortedSkills.slice(0, count);
+}

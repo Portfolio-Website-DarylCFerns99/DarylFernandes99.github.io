@@ -24,6 +24,12 @@ const THEME = (mode) => createTheme({
                 light: '#ffcc80',
                 contrastText: '#000000',
             },
+            tertiary: {
+                main: '#b39ddb',
+                dark: '#9575cd',
+                light: '#d1c4e9',
+                contrastText: '#000000',
+            },
             background: {
                 default: '#000000', // Pure Black
                 paper: '#121212', // Dark Gray for cards
@@ -36,7 +42,7 @@ const THEME = (mode) => createTheme({
                 white: '#fff',
                 black: '#000'
             },
-            divider: 'rgba(255, 255, 255, 0.12)',
+            divider: 'rgba(255, 255, 255, 0.22)',
             action: {
                 active: 'rgba(255, 255, 255, 0.7)',
                 hover: 'rgba(255, 255, 255, 0.08)',
@@ -58,6 +64,12 @@ const THEME = (mode) => createTheme({
                 light: '#fbbf24',
                 contrastText: '#ffffff',
             },
+            tertiary: {
+                main: '#0ea5e9', // Bright teal/cyan
+                dark: '#0284c7',
+                light: '#38bdf8',
+                contrastText: '#ffffff',
+            },
             background: {
                 default: '#f8fafc', // Very light blue-gray
                 paper: '#ffffff', // White for cards
@@ -70,7 +82,7 @@ const THEME = (mode) => createTheme({
                 white: '#fff',
                 black: '#000'
             },
-            divider: 'rgba(0, 0, 0, 0.08)',
+            divider: 'rgba(0, 0, 0, 0.18)',
             action: {
                 active: 'rgba(0, 0, 0, 0.7)',
                 hover: 'rgba(0, 0, 0, 0.04)',
