@@ -53,6 +53,20 @@
     "title": "My",
     "highlight": "Experience & Education"
   },
+  "featuredSkills": [
+    {
+      "name": "React",
+      "proficiency": 5,
+      "color": "#61DAFB",
+      "icon": "react"
+    },
+    {
+      "name": "JavaScript",
+      "proficiency": 5,
+      "color": "#F7DF1E",
+      "icon": "javascript"
+    }
+  ],
   "skillGroups": [
     {
       "name": "Frontend",
@@ -219,6 +233,58 @@
       "image": "",
       "tags": ["Python", "FastAPI", "React", "API Integration", "Leaflet.js"],
       "url": "https://github.com/johndoe/weather-app"
+    }
+  ],
+  "reviews": [
+    {
+      "content": "Jon was instrumental in helping our team implement new project management workflows. His communication skills and technical expertise made the transition seamless. I would highly recommend Jon for any leadership position in tech.",
+      "name": "Sarah Johnson",
+      "where_known_from": "Previous Employer",
+      "id": "a7b28c91-6d45-4e32-9fba-23c51a9e8f17",
+      "created_at": "2025-05-01T14:22:16.725493+00:00",
+      "rating": 5,
+      "is_visible": true,
+      "updated_at": "2025-05-01T14:22:16.725493+00:00"
+    },
+    {
+      "content": "Collaborated with Jon on a web development project. Good technical skills and met most deadlines, but sometimes communication was delayed. Overall a positive experience working together.",
+      "name": "Michael Chen",
+      "where_known_from": "LinkedIn",
+      "id": "b9c47e33-9a51-48d6-b172-5e8f904d62c8",
+      "created_at": "2025-04-18T09:36:27.103742+00:00",
+      "rating": 4,
+      "is_visible": true,
+      "updated_at": "2025-04-20T11:42:08.523641+00:00"
+    },
+    {
+      "content": "Met Jon at the DevCon 2024. Had some interesting conversations about emerging tech trends. Average presenter but knowledgeable in his field.",
+      "name": "Alex Rivera",
+      "where_known_from": "Conference/Event",
+      "id": "3f61d9e5-2a84-4c93-8b57-1d7e496a0f23",
+      "created_at": "2025-03-12T16:45:39.427651+00:00",
+      "rating": 3,
+      "is_visible": true,
+      "updated_at": "2025-03-12T16:45:39.427651+00:00"
+    },
+    {
+      "content": "Jon completed our project but missed several key requirements that were clearly outlined in our initial agreement. Required multiple revisions and caused delays in our product launch.",
+      "name": "Emily Parker",
+      "where_known_from": "Client",
+      "id": "5d23a718-f4b9-47c0-ae32-9cb84d1f7e59",
+      "created_at": "2025-05-07T10:18:52.946215+00:00",
+      "rating": 2,
+      "is_visible": true,
+      "updated_at": "2025-05-08T08:32:15.729843+00:00"
+    },
+    {
+      "content": "Extremely disappointed with Jon's services. Failed to deliver on promised features, constantly missed deadlines, and was unresponsive to feedback. Would not recommend for any professional engagement.",
+      "name": "David Thompson",
+      "where_known_from": "Freelance Platform",
+      "id": "c8e92f47-6b31-4d59-a7c5-8ef2d9b0a412",
+      "created_at": "2025-02-28T11:05:33.812467+00:00",
+      "rating": 1,
+      "is_visible": true,
+      "updated_at": "2025-03-02T14:27:49.653921+00:00"
     }
   ]
 }

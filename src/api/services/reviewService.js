@@ -37,3 +37,8 @@ export const getPublicReviews = async (skip = 0, limit = 100) => {
 export const getPublicReviewById = async (reviewId) => {
   return publicApi.get(`/reviews/public/${reviewId}`);
 };
+
+// Submit a public review
+export const submitPublicReview = async (reviewData) => {
+  return publicApi.post('/reviews', reviewData);
+};

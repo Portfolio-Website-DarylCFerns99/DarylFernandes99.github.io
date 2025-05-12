@@ -80,12 +80,12 @@ const ProjectDetail = () => {
     }
   }, [])
   
-  // Redirect if invalid project index or not a GitHub project
+  // Redirect if invalid project index or project has no readme
   useEffect(() => {
     if (
       projectIndex < 0 || 
       projectIndex >= projects.length || 
-      projects[projectIndex].type !== 'github'
+      !projects[projectIndex]?.additional_data?.readme_file
     ) {
       navigate('/projects')
     }
@@ -111,14 +111,21 @@ const ProjectDetail = () => {
     )
   }
   
-  // Get current project and its GitHub data
+  // Get current project and its data
   const project = projects[projectIndex]
+  const additionalData = project.additional_data || {}
   
   // Handle image error
   const handleImageError = (e) => {
     setLoadingImage(true)
     e.target.src = getRandomSvg()
   }
+  
+  // Get readme content from the project or additional data
+  const readmeContent = project.readme_file || additionalData.readme_file
+  
+  // Determine if project is GitHub type
+  const isGithubProject = project.type === 'github'
   
   return (
     <DetailContainer maxWidth="lg" sx={{ 
@@ -155,66 +162,50 @@ const ProjectDetail = () => {
           ))}
         </Box>
         
-        {/* Project Info Cards */}
-        <ProjectInfoSection sx={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center',
-          gap: 3,
-          padding: 2,
-          flexWrap: 'wrap',
-          borderRadius: '8px',
-          background: theme => theme.palette.background.paper,
-          boxShadow: theme => theme.shadows[1],
-          width: 'fit-content',
-          margin: '0 auto'
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <StarIcon color="primary" fontSize="small" />
-            <Typography variant="body2" fontWeight={500}>
-              {project.stargazers_count || 0} Stars
-            </Typography>
-          </Box>
+        {/* Project Info Cards - Only shown for GitHub projects */}
+        {isGithubProject && (
+          <ProjectInfoSection sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center',
+            gap: 3,
+            padding: 2,
+            flexWrap: 'wrap',
+            borderRadius: '8px',
+            background: theme => theme.palette.background.paper,
+            boxShadow: theme => theme.shadows[1],
+            width: 'fit-content',
+            margin: '0 auto'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <StarIcon color="primary" fontSize="small" />
+              <Typography variant="body2" fontWeight={500}>
+                {additionalData.stargazers_count || 0} Stars
+              </Typography>
+            </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <ForkRightIcon color="primary" fontSize="small" />
-            <Typography variant="body2" fontWeight={500}>
-              {project.forks_count || 0} Forks
-            </Typography>
-          </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ForkRightIcon color="primary" fontSize="small" />
+              <Typography variant="body2" fontWeight={500}>
+                {additionalData.forks_count || 0} Forks
+              </Typography>
+            </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CodeIcon color="primary" fontSize="small" />
-            <Typography variant="body2" fontWeight={500}>
-              {project.languages || 'N/A'}
-            </Typography>
-          </Box>
-
-          {/* <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CalendarTodayIcon color="primary" fontSize="small" />
-            <Typography variant="body2" fontWeight={500}>
-              Created: {project.created_at 
-                ? new Date(project.created_at).toLocaleDateString() 
-                : 'N/A'}
-            </Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <UpdateIcon color="primary" fontSize="small" />
-            <Typography variant="body2" fontWeight={500}>
-              Updated: {project.updated_at 
-                ? new Date(project.updated_at).toLocaleDateString() 
-                : 'N/A'}
-            </Typography>
-          </Box> */}
-        </ProjectInfoSection>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CodeIcon color="primary" fontSize="small" />
+              <Typography variant="body2" fontWeight={500}>
+                {additionalData.language || 'N/A'}
+              </Typography>
+            </Box>
+          </ProjectInfoSection>
+        )}
         
         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, mt: 3 }}>
-          {project.url && (
+          {isGithubProject && additionalData.html_url && (
             <Tooltip title="View on GitHub">
               <IconButton 
                 color="primary" 
-                href={project.html_url} 
+                href={additionalData.html_url} 
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -238,19 +229,19 @@ const ProjectDetail = () => {
         </Box>
       </ProjectHeader>
       
-      <ProjectBanner>
+      {/* <ProjectBanner>
         <BannerImage
           src={project.image}
           alt={project.title}
           onError={handleImageError}
         />
-      </ProjectBanner>
+      </ProjectBanner> */}
       
       <ProjectContent>
         {/* README Section */}
-        {project?.readme_file ? (
+        {readmeContent ? (
           <Box>
-            {!project.readme_file.startsWith('# ') && (
+            {!readmeContent.startsWith('# ') && (
               <Typography 
                 variant="h4" 
                 component="h2" 
@@ -265,7 +256,7 @@ const ProjectDetail = () => {
             )}
             <ReadmeContent>
               <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
-                {project.readme_file}
+                {readmeContent}
               </ReactMarkdown>
             </ReadmeContent>
           </Box>

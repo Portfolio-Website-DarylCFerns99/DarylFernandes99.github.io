@@ -111,12 +111,9 @@ const Index = () => {
 					<Grid item xs={12} md={6} lg={4} key={index}>
 						<ProjectCard sx={{ minHeight: 380 }}>
 							<CardActionArea 
-								component={project.type === 'github' ? Link : 'a'}
-								{...(project.type === 'github' ? { to: `/projects/${index+1}` } : { 
-									href: project.url,
-									target: "_blank",
-									rel: "noopener noreferrer"
-								})}
+								// component={project.type === 'github' ? Link : 'a'}
+								component={Link}
+								to={`/projects/${index+1}`}
 								sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}
 							>
 								<Box sx={{ position: 'relative' }}>
