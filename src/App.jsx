@@ -18,7 +18,7 @@ import LoadingLayout from './pages/loading'
 import { GuestRoute } from './authRouter/authGuestRoute.jsx'
 import { AuthProvider } from './authRouter/authContext.jsx'
 import ScrollToTop from './components/ScrollToTop';
-import { updateUserData, setGithubDataLoading } from './redux/reducers/userSlice';
+import { updateUserData, setGithubDataLoading, setTestDataFlag } from './redux/reducers/userSlice';
 import { getCookie, TOKEN_COOKIE_NAME } from './utils/cookieUtils';
 
 const ErrorPage = lazy(() => import('./pages/errorPage'));
@@ -57,6 +57,8 @@ function App() {
         }
       } catch (error) {
         console.error('Error fetching user data:', error);
+        // When API fails, we're using the default userData.json, so mark as test data
+        dispatch(setTestDataFlag(true));
       } finally {
         dispatch(setGithubDataLoading(false));
       }

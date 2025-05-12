@@ -12,24 +12,19 @@ import {
 	useMediaQuery
 } from '@mui/material'
 import SendIcon from '@mui/icons-material/Send'
-import LinkedInIcon from '@mui/icons-material/LinkedIn'
-import GitHubIcon from '@mui/icons-material/GitHub'
-import ArticleIcon from '@mui/icons-material/Article'
-import { useSelector } from 'react-redux'
+import { sendContactMessage } from '../../api/services/contactService'
 
-import { ContactButton, responsiveStyles } from '../home/styles'
+import { ContactButton, responsiveStyles } from './styles'
 
-const getSocialIcon = (platform) => {
-	switch (platform) {
-		case 'linkedin': return LinkedInIcon
-		case 'github': return GitHubIcon
-		case 'document': return ArticleIcon
-		default: return null
-	}
+// Define validation patterns
+const VALIDATION_PATTERNS = {
+	// Allow letters, spaces, hyphens and apostrophes with min 2 chars
+	name: /^[A-Za-z\s'-]{2,50}$/,
+	// More comprehensive email validation
+	email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 }
 
 const Index = () => {
-	const userData = useSelector((state) => state.user);
 	const theme = useTheme()
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 	const [appBarHeight, setAppBarHeight] = useState(64) // Default height
@@ -45,16 +40,25 @@ const Index = () => {
 		severity: 'success',
 		message: ''
 	})
+	const [loading, setLoading] = useState(false)
 
 	// Check if form is valid for enabling/disabling submit button
 	const isFormValid = useMemo(() => {
 		const { name, email, subject, message } = formData
-		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+		console.log(name.trim() !== '',
+		email.trim() !== '',
+		VALIDATION_PATTERNS.name.test(name),
+		VALIDATION_PATTERNS.email.test(email),
+		subject.trim() !== '',
+		message.trim() !== '',
+		Object.keys(errors).length === 0, errors)
 		
 		return (
 			name.trim() !== '' && 
 			email.trim() !== '' && 
-			emailRegex.test(email) &&
+			VALIDATION_PATTERNS.name.test(name) &&
+			VALIDATION_PATTERNS.email.test(email) &&
 			subject.trim() !== '' && 
 			message.trim() !== '' &&
 			Object.keys(errors).length === 0
@@ -88,16 +92,44 @@ const Index = () => {
 		
 		// Clear error when user types
 		if (errors[name]) {
-			setErrors(prev => ({ ...prev, [name]: '' }))
+			setErrors(prev => {
+				const newErrors = { ...prev }
+				delete newErrors[name]
+				return newErrors
+			})
+		}
+		
+		// Validate field on change if it has a value
+		if (value.trim() && VALIDATION_PATTERNS[name]) {
+			if (!VALIDATION_PATTERNS[name].test(value)) {
+				setErrors(prev => ({ 
+					...prev, 
+					[name]: name === 'name' 
+						? 'Please enter a valid name (letters, spaces, hyphens and apostrophes only)'
+						: 'Please enter a valid email address'
+				}))
+			}
 		}
 	}
 
 	const validateForm = () => {
 		const newErrors = {}
 		
-		if (!formData.name.trim()) newErrors.name = 'Name is required'
-		if (!formData.email.trim()) newErrors.email = 'Email is required'
-		else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format'
+		// Validate name field
+		if (!formData.name.trim()) {
+			newErrors.name = 'Name is required'
+		} else if (!VALIDATION_PATTERNS.name.test(formData.name)) {
+			newErrors.name = 'Please enter a valid name (letters, spaces, hyphens and apostrophes only)'
+		}
+		
+		// Validate email field
+		if (!formData.email.trim()) {
+			newErrors.email = 'Email is required'
+		} else if (!VALIDATION_PATTERNS.email.test(formData.email)) {
+			newErrors.email = 'Please enter a valid email address'
+		}
+		
+		// Validate other fields
 		if (!formData.subject.trim()) newErrors.subject = 'Subject is required'
 		if (!formData.message.trim()) newErrors.message = 'Message is required'
 		
@@ -105,27 +137,42 @@ const Index = () => {
 		return Object.keys(newErrors).length === 0
 	}
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault()
 		
 		if (validateForm()) {
-			// In a real app, you would send the form data to a server here
-			console.log('Form submitted:', formData)
-			
-			// Show success message
-			setSnackbar({
-				open: true,
-				severity: 'success',
-				message: 'Thank you for your message! I will get back to you soon.'
-			})
-			
-			// Reset form
-			setFormData({
-				name: '',
-				email: '',
-				subject: '',
-				message: ''
-			})
+			setLoading(true)
+			try {
+				// Use the portfolio owner's ID - in a real app, this might come from an environment variable or state
+				const userId = import.meta.env.VITE_USER_ID || 'default-user-id'
+				
+				// Send the contact form data to the API
+				await sendContactMessage(userId, formData)
+				
+				// Show success message
+				setSnackbar({
+					open: true,
+					severity: 'success',
+					message: 'Thank you for your message! I will get back to you soon.'
+				})
+				
+				// Reset form
+				setFormData({
+					name: '',
+					email: '',
+					subject: '',
+					message: ''
+				})
+			} catch (error) {
+				console.error('Error sending contact message:', error)
+				setSnackbar({
+					open: true,
+					severity: 'error',
+					message: 'Sorry, there was an error sending your message. Please try again later.'
+				})
+			} finally {
+				setLoading(false)
+			}
 		}
 	}
 
@@ -135,11 +182,9 @@ const Index = () => {
 
 	return (
 		<Box sx={{ 
+			...responsiveStyles.mainContainer,
+			pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` },
 			bgcolor: theme.palette.background.default,
-			minHeight: 'calc(100vh - 64px)', // Adjust for app bar height
-			backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(30, 45, 90, 0.15) 0%, rgba(30, 45, 90, 0) 70%)',
-			py: { xs: 4, md: 8 },
-			pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` }
 		}}>
 			<Container maxWidth="lg">
 				{/* Page Title */}
@@ -148,7 +193,7 @@ const Index = () => {
 						variant="subtitle1" 
 						component="p" 
 						sx={{
-							...responsiveStyles?.sectionSubtitle,
+							...responsiveStyles.sectionSubtitle,
 							color: theme.palette.text.secondary,
 							fontWeight: 500,
 							mb: 1
@@ -159,21 +204,14 @@ const Index = () => {
 					<Typography 
 						variant="h2" 
 						component="h1" 
-						sx={{
-							fontSize: { xs: '2rem', md: '3rem' },
-							fontWeight: 700,
-							mb: 2
-						}}
+						sx={responsiveStyles.pageTitle}
 					>
 						Contact{' '}
 						<Typography 
 							variant="h2" 
 							component="span" 
 							color="primary"
-							sx={{
-								fontSize: 'inherit',
-								fontStyle: 'italic'
-							}}
+							sx={responsiveStyles.pageTitleSpan}
 						>
 							Me
 						</Typography>
@@ -181,8 +219,7 @@ const Index = () => {
 					<Typography 
 						variant="body1" 
 						sx={{ 
-							maxWidth: '700px', 
-							mx: 'auto',
+							...responsiveStyles.pageDescription,
 							color: theme.palette.text.secondary
 						}}
 					>
@@ -194,8 +231,8 @@ const Index = () => {
 				<Grid container spacing={4}>
 					{/* Contact Form */}
 					<Grid item xs={12}>
-						<Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
-							<Typography variant="h5" component="h2" sx={{ mb: 3, fontWeight: 600 }}>
+						<Paper elevation={3} sx={responsiveStyles.contactForm}>
+							<Typography variant="h5" component="h2" sx={responsiveStyles.formTitle}>
 								Send a Message
 							</Typography>
 							
@@ -263,26 +300,10 @@ const Index = () => {
 											color="primary"
 											fullWidth={isMobile}
 											size="large"
-											disabled={!isFormValid}
+											disabled={!isFormValid || loading}
 											endIcon={<SendIcon />}
-											sx={{ 
-												mt: 2,
-												bgcolor: theme.palette.primary.main,
-												color: theme.palette.primary.contrastText,
-												'&:hover': {
-													bgcolor: theme.palette.primary.dark,
-													boxShadow: theme.shadows[4],
-													transform: 'translateY(-2px)',
-												},
-												'&.Mui-disabled': {
-													bgcolor: theme.palette.action.disabledBackground,
-													color: theme.palette.action.disabled,
-												},
-												border: 'none',
-												fontWeight: 500
-											}}
 										>
-											Send Message
+											{loading ? 'Sending...' : 'Send Message'}
 										</ContactButton>
 									</Grid>
 								</Grid>

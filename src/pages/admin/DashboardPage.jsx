@@ -7,9 +7,9 @@ import { toast } from 'react-toastify';
 
 // Import API services
 import { getProfile, updateProfile } from '../../api/services/userService';
-import { getAllProjects, createProject, updateProject, deleteProject, updateProjectVisibility } from '../../api/services/projectService';
-import { getAllReviews } from '../../api/services/reviewService';
-import { createExperience, getAllExperiences, updateExperience } from '../../api/services/experienceService';
+import { getAllProjects, createProject, updateProject, deleteProject, updateProjectVisibility, refreshProjectData } from '../../api/services/projectService';
+import { getAllReviews, deleteReview, updateReviewVisibility } from '../../api/services/reviewService';
+import { createExperience, getAllExperiences, updateExperience, updateExperienceVisibility } from '../../api/services/experienceService';
 import { getAllSkillGroups, createSkillGroup, updateSkillGroup, deleteSkillGroup, updateSkillGroupVisibility } from '../../api/services/skillService';
 
 // Delete Confirmation Dialog
@@ -57,6 +57,7 @@ import {
   Button,
   Card,
   Chip,
+  Collapse,
   Dialog,
   DialogActions,
   DialogContent,
@@ -98,14 +99,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
-// Social Icons
-import LinkedInIcon from '@mui/icons-material/LinkedIn';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TwitterIcon from '@mui/icons-material/Twitter';
-import InstagramIcon from '@mui/icons-material/Instagram';
-import FacebookIcon from '@mui/icons-material/Facebook';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import ArticleIcon from '@mui/icons-material/Article';
-import { getTypeName, getSocialIcon } from '../../common/common';
+import { getTypeName } from '../../common/common';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const drawerWidth = 220;
 
@@ -115,7 +112,8 @@ const sections = [
   { id: 'social', name: 'Social Links', icon: <LinkIcon /> },
   { id: 'skills', name: 'Skills', icon: <CodeIcon /> },
   { id: 'timeline', name: 'Timeline', icon: <TimelineIcon /> },
-  { id: 'projects', name: 'Projects', icon: <AppsIcon /> }
+  { id: 'projects', name: 'Projects', icon: <AppsIcon /> },
+  { id: 'reviews', name: 'Reviews', icon: <ArticleIcon /> }
 ];
 
 const DashboardPage = ({ darkMode, setDarkMode }) => {
@@ -205,30 +203,6 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
     }
   };
 
-  const handleSaveSocialLinks = async () => {
-    try {
-      setLoading(prev => ({ ...prev, profile: true }));
-      // Create payload with updated social links
-      const payload = {
-        social_links: socialLinks
-      };
-      
-      const updatedProfile = await updateProfile(payload);
-      
-      // Update social links with any changes from the server
-      if (updatedProfile.social_links) {
-        setSocialLinks(updatedProfile.social_links);
-      }
-      
-      setLoading(prev => ({ ...prev, profile: false }));
-      toast.success('Social links saved successfully!');
-    } catch (error) {
-      console.error('Error saving social links:', error);
-      setLoading(prev => ({ ...prev, profile: false }));
-      toast.error('Failed to save social links');
-    }
-  };
-
   const handleSaveAboutInfo = async () => {
     try {
       setLoading(prev => ({ ...prev, profile: true }));
@@ -283,6 +257,7 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
 
         // Split the user data into separate state objects
         const { social_links, about, featured_skill_ids, ...basicInfoData } = data;
+        window.document.title = `${basicInfoData.name} ${basicInfoData.surname}`;
         setBasicInfo(basicInfoData);
         setSocialLinks(social_links || []);
         setAboutInfo(about || {
@@ -327,7 +302,7 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
     setLoading(prev => ({ ...prev, reviews: true }));
     getAllReviews()
       .then(data => {
-        setReviews(data);
+        setReviews(data?.reviews ?? []);
         setLoading(prev => ({ ...prev, reviews: false }));
       })
       .catch(error => {
@@ -625,7 +600,7 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
               <Typography color="error">{errors.profile}</Typography>
             </Box>
           ) : (
-            <SocialLinksSection socialLinks={socialLinks} setSocialLinks={setSocialLinks} onSave={handleSaveSocialLinks} />
+            <SocialLinksSection socialLinks={socialLinks} setSocialLinks={setSocialLinks} />
           )}
         </Paper>
         
@@ -697,6 +672,28 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
             </Box>
           ) : (
             <ProjectsSection projects={projects} setProjects={setProjects} />
+          )}
+        </Paper>
+
+        {/* Reviews Section */}
+        <Paper 
+          sx={{ p: 2 }}
+          ref={(el) => sectionRefs.current['reviews'] = el}
+          id="reviews-section"
+        >
+          <Typography variant="h5" gutterBottom>
+            {sections.find(s => s.id === 'reviews')?.name || 'Reviews'}
+          </Typography>
+          {loading.reviews ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <Typography>Loading reviews data...</Typography>
+            </Box>
+          ) : errors.reviews ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <Typography color="error">{errors.reviews}</Typography>
+            </Box>
+          ) : (
+            <ReviewsSection reviews={reviews} setReviews={setReviews} />
           )}
         </Paper>
       </Box>
@@ -1047,7 +1044,7 @@ const BasicInfoSection = ({ basicInfo, setBasicInfo, onSave }) => {
   );
 };
 
-const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
+const SocialLinksSection = ({ socialLinks, setSocialLinks }) => {
   // State for the form to add/edit a social link
   const [newLink, setNewLink] = useState({
     platform: "",
@@ -1056,6 +1053,12 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
   });
   const [editIndex, setEditIndex] = useState(-1);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    item: null,
+    index: -1
+  });
 
   const handleAddLink = () => {
     const firstType = Object.keys(typeMapping)?.[0];
@@ -1073,10 +1076,48 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
     setShowForm(true);
   };
 
-  const handleDeleteLink = (index) => {
-    const updatedLinks = [...socialLinks];
-    updatedLinks.splice(index, 1);
-    setSocialLinks(updatedLinks);
+  const handleDeleteClick = (index) => {
+    setDeleteDialog({
+      open: true,
+      item: socialLinks[index],
+      index: index
+    });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const { index } = deleteDialog;
+    if (index === -1) return;
+    
+    setLoading(true);
+    try {
+      // Create updated array without the deleted link
+      const updatedLinks = [...socialLinks];
+      updatedLinks.splice(index, 1);
+      
+      // Update API directly
+      const payload = {
+        social_links: updatedLinks
+      };
+      
+      const updatedProfile = await updateProfile(payload);
+      
+      // Update state with response from server
+      if (updatedProfile.social_links) {
+        setSocialLinks(updatedProfile.social_links);
+      }
+      
+      toast.success('Social link deleted successfully');
+    } catch (error) {
+      console.error('Error deleting social link:', error);
+      toast.error('Failed to delete social link');
+    } finally {
+      setLoading(false);
+      setDeleteDialog({ open: false, item: null, index: -1 });
+    }
+  };
+  
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialog({ open: false, item: null, index: -1 });
   };
 
   const handleLinkChange = (e) => {
@@ -1098,36 +1139,57 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
   };
 
   const handleSaveLink = async () => {
-    // Create a copy of the new link object
-    const linkToSave = { ...newLink };
-    
-    // If the URL is a file object, process it
-    if (linkToSave.url instanceof File) {
-      try {
-        // Store the filename for display in the table
-        linkToSave.fileName = linkToSave.url.name;
-        
-        // Keep the File object for later processing when the form is submitted
-        // If base64 conversion is needed immediately, uncomment this:
-        linkToSave.url = await fileToBase64(linkToSave.url);
-        
-        console.log(`File prepared for upload: ${linkToSave.fileName}`);
-      } catch (error) {
-        console.error('Error processing file:', error);
-        toast.error('Failed to process file');
-        return;
+    setLoading(true);
+    try {
+      // Create a copy of the new link object
+      const linkToSave = { ...newLink };
+      
+      // If the URL is a file object, process it
+      if (linkToSave.url instanceof File) {
+        try {
+          // Store the filename for display in the table
+          linkToSave.fileName = linkToSave.url.name;
+          
+          // Convert file to base64
+          linkToSave.url = await fileToBase64(linkToSave.url);
+          
+          console.log(`File prepared for upload: ${linkToSave.fileName}`);
+        } catch (error) {
+          console.error('Error processing file:', error);
+          toast.error('Failed to process file');
+          setLoading(false);
+          return;
+        }
       }
+      
+      // Create updated links array
+      const updatedLinks = [...socialLinks];
+      if (editIndex >= 0) {
+        updatedLinks[editIndex] = linkToSave;
+      } else {
+        updatedLinks.push(linkToSave);
+      }
+      
+      // Update API directly
+      const payload = {
+        social_links: updatedLinks
+      };
+      
+      const updatedProfile = await updateProfile(payload);
+      
+      // Update state with response from server
+      if (updatedProfile.social_links) {
+        setSocialLinks(updatedProfile.social_links);
+      }
+      
+      toast.success(`Social link ${editIndex >= 0 ? 'updated' : 'added'} successfully`);
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error saving social link:', error);
+      toast.error(`Failed to ${editIndex >= 0 ? 'update' : 'add'} social link`);
+    } finally {
+      setLoading(false);
     }
-    
-    const updatedLinks = [...socialLinks];
-    if (editIndex >= 0) {
-      updatedLinks[editIndex] = linkToSave;
-    } else {
-      updatedLinks.push(linkToSave);
-    }
-    
-    setSocialLinks(updatedLinks);
-    setShowForm(false);
   };
 
   return (
@@ -1150,7 +1212,7 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
                     <IconButton 
                       size="small" 
                       color="error"
-                      onClick={() => handleDeleteLink(index)}
+                      onClick={() => handleDeleteClick(index)}
                     >
                       <DeleteIcon />
                     </IconButton>
@@ -1254,22 +1316,27 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
                   variant="outlined" 
                   color="inherit"
                   onClick={() => setShowForm(false)}
+                  disabled={loading}
                   sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >
                   Cancel
                 </Button>
                 <Button 
-                variant="contained" 
-                color="primary"
-                onClick={handleSaveLink}
-                  disabled={!newLink.platform || 
+                  variant="contained" 
+                  color="primary"
+                  onClick={handleSaveLink}
+                  disabled={loading || !newLink.platform || 
                     (typeMapping[newLink.platform]?.inputType === 'file' 
                       ? !(newLink.url instanceof File) 
                       : !newLink.url)}
                   sx={{ width: { xs: '100%', sm: 'auto' } }}
                 >
-                  {editIndex >= 0 ? 'Update' : 'Add'} Link
-                  </Button>
+                  {loading ? (
+                    <span>Saving...</span>
+                  ) : (
+                    <span>{editIndex >= 0 ? 'Update' : 'Add'} Link</span>
+                  )}
+                </Button>
               </Box>
             </Grid>
           </Grid>
@@ -1297,24 +1364,15 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks, onSave }) => {
           </Typography>
         </Box>
       )}
-      
-      <Box sx={{ mt: 4, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'flex-end', gap: 2 }}>
-        <Button 
-          variant="outlined" 
-          color="inherit"
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          Cancel
-        </Button>
-        <Button 
-          variant="contained" 
-          color="primary"
-          onClick={onSave}
-          sx={{ width: { xs: '100%', sm: 'auto' } }}
-        >
-          Save
-        </Button>
-      </Box>
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        open={deleteDialog.open}
+        title={deleteDialog.item ? `the ${typeMapping[deleteDialog.item.platform]?.name || 'social link'}` : 'this social link'}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        isLoading={loading}
+      />
     </>
   );
 };
@@ -2056,6 +2114,59 @@ const TimelineSection = ({ experiences, setExperiences }) => {
     item: null,
     type: ''
   });
+  const [searchText, setSearchText] = useState('');
+  const [filteredExperiences, setFilteredExperiences] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'start_date', direction: 'desc' });
+  
+  // Initialize filteredExperiences with all experiences when component mounts
+  useEffect(() => {
+    setFilteredExperiences(experiences);
+  }, [experiences]);
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Filter and sort experiences
+  useEffect(() => {
+    let result = experiences.filter(exp => exp.type === tab);
+
+    // Apply search filter
+    if (searchText) {
+      const lowercasedFilter = searchText.toLowerCase();
+      result = result.filter(experience => {
+        return (
+          experience.title?.toLowerCase().includes(lowercasedFilter) ||
+          experience.organization?.toLowerCase().includes(lowercasedFilter) ||
+          experience.description?.toLowerCase().includes(lowercasedFilter)
+        );
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      if (sortConfig.key === 'start_date' || sortConfig.key === 'end_date') {
+        const dateA = new Date(a[sortConfig.key] || '9999-12-31'); // Use far future date for null end dates
+        const dateB = new Date(b[sortConfig.key] || '9999-12-31');
+        return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      
+      const aValue = a[sortConfig.key]?.toString().toLowerCase() || '';
+      const bValue = b[sortConfig.key]?.toString().toLowerCase() || '';
+      
+      if (sortConfig.direction === 'asc') {
+        return aValue.localeCompare(bValue);
+      }
+      return bValue.localeCompare(aValue);
+    });
+
+    setFilteredExperiences(result);
+  }, [experiences, searchText, sortConfig, tab]);
   
   // New entry template
   const emptyEntry = {
@@ -2158,7 +2269,7 @@ const TimelineSection = ({ experiences, setExperiences }) => {
     setDeleteDialog({ open: false, item: null, type: '' });
   };
   
-  const handleToggleVisibility = (entry) => {
+  const handleToggleVisibility = async (entry) => {
     const updatedEntry = {
       ...entry,
       is_visible: !entry.is_visible
@@ -2169,8 +2280,19 @@ const TimelineSection = ({ experiences, setExperiences }) => {
       prev.map(exp => exp.id === entry.id ? updatedEntry : exp)
     );
     
-    // API call would go here
-    // updateExperience(entry.id, updatedEntry);
+    try {
+      // Call the specific visibility API endpoint
+      await updateExperienceVisibility(entry.id, !entry.is_visible);
+      toast.success(`${entry.type === 'experience' ? 'Experience' : 'Education'} visibility updated`);
+    } catch (error) {
+      console.error('Error updating visibility:', error);
+      toast.error('Failed to update visibility');
+      
+      // Revert local state on error
+      setExperiences(prev => 
+        prev.map(exp => exp.id === entry.id ? entry : exp)
+      );
+    }
   };
   
   const handleEntryChange = (e) => {
@@ -2231,62 +2353,99 @@ const TimelineSection = ({ experiences, setExperiences }) => {
   };
   
   const renderEntryTable = (entries, type) => (
-    <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-      <Table>
-        <TableHead>
-          <TableRow sx={{ bgcolor: 'action.hover' }}>
-            <TableCell width="80px">Actions</TableCell>
-            <TableCell>{type === 'experience' ? 'Job Title' : 'Degree/Program'}</TableCell>
-            <TableCell>{type === 'experience' ? 'Company' : 'Institution'}</TableCell>
-            <TableCell>Period</TableCell>
-            <TableCell width="70px">Visible</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {entries.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={5} align="center">
-                No {type === 'experience' ? 'experience' : 'education'} entries found
+    <>
+      <Box sx={{ width: '100%', mb: 2 }}>
+        <TextField
+          label={`Search ${type === 'experience' ? 'experiences' : 'education'}`}
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder={`Search by ${type === 'experience' ? 'job title, company' : 'degree, institution'}, or description`}
+          InputProps={{
+            endAdornment: searchText && (
+              <IconButton
+                size="small"
+                onClick={() => setSearchText('')}
+                edge="end"
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            ),
+          }}
+        />
+      </Box>
+
+      <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ bgcolor: 'action.hover' }}>
+              <TableCell width="80px">Actions</TableCell>
+              <TableCell onClick={() => handleSort('title')} sx={{ cursor: 'pointer' }}>
+                {type === 'experience' ? 'Job Title' : 'Degree/Program'} 
+                {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
               </TableCell>
+              <TableCell onClick={() => handleSort('organization')} sx={{ cursor: 'pointer' }}>
+                {type === 'experience' ? 'Company' : 'Institution'}
+                {sortConfig.key === 'organization' && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
+              </TableCell>
+              <TableCell onClick={() => handleSort('start_date')} sx={{ cursor: 'pointer' }}>
+                Start Date
+                {sortConfig.key === 'start_date' && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
+              </TableCell>
+              <TableCell onClick={() => handleSort('end_date')} sx={{ cursor: 'pointer' }}>
+                End Date
+                {sortConfig.key === 'end_date' && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
+              </TableCell>
+              <TableCell width="70px">Visible</TableCell>
             </TableRow>
-          ) : entries.map((entry) => (
-            <TableRow key={entry.id}>
-              <TableCell>
-                <Box sx={{ display: 'flex', gap: '4px' }}>
-                  <IconButton 
-                    size="small" 
-                    color="error"
-                    onClick={() => handleDeleteClick(entry)}
+          </TableHead>
+          <TableBody>
+            {filteredExperiences.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No {type === 'experience' ? 'experience' : 'education'} entries found
+                </TableCell>
+              </TableRow>
+            ) : filteredExperiences.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell>
+                  <Box sx={{ display: 'flex', gap: '4px' }}>
+                    <IconButton 
+                      size="small" 
+                      color="error"
+                      onClick={() => handleDeleteClick(entry)}
                     >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton 
-                    size="small" 
-                    color="primary"
-                    onClick={() => handleEditEntry(entry)}
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton 
+                      size="small" 
+                      color="primary"
+                      onClick={() => handleEditEntry(entry)}
                     >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </TableCell>
-              <TableCell>{entry.title}</TableCell>
-              <TableCell>{entry.organization}</TableCell>
-              <TableCell>
-                {formatDateForDisplay(entry.start_date)} - {entry.end_date ? formatDateForDisplay(entry.end_date) : 'Present'}
-              </TableCell>
-              <TableCell>
-                <Switch 
-                  checked={entry.is_visible} 
-                  onChange={() => handleToggleVisibility(entry)} 
-                  color="success" 
-                  size="small"
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+                <TableCell>{entry.title}</TableCell>
+                <TableCell>{entry.organization}</TableCell>
+                <TableCell>{formatDateForDisplay(entry.start_date)}</TableCell>
+                <TableCell>{entry.end_date ? formatDateForDisplay(entry.end_date) : 'Present'}</TableCell>
+                <TableCell>
+                  <Switch 
+                    checked={entry.is_visible} 
+                    onChange={() => handleToggleVisibility(entry)} 
+                    color="success" 
+                    size="small"
                   />
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </>
   );
   
   return (
@@ -2463,11 +2622,106 @@ const ProjectsSection = ({ projects, setProjects }) => {
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [showDetailPage, setShowDetailPage] = useState(false);
+  const [showPreview, setShowPreview] = useState(() => {
+    // Initialize based on screen width - on for md+ screens, off for smaller screens
+    return window.innerWidth >= 960; // MUI's md breakpoint is 960px
+  });
+  const [isMobile, setIsMobile] = useState(() => {
+    // Check if current screen is mobile (using MUI's sm breakpoint of 600px)
+    return window.innerWidth < 600;
+  });
   const [deleteDialog, setDeleteDialog] = useState({
     open: false,
     item: null
   });
+  const [refreshing, setRefreshing] = useState({});
+  const [searchText, setSearchText] = useState('');
+  const [filteredProjects, setFilteredProjects] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
   
+  // Initialize filteredProjects with all projects when component mounts
+  useEffect(() => {
+    setFilteredProjects(projects);
+  }, [projects]);
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Filter and sort projects
+  useEffect(() => {
+    let result = [...projects];
+
+    // Apply search filter
+    if (searchText) {
+      const lowercasedFilter = searchText.toLowerCase();
+      result = result.filter(project => {
+        return (
+          project.title?.toLowerCase().includes(lowercasedFilter) ||
+          project.description?.toLowerCase().includes(lowercasedFilter) ||
+          project.type?.toLowerCase().includes(lowercasedFilter) ||
+          (project.tags && project.tags.some(tag => tag.toLowerCase().includes(lowercasedFilter)))
+        );
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      if (sortConfig.key === 'created_at') {
+        const dateA = new Date(a[sortConfig.key]);
+        const dateB = new Date(b[sortConfig.key]);
+        return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      
+      const aValue = a[sortConfig.key]?.toString().toLowerCase() || '';
+      const bValue = b[sortConfig.key]?.toString().toLowerCase() || '';
+      
+      if (sortConfig.direction === 'asc') {
+        return aValue.localeCompare(bValue);
+      }
+      return bValue.localeCompare(aValue);
+    });
+
+    setFilteredProjects(result);
+  }, [projects, searchText, sortConfig]);
+
+  // Simple function to convert markdown to HTML
+  const convertMarkdownToHtml = (markdown) => {
+    if (!markdown) return '';
+    
+    // Replace ** for bold
+    let html = markdown.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Replace * for italic
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Replace ` for code
+    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+    
+    // Replace [text](url) for links
+    html = html.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    
+    // Replace headers
+    html = html.replace(/^# (.*?)$/gm, '<h1>$1</h1>');
+    html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+    
+    // Replace lists (basic)
+    html = html.replace(/^- (.*?)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*?<\/li>\n*)+/g, '<ul>$&</ul>');
+    
+    // Replace new lines with breaks
+    html = html.replace(/\n/g, '<br />');
+    
+    return html;
+  };
+
   // State for tags input
   const [currentTag, setCurrentTag] = useState('');
   
@@ -2479,6 +2733,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
     image: '',
     tags: [],
     url: '',
+    detail_page: '', // Add this new field
     is_visible: true
   };
   
@@ -2487,16 +2742,37 @@ const ProjectsSection = ({ projects, setProjects }) => {
   const handleAddProject = () => {
     setEditingItem(null);
     setNewProject(emptyProject);
+    setShowDetailPage(false);
     setShowForm(true);
   };
   
   const handleEditProject = (project) => {
     setEditingItem(project.id);
-    setNewProject({
+    
+    // Prepare project data for the form
+    const projectData = {
       ...project,
       // Make sure tags is an array
       tags: project.tags || []
-    });
+    };
+    
+    // For custom projects with a readme_file in additional_data,
+    // toggle on detailed view and show the content
+    if (project.type === 'custom' && 
+        project.additional_data && 
+        project.additional_data.readme_file) {
+      
+      // Set the detail_page content from readme_file
+      projectData.detail_page = project.additional_data.readme_file;
+      
+      // Toggle on detailed view
+      setShowDetailPage(true);
+    } else {
+      // Otherwise, only enable detail page if detail_page field exists
+      setShowDetailPage(!!project.detail_page);
+    }
+    
+    setNewProject(projectData);
     setShowForm(true);
   };
   
@@ -2561,10 +2837,17 @@ const ProjectsSection = ({ projects, setProjects }) => {
   
   const handleProjectChange = (e) => {
     const { name, value, checked, type } = e.target;
+    
+    // Update the project data
     setNewProject(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
+    
+    // If changing project type to GitHub, automatically turn off detail page
+    if (name === 'type' && value === 'github') {
+      setShowDetailPage(false);
+    }
   };
   
   const handleAddTag = () => {
@@ -2639,14 +2922,28 @@ const ProjectsSection = ({ projects, setProjects }) => {
     
     setLoading(true);
     try {
+      // Prepare project data with additional_data if needed
+      const projectData = { ...newProject };
+      
+      // For custom projects, store detail_page content in additional_data.readme_file
+      if (projectData.type === 'custom') {
+        // Initialize additional_data if it doesn't exist
+        if (!projectData.additional_data) {
+          projectData.additional_data = {};
+        }
+        
+        // Set readme_file to the detail_page content
+        projectData.additional_data.readme_file = projectData.detail_page || '';
+      }
+      
       let response;
       
       if (editingItem) {
         // Update existing project
-        response = await updateProject(editingItem, newProject);
+        response = await updateProject(editingItem, projectData);
       } else {
         // Create new project
-        response = await createProject(newProject);
+        response = await createProject(projectData);
       }
       
       const savedProject = response.data;
@@ -2671,77 +2968,162 @@ const ProjectsSection = ({ projects, setProjects }) => {
     }
   };
   
+  // Update effect to also check mobile state on resize
+  useEffect(() => {
+    const handleResize = () => {
+      // Update mobile state
+      setIsMobile(window.innerWidth < 600);
+      
+      // Only auto-change preview if form is not open to avoid disrupting user
+      if (!showForm) {
+        setShowPreview(window.innerWidth >= 960);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [showForm]);
+  
+  const handleRefreshProject = async (projectId) => {
+    setRefreshing(prev => ({ ...prev, [projectId]: true }));
+    
+    try {
+      // Use refreshProjectData from the service instead of direct fetch
+      await refreshProjectData(projectId);
+      
+      // Get updated project data
+      const updatedProjects = await getAllProjects();
+      setProjects(updatedProjects);
+      
+      toast.success('Project refreshed successfully');
+    } catch (error) {
+      console.error('Error refreshing project:', error);
+      toast.error('Failed to refresh project');
+    } finally {
+      setRefreshing(prev => ({ ...prev, [projectId]: false }));
+    }
+  };
+  
   return (
     <>
       {!showForm && (
-        <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ bgcolor: 'action.hover' }}>
-                <TableCell width="120px">Actions</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Tags</TableCell>
-                <TableCell width="80px">Visible</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {projects.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    No projects found
+        <>
+          <Box sx={{ width: '100%', mb: 2 }}>
+            <TextField
+              label="Search projects"
+              variant="outlined"
+              size="small"
+              fullWidth
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              placeholder="Search by title, description, type, or tags"
+              InputProps={{
+                endAdornment: searchText && (
+                  <IconButton
+                    size="small"
+                    onClick={() => setSearchText('')}
+                    edge="end"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                ),
+              }}
+            />
+          </Box>
+
+          <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ bgcolor: 'action.hover' }}>
+                  <TableCell width="120px">Actions</TableCell>
+                  <TableCell onClick={() => handleSort('type')} sx={{ cursor: 'pointer' }}>
+                    Type {sortConfig.key === 'type' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
                   </TableCell>
+                  <TableCell onClick={() => handleSort('title')} sx={{ cursor: 'pointer' }}>
+                    Title {sortConfig.key === 'title' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+                  </TableCell>
+                  <TableCell>Tags</TableCell>
+                  <TableCell width="80px">Visible</TableCell>
                 </TableRow>
-              ) : projects.map((project, index) => (
-                <TableRow key={project.id}>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: '2px' }}>
-                      <IconButton 
-                        size="small" 
-                        color="error"
-                        onClick={() => handleDeleteClick(project)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton 
-                        size="small" 
-                        color="primary"
-                        onClick={() => handleEditProject(project)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                  <TableCell>{getTypeName(project.type)}</TableCell>
-                  <TableCell>{project.title}</TableCell>
-                  <TableCell>
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {project.tags && project.tags.length > 0 ? project.tags.map((tag, i) => (
-                        <Chip
-                          key={i}
-                          label={tag}
-                          size="small"
-                          color="secondary"
-                          variant="outlined"
-                          sx={{ my: 0.25 }}
-                        />
-                      )) : (
-                        <Typography color="text.secondary">No tags</Typography>
-                      )}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    <Switch 
-                      checked={project.is_visible} 
-                      onChange={() => handleToggleVisibility(index)} 
-                      color="success" 
-                    />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {filteredProjects.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} align="center">
+                      No projects found
+                    </TableCell>
+                  </TableRow>
+                ) : filteredProjects.map((project, index) => (
+                  <TableRow key={project.id}>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: '2px' }}>
+                        <IconButton 
+                          size="small" 
+                          color="error"
+                          onClick={() => handleDeleteClick(project)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          color="primary"
+                          onClick={() => handleEditProject(project)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        {/* Only show refresh button for GitHub projects */}
+                        {project.type === 'github' && (
+                          <IconButton 
+                            size="small" 
+                            color="success"
+                            onClick={() => handleRefreshProject(project.id)}
+                            disabled={refreshing[project.id]}
+                            sx={{ 
+                              animation: refreshing[project.id] ? 'spin 1s linear infinite' : 'none',
+                              '@keyframes spin': {
+                                '0%': { transform: 'rotate(0deg)' },
+                                '100%': { transform: 'rotate(360deg)' }
+                              }
+                            }}
+                          >
+                            <RefreshIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    </TableCell>
+                    <TableCell>{getTypeName(project.type) || 'Custom'}</TableCell>
+                    <TableCell>{project.title}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        {project.tags && project.tags.length > 0 ? project.tags.map((tag, i) => (
+                          <Chip
+                            key={i}
+                            label={tag}
+                            size="small"
+                            color="secondary"
+                            variant="outlined"
+                            sx={{ my: 0.25 }}
+                          />
+                        )) : (
+                          <Typography color="text.secondary">No tags</Typography>
+                        )}
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Switch 
+                        checked={project.is_visible} 
+                        onChange={() => handleToggleVisibility(index)} 
+                        color="success" 
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </>
       )}
       
       {showForm ? (
@@ -2751,6 +3133,73 @@ const ProjectsSection = ({ projects, setProjects }) => {
           </Typography>
           
           <Grid container spacing={2}>
+
+            <Grid item xs={12}>
+              <Typography variant="subtitle1" gutterBottom>
+                Project Image
+              </Typography>
+              <Box sx={{ mb: 2 }}>
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: 200,
+                    maxWidth: 350,
+                    bgcolor: 'background.paper',
+                    border: 1,
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2,
+                    overflow: 'hidden'
+                  }}
+                >
+                  {newProject.image ? (
+                    <img
+                      src={newProject.image}
+                      alt="Project"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <Box sx={{ textAlign: 'center' }}>
+                      <AddIcon sx={{ fontSize: 40, color: 'text.secondary' }} />
+                      <Typography color="text.secondary">No image selected</Typography>
+                    </Box>
+                  )}
+                </Box>
+                
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+                
+                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={triggerFileInput}
+                    sx={{ color: 'white' }}
+                  >
+                    {newProject.image ? 'Change Image' : 'Upload Image'}
+                  </Button>
+                  
+                  {newProject.image && (
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={() => setNewProject(prev => ({ ...prev, image: '' }))}
+                    >
+                      Remove Image
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </Grid>
+
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
@@ -2774,6 +3223,8 @@ const ProjectsSection = ({ projects, setProjects }) => {
                 onChange={handleProjectChange}
                 margin="normal"
                 variant="outlined"
+                disabled={!!editingItem}
+                helperText={editingItem ? "Project type cannot be changed after creation" : ""}
               >
                 <MenuItem value="github">GitHub</MenuItem>
                 <MenuItem value="custom">Custom</MenuItem>
@@ -2792,6 +3243,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
                   margin="normal"
                   variant="outlined"
                   placeholder="https://github.com/username/repository"
+                  helperText="GitHub data is automatically refreshed every day. You can also manually refresh using the refresh button."
                 />
               </Grid>
             )}
@@ -2808,6 +3260,10 @@ const ProjectsSection = ({ projects, setProjects }) => {
                 variant="outlined"
                 multiline
                 rows={3}
+                inputProps={{
+                  maxLength: 300
+                }}
+                helperText={`${newProject.description.length}/300 characters`}
               />
             </Grid>
             
@@ -2862,82 +3318,159 @@ const ProjectsSection = ({ projects, setProjects }) => {
               </Box>
             </Grid>
             
-            <Grid item xs={12}>
-              <Typography variant="subtitle1" gutterBottom>
-                Project Image
-              </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: 200,
-                    maxWidth: 350,
-                    bgcolor: 'background.paper',
-                    border: 1,
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    mb: 2,
-                    overflow: 'hidden'
+            {/* Only show detailed page toggle for custom projects */}
+            {newProject.type === 'custom' && (
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 2 }}>
+                  <Switch
+                    checked={showDetailPage}
+                    onChange={(e) => setShowDetailPage(e.target.checked)}
+                    color="primary"
+                  />
+                  <Typography sx={{ ml: 1 }}>Create a detailed page for this project</Typography>
+                </Box>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  If enabled, the detail page will use the content provided in the input field below to display additional information about this project at /projects/{newProject.title ? newProject.title.toLowerCase().replace(/\s+/g, '-') : '[project-name]'}.
+                </Typography>
+              </Grid>
+            )}
+            
+            {/* For GitHub projects, show info about GitHub data */}
+            {newProject.type === 'github' && (
+              <Grid item xs={12}>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  GitHub projects will use the main README file from your repository to create the detail page automatically. No additional content is needed.
+                </Typography>
+              </Grid>
+            )}
+            
+            {/* Conditional rendering of the detail page content section */}
+            {showDetailPage && newProject.type === 'custom' && (
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+                  <Typography variant="subtitle1">
+                    Detail Page Content (Markdown Supported)
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1 }}>
+                      {isMobile ? "Show Preview" : "Show Preview"}
+                    </Typography>
+                    <Switch
+                      size="small"
+                      checked={showPreview}
+                      onChange={(e) => setShowPreview(e.target.checked)}
+                    />
+                  </Box>
+                </Box>
+                <Grid 
+                  container 
+                  spacing={2} 
+                  sx={{ 
+                    height: 'clamp(300px, 75vh, 800px)' 
                   }}
                 >
-                  {newProject.image ? (
-                    <img
-                      src={newProject.image}
-                      alt="Project"
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <Box sx={{ textAlign: 'center' }}>
-                      <AddIcon sx={{ fontSize: 40, color: 'text.secondary' }} />
-                      <Typography color="text.secondary">No image selected</Typography>
-                    </Box>
+                  {/* On mobile: show input only when preview is off */}
+                  {(!isMobile || !showPreview) && (
+                    <Grid item xs={12} md={showPreview && !isMobile ? 6 : 12} sx={{ height: '100%' }}>
+                      <TextField
+                        fullWidth
+                        label="Markdown Content"
+                        name="detail_page"
+                        value={newProject.detail_page || ''}
+                        onChange={handleProjectChange}
+                        margin="normal"
+                        variant="outlined"
+                        multiline
+                        rows={4}
+                        placeholder="Write markdown content here..."
+                        sx={{ 
+                          width: '100%',
+                          height: 'calc(100% - 32px)', // Adjust for margin
+                          m: '16px 0',
+                          '& .MuiInputBase-root': {
+                            height: '100%', 
+                            alignItems: 'flex-start'
+                          },
+                          '& .MuiInputBase-multiline': {
+                            height: '100%'
+                          },
+                          '& textarea': {
+                            height: '100% !important',
+                            overflow: 'auto'
+                          }
+                        }}
+                      />
+                    </Grid>
                   )}
+                  
+                  {/* Show preview when enabled */}
+                  {showPreview && (
+                    <Grid item xs={12} md={!isMobile ? 6 : 12} sx={{ height: '100%', display: 'flex', alignItems: 'center' }}>
+                      <Paper
+                        elevation={0}
+                        variant="outlined"
+                        sx={{ 
+                          width: '100%',
+                          height: 'calc(100% - 32px)', // Match the height of TextField including margins
+                          mt: '16px',
+                          mb: '16px',
+                          px: 1.75,
+                          py: 2,
+                          overflow: 'auto',
+                          '& img': { maxWidth: '100%' },
+                          '& pre': { 
+                            backgroundColor: '#f5f5f5', 
+                            padding: '0.5rem', 
+                            borderRadius: '4px', 
+                            overflowX: 'auto' 
+                          },
+                          '& code': { 
+                            backgroundColor: '#f5f5f5',
+                            padding: '0.1rem 0.3rem',
+                            borderRadius: '3px',
+                            fontSize: '0.9em'
+                          },
+                          '& a': {
+                            color: 'primary.main',
+                            textDecoration: 'none',
+                            '&:hover': {
+                              textDecoration: 'underline'
+                            }
+                          },
+                          '& ul, & ol': {
+                            paddingLeft: '1.5rem',
+                            marginTop: '0.5rem',
+                            marginBottom: '0.5rem'
+                          }
+                        }}
+                      >
+                        {newProject.detail_page ? (
+                          <Box 
+                            dangerouslySetInnerHTML={{ 
+                              __html: convertMarkdownToHtml(newProject.detail_page) 
+                            }} 
+                          />
+                        ) : (
+                          <Typography color="text.secondary" variant="body2">
+                            Markdown preview will appear here...
+                          </Typography>
+                        )}
+                      </Paper>
+                    </Grid>
+                  )}
+                </Grid>
+                <Box>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    Use markdown for formatting - **bold**, *italic*, `code`, [links](https://example.com), etc.
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" display="block">
+                    <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noopener noreferrer">
+                      View Markdown Guide for detailed syntax help
+                    </a>
+                  </Typography>
                 </Box>
-                
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  style={{ display: 'none' }}
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-                
-                <Button
-                  variant="contained"
-                  color="secondary"
-                  onClick={triggerFileInput}
-                  sx={{ color: 'white' }}
-                >
-                  {newProject.image ? 'Change Image' : 'Upload Image'}
-                </Button>
-                
-                {newProject.image && (
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    onClick={() => setNewProject(prev => ({ ...prev, image: '' }))}
-                    sx={{ ml: 2 }}
-                  >
-                    Remove Image
-                  </Button>
-                )}
-              </Box>
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                <Switch
-                  checked={newProject.is_visible}
-                  onChange={handleProjectChange}
-                  name="is_visible"
-                  color="success"
-                />
-                <Typography sx={{ ml: 1 }}>Visible on portfolio</Typography>
-              </Box>
-            </Grid>
+              </Grid>
+            )}
             
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'flex-end', gap: 1, mt: 2 }}>
@@ -2988,6 +3521,269 @@ const ProjectsSection = ({ projects, setProjects }) => {
       <DeleteConfirmationDialog
         open={deleteDialog.open}
         title={deleteDialog.item ? `the project "${deleteDialog.item.title}"` : 'this project'}
+        onClose={handleCloseDeleteDialog}
+        onConfirm={handleDeleteConfirm}
+        isLoading={loading}
+      />
+    </>
+  );
+};
+
+const ReviewsSection = ({ reviews, setReviews }) => {
+  const [loading, setLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({
+    open: false,
+    item: null
+  });
+  const [searchText, setSearchText] = useState('');
+  const [filteredReviews, setFilteredReviews] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+  const [expandedRow, setExpandedRow] = useState(null);
+
+  // Initialize filteredReviews with all reviews when component mounts
+  useEffect(() => {
+    setFilteredReviews(reviews);
+  }, [reviews]);
+
+  // Format date for display
+  const formatDateForDisplay = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    });
+  };
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Filter and sort reviews
+  useEffect(() => {
+    let result = [...reviews];
+
+    // Apply search filter
+    if (searchText) {
+      const lowercasedFilter = searchText.toLowerCase();
+      result = result.filter(review => {
+        return (
+          review.name?.toLowerCase().includes(lowercasedFilter) ||
+          review.content?.toLowerCase().includes(lowercasedFilter) ||
+          review.where_known_from?.toLowerCase().includes(lowercasedFilter)
+        );
+      });
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      if (sortConfig.key === 'created_at') {
+        const dateA = new Date(a[sortConfig.key]);
+        const dateB = new Date(b[sortConfig.key]);
+        return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      
+      const aValue = a[sortConfig.key]?.toString().toLowerCase() || '';
+      const bValue = b[sortConfig.key]?.toString().toLowerCase() || '';
+      
+      if (sortConfig.direction === 'asc') {
+        return aValue.localeCompare(bValue);
+      }
+      return bValue.localeCompare(aValue);
+    });
+
+    setFilteredReviews(result);
+  }, [reviews, searchText, sortConfig]);
+
+  const handleDeleteClick = (reviewId) => {
+    const reviewToDelete = reviews.find(r => r.id === reviewId);
+    setDeleteDialog({
+      open: true,
+      item: reviewToDelete
+    });
+  };
+  
+  const handleDeleteConfirm = async () => {
+    const { item } = deleteDialog;
+    if (!item) return;
+    
+    setLoading(true);
+    try {
+      await deleteReview(item.id);
+      setReviews(prev => prev.filter(review => review.id !== item.id));
+      toast.success('Review deleted successfully');
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      toast.error('Failed to delete review');
+    } finally {
+      setLoading(false);
+      setDeleteDialog({ open: false, item: null });
+    }
+  };
+  
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialog({ open: false, item: null });
+  };
+  
+  const handleToggleVisibility = async (id, currentVisibility) => {
+    const reviewIndex = reviews.findIndex(r => r.id === id);
+    if (reviewIndex === -1) return;
+    
+    const newVisibility = !currentVisibility;
+    
+    setReviews(prevReviews => 
+      prevReviews.map(r => 
+        r.id === id ? { ...r, is_visible: newVisibility } : r
+      )
+    );
+    
+    try {
+      await updateReviewVisibility(id, newVisibility);
+    } catch (error) {
+      console.error('Error updating review visibility:', error);
+      toast.error('Failed to update review visibility');
+      
+      setReviews(prevReviews => 
+        prevReviews.map(r => 
+          r.id === id ? { ...r, is_visible: !newVisibility } : r
+        )
+      );
+    }
+  };
+
+  const handleRowExpand = (id) => {
+    setExpandedRow(expandedRow === id ? null : id);
+  };
+
+  return (
+    <>
+      <Box sx={{ width: '100%', mb: 2 }}>
+        <TextField
+          label="Search reviews"
+          variant="outlined"
+          size="small"
+          fullWidth
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="Search by name, content, rating, etc."
+          InputProps={{
+            endAdornment: searchText && (
+              <IconButton
+                size="small"
+                onClick={() => setSearchText('')}
+                edge="end"
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            ),
+          }}
+        />
+      </Box>
+
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ bgcolor: 'action.hover' }}>
+              <TableCell width="120px">Actions</TableCell>
+              <TableCell onClick={() => handleSort('name')} sx={{ cursor: 'pointer' }}>
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableCell>
+              <TableCell onClick={() => handleSort('rating')} sx={{ cursor: 'pointer' }}>
+                Rating {sortConfig.key === 'rating' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableCell>
+              <TableCell onClick={() => handleSort('where_known_from')} sx={{ cursor: 'pointer' }}>
+                Where From {sortConfig.key === 'where_known_from' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableCell>
+              <TableCell onClick={() => handleSort('created_at')} sx={{ cursor: 'pointer' }}>
+                Date {sortConfig.key === 'created_at' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
+              </TableCell>
+              <TableCell width="100px">Visible</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {filteredReviews.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} align="center">
+                  No reviews found
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredReviews.map((review) => (
+                <React.Fragment key={review.id}>
+                  <TableRow sx={{ borderBottom: 0 }}>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', gap: 1 }}>
+                        <IconButton 
+                          size="small" 
+                          color="error"
+                          onClick={() => handleDeleteClick(review.id)}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="primary"
+                          onClick={() => handleRowExpand(review.id)}
+                          sx={{
+                            transform: expandedRow === review.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s'
+                          }}
+                        >
+                          <ExpandMoreIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                    <TableCell>{review.name}</TableCell>
+                    <TableCell>{review.rating}</TableCell>
+                    <TableCell>{review.where_known_from}</TableCell>
+                    <TableCell>{formatDateForDisplay(review.created_at)}</TableCell>
+                    <TableCell>
+                      <Switch 
+                        checked={review.is_visible} 
+                        onChange={() => handleToggleVisibility(review.id, review.is_visible)} 
+                        color="success" 
+                        size="small"
+                      />
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={6} sx={{ p: 0, borderBottom: '1px solid', borderColor: 'divider' }}>
+                      <Collapse in={expandedRow === review.id}>
+                        <Box sx={{ 
+                          p: 2, 
+                          borderTop: '1px solid',
+                          borderColor: 'divider',
+                        }}>
+                          <Typography variant="subtitle2" gutterBottom color="text.secondary">
+                            Review Content
+                          </Typography>
+                          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+                            {review.content}
+                          </Typography>
+                        </Box>
+                      </Collapse>
+                    </TableCell>
+                  </TableRow>
+                </React.Fragment>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+
+      <DeleteConfirmationDialog
+        open={deleteDialog.open}
+        title={deleteDialog.item ? `the review from "${deleteDialog.item.name}"` : 'this review'}
         onClose={handleCloseDeleteDialog}
         onConfirm={handleDeleteConfirm}
         isLoading={loading}
