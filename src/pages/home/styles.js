@@ -1,5 +1,6 @@
 import { styled, keyframes } from '@mui/material/styles';
 import { Avatar, Button, IconButton, Card, Box, Typography, Grid, TextField } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 
 // Helper to filter out custom props from DOM elements
 const shouldForwardProp = (prop) => 
@@ -720,13 +721,17 @@ export const FilterLegendButton = styled('div', {
 }));
 
 // Timeline Styles
-export const TimelineContainer = styled(Box)(() => ({
+export const TimelineContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   maxWidth: '1200px',
   margin: '0 auto',
   paddingTop: '40px',
   paddingBottom: '60px',
   width: '100%',
+  [theme.breakpoints.down('md')]: {
+    paddingTop: '20px',
+    paddingBottom: '20px',
+  },
 }));
 
 // New component for the wavy line that goes in the center
@@ -962,3 +967,48 @@ export const SwiperStyles = {
     transform: 'scale(1.2)',
   },
 };
+
+// Reviews Section Styled Components
+export const ReviewsSection = styled(Box)(({ theme }) => ({
+  padding: `${theme.spacing(8)} 0`,
+  textAlign: 'center',
+  [theme.breakpoints.down('sm')]: {
+    padding: `${theme.spacing(6)} 0`,
+  },
+}));
+
+export const ReviewCard = styled(Box)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.background.paper, 0.5),
+  backdropFilter: 'blur(8px)',
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(3),
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+  margin: theme.spacing(1),
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15)',
+  },
+}));
+
+export const ReviewCardContent = styled(Box)(({ theme }) => ({
+  position: 'relative',
+  padding: `${theme.spacing(3)} ${theme.spacing(1)} ${theme.spacing(1)}`,
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+}));
+
+export const ReviewAvatar = styled('img')(({ theme }) => ({
+  width: 56,
+  height: 56,
+  borderRadius: '50%',
+  objectFit: 'cover',
+  border: `2px solid ${theme.palette.primary.main}`,
+  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+}));

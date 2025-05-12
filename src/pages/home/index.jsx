@@ -29,6 +29,10 @@ import 'swiper/css/keyboard'
 import 'swiper/css/navigation'
 import { alpha } from '@mui/material/styles'
 import { useSelector } from 'react-redux'
+import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
+import StarIcon from '@mui/icons-material/Star';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
+import StarOutlineIcon from '@mui/icons-material/StarOutline';
 
 // Import SkillGroup component
 import SkillGroup from '../../components/skillGroup'
@@ -58,6 +62,8 @@ import {
   FilterLegendButton,
   TimelineTypeIcon,
   ExperienceSection,
+  ReviewsSection,
+  ReviewCard,
   responsiveStyles,
   // Carousel components
   CarouselContainer,
@@ -69,7 +75,7 @@ import {
   SkillsFilterContainer,
   SkillGroupsContainer
 } from './styles'
-import { getSocialIcon, generateSvgArray, getTopSkillsByProficiency } from '../../common/common'
+import { getSocialIcon, generateSvgArray } from '../../common/common'
 import aboutSectionSvg from '../../assets/aboutSection.svg'
 
 // Dynamic import of all SVG files from the loading folder
@@ -85,6 +91,7 @@ const Index = () => {
   const projectsSectionRef = useRef(null);
   const skillsSectionRef = useRef(null);
   const experienceSectionRef = useRef(null);
+  const reviewsSectionRef = useRef(null);
   const swiperRef = useRef(null);
   const [appBarHeight, setAppBarHeight] = useState(64); // Default height
   
@@ -112,14 +119,26 @@ const Index = () => {
     return getRandomSvg.cachedSvg;
   }, [loadingSvgArray]);
   
+  // Function to get initials from name
+  const getInitials = (name) => {
+    if (!name) return "?";
+    
+    const nameParts = name.split(' ');
+    if (nameParts.length === 1) return nameParts[0].charAt(0).toUpperCase();
+    
+    return (nameParts[0].charAt(0) + nameParts[nameParts.length - 1].charAt(0)).toUpperCase();
+  };
+  
   // Get the appBar height
   useEffect(() => {
+    window.document.title = `${userData.name} ${userData.surname}`;
+    
     // We need to get the appBar element from the DOM
     const appBarElement = document.querySelector('.MuiAppBar-root');
     if (appBarElement) {
       setAppBarHeight(appBarElement.clientHeight);
     }
-    
+
     // Add listener for window resize
     const handleResize = () => {
       if (appBarElement) {
@@ -416,7 +435,7 @@ const Index = () => {
                 backdropFilter: 'blur(4px)',
                 cursor: 'pointer',
               }}
-              onClick={() => window.open(project.html_url, '_blank', 'noopener,noreferrer')}
+              onClick={() => project.url && window.open(project.url, '_blank', 'noopener,noreferrer')}
             >
               {project.type === 'github' ? (
                 <><GitHubIcon fontSize="small" sx={{ fontSize: 16 }} /> GitHub</>
@@ -610,6 +629,31 @@ const Index = () => {
       // Filter out groups with no matching skills
       .filter(group => group.skills.length > 0);
   }, [userData.skillGroups, searchTerm]);
+
+  // Add this function to render stars for reviews based on rating
+  const renderRatingStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+    
+    // Add full stars
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<StarIcon key={`full-${i}`} sx={{ color: '#f8d07a' }} />);
+    }
+    
+    // Add half star if needed
+    if (hasHalfStar) {
+      stars.push(<StarHalfIcon key="half" sx={{ color: '#f8d07a' }} />);
+    }
+    
+    // Add empty stars to reach 5
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<StarOutlineIcon key={`empty-${i}`} sx={{ color: '#f8d07a' }} />);
+    }
+    
+    return stars;
+  };
 
   return (
     <>
@@ -873,7 +917,7 @@ const Index = () => {
                       {userData.heroStats.experience}
                     </Typography>
                     <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-                      Experience
+                      {userData.heroStats.experience === 1 ? 'Year' : 'Years'} of Experience
                     </Typography>
                   </Box>
                 }
@@ -902,7 +946,7 @@ const Index = () => {
                       {userData.projects.length}
                     </Typography>
                     <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
-                      Projects
+                      {userData.projects.length === 1 ? 'Project' : 'Projects'}
                     </Typography>
                   </Box>
                 }
@@ -1237,6 +1281,208 @@ const Index = () => {
           </Container>
         </ExperienceSection>
       </Box>
+
+      {/* Reviews Section */}
+      {
+        userData.reviews && userData.reviews.length > 0 && (
+          <Box sx={{ bgcolor: theme.palette.background.paper }}>
+            <ReviewsSection ref={reviewsSectionRef}>
+              <Container maxWidth="lg">
+                <Typography 
+                  variant="subtitle1" 
+                  component="p" 
+                  sx={responsiveStyles.sectionSubtitle}
+                >
+                  What others say
+                </Typography>
+                <Typography 
+                  variant="h2" 
+                  component="h2" 
+                  sx={responsiveStyles.sectionTitle}
+                >
+                  Client&nbsp;
+                  <Typography 
+                    variant="h2" 
+                    component="span" 
+                    sx={responsiveStyles.highlightItalic}
+                  >
+                    Reviews
+                  </Typography>
+                </Typography>
+
+                {/* Marquee-style review display */}
+                <Box sx={{ 
+                  position: 'relative', 
+                  overflow: 'hidden',
+                  mt: 6,
+                  pb: 4,
+                  '&::before, &::after': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    width: { xs: '50px', md: '100px' },
+                    height: '100%',
+                    zIndex: 2,
+                    pointerEvents: 'none'
+                  },
+                  '&::before': {
+                    left: 0,
+                    background: `linear-gradient(to right, ${theme.palette.background.paper}, transparent)`
+                  },
+                  '&::after': {
+                    right: 0,
+                    background: `linear-gradient(to left, ${theme.palette.background.paper}, transparent)`
+                  },
+                  '.swiper-wrapper': {
+                    transitionTimingFunction: 'linear !important',
+                    WebkitTransitionTimingFunction: 'linear !important',
+                    OTransitionTimingFunction: 'linear !important'
+                  }
+                }}>
+                  <Swiper
+                    slidesPerView="auto"
+                    spaceBetween={24}
+                    loop={true}
+                    centeredSlides={false}
+                    autoplay={{
+                      delay: 0,
+                      disableOnInteraction: false,
+                      pauseOnMouseEnter: true,
+                      reverseDirection: false,
+                      stopOnLastSlide: false
+                    }}
+                    speed={6000}
+                    modules={[Autoplay]}
+                    className="swiper-wrapper"
+                    grabCursor={false}
+                    allowTouchMove={true}
+                    pagination={false}
+                    navigation={false}
+                    freeMode={{
+                      enabled: true,
+                      momentum: false
+                    }}
+                    simulateTouch={false}
+                    cssMode={false}
+                    preventInteractionOnTransition={true}
+                  >
+                    {userData.reviews?.map((review, index) => (
+                      <SwiperSlide key={index} style={{ width: 'auto', maxWidth: '450px' }}>
+                        <ReviewCard>
+                            {/* Header with name and initials */}
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                              <Box
+                                sx={{
+                                  width: 60,
+                                  height: 60,
+                                  borderRadius: '50%',
+                                  bgcolor: '#5F9BE4',
+                                  color: '#fff',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontWeight: 'bold',
+                                  fontSize: '1.4rem',
+                                  mr: 2
+                                }}
+                              >
+                                {getInitials(review.name)}
+                              </Box>
+                              
+                              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                                <Typography 
+                                  variant="h6" 
+                                  sx={{ 
+                                    fontWeight: 600, 
+                                    fontSize: '1.1rem',
+                                    color: theme.palette.text.primary,
+                                    mb: 0.5
+                                  }}
+                                >
+                                  {review.name}
+                                </Typography>
+                                <Box sx={{ display: 'flex', mt: 0.5 }}>
+                                  {renderRatingStars(review.rating)}
+                                </Box>
+                              </Box>
+                            </Box>
+
+                            {/* Divider */}
+                            <Box
+                              sx={{
+                                height: '1px',
+                                width: '100%',
+                                bgcolor: alpha(theme.palette.divider, 0.6),
+                                mt: 2
+                              }}
+                            />
+
+                            {/* Review content with quote icon */}
+                            <Box sx={{ 
+                              display: 'grid',
+                              gridTemplateColumns: 'auto 1fr',
+                              gap: 2,
+                              alignItems: 'start'
+                            }}>
+                              <FormatQuoteIcon 
+                                sx={{ 
+                                  color: alpha(theme.palette.text.secondary, 0.3),
+                                  fontSize: 42,
+                                  transform: 'rotate(180deg)',
+                                  mt: 0.5
+                                }} 
+                              />
+                              
+                              <Box>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: theme.palette.text.secondary,
+                                    lineHeight: 1.6,
+                                    fontSize: '0.9rem'
+                                  }}
+                                >
+                                  {review.text}
+                                </Typography>
+
+                                {/* Additional content if available */}
+                                {review.content && (
+                                  <Typography 
+                                    variant="body2" 
+                                    color="text.secondary"
+                                    sx={{ 
+                                      mt: 1.5,
+                                      opacity: 0.8,
+                                      fontSize: '0.85rem'
+                                    }}
+                                  >
+                                    {review.content}
+                                  </Typography>
+                                )}
+                              </Box>
+                            </Box>
+                        </ReviewCard>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                </Box>
+
+                {/* Call-to-action button */}
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                  <ContactButton 
+                    component={Link}
+                    to="/reviews"
+                    variant="outlined"
+                    endIcon={<NorthEastIcon />}
+                  >
+                    See All Reviews
+                  </ContactButton>
+                </Box>
+              </Container>
+            </ReviewsSection>
+          </Box>
+        )
+      }
     </>
   );
 };
