@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
 	Box, 
 	Typography, 
@@ -14,6 +14,7 @@ import {
 import SendIcon from '@mui/icons-material/Send'
 import { sendContactMessage } from '../../api/services/contactService'
 
+import { useSelector } from 'react-redux'
 import { ContactButton, responsiveStyles } from './styles'
 
 // Define validation patterns
@@ -26,6 +27,7 @@ const VALIDATION_PATTERNS = {
 
 const Index = () => {
 	const theme = useTheme()
+	const userData = useSelector((state) => state.user);
 	const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
 	const [appBarHeight, setAppBarHeight] = useState(64) // Default height
 	const [formData, setFormData] = useState({
@@ -224,7 +226,7 @@ const Index = () => {
 						}}
 					>
 						Feel free to reach out with any questions, project inquiries, or just to say hello. 
-						I'm always open to discussing new opportunities and ideas.
+						I&apos;m always open to discussing new opportunities and ideas.
 					</Typography>
 				</Box>
 
@@ -300,7 +302,7 @@ const Index = () => {
 											color="primary"
 											fullWidth={isMobile}
 											size="large"
-											disabled={!isFormValid || loading}
+											disabled={!isFormValid || loading || userData.isTestData}
 											endIcon={<SendIcon />}
 										>
 											{loading ? 'Sending...' : 'Send Message'}
