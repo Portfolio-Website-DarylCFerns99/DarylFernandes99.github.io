@@ -3261,9 +3261,9 @@ const ProjectsSection = ({ projects, setProjects }) => {
                 multiline
                 rows={3}
                 inputProps={{
-                  maxLength: 300
+                  maxLength: 350
                 }}
-                helperText={`${newProject.description.length}/300 characters`}
+                helperText={`${newProject.description.length}/350 characters`}
               />
             </Grid>
             
