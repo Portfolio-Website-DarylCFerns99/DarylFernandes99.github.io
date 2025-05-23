@@ -60,7 +60,7 @@ const Footer = () => {
 			<Container maxWidth="lg">
 				<Grid container spacing={4} justifyContent="space-between">
 					{/* Brand and description */}
-					<Grid item xs={12} md={4}>
+					<Grid item xs={12} md={4} sx={{ display: { xs: 'none', md: 'block' } }}>
 						<Typography variant="h6" fontWeight={600} gutterBottom>
 							{userData.name} {userData.surname}
 						</Typography>
@@ -105,8 +105,8 @@ const Footer = () => {
 						</Box>
 					</Grid>
 
-					{/* Quick links */}
-					<Grid item xs={12} sm={6} md={4}>
+					{/* Quick links - Hidden on mobile */}
+					<Grid item xs={12} sm={6} md={4} sx={{ display: { xs: 'none', md: 'block' } }}>
 						<Typography variant="h6" fontWeight={600} gutterBottom>
 							Quick Links
 						</Typography>

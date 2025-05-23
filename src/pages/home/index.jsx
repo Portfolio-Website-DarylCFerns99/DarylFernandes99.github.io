@@ -109,15 +109,17 @@ const Index = () => {
   
   // Helper to get a random SVG from the array
   const getRandomSvg = useCallback(() => {
-    // const randomIndex = Math.floor(Math.random() * loadingSvgArray.length);
-    // return loadingSvgArray[randomIndex]?.url || '';
-    // Use a static index for each component instance to prevent continuous reloading
-    if (!getRandomSvg.cachedSvg) {
-      const randomIndex = Math.floor(Math.random() * loadingSvgArray.length);
-      getRandomSvg.cachedSvg = loadingSvgArray[randomIndex]?.url || '';
-    }
-    return getRandomSvg.cachedSvg;
+    const randomIndex = Math.floor(Math.random() * loadingSvgArray.length);
+    return loadingSvgArray[randomIndex]?.url || '';
   }, [loadingSvgArray]);
+
+  // Generate stable random SVGs for projects to prevent continuous reloading
+  const projectFallbackImages = useMemo(() => {
+    return userData.projects?.map(() => {
+      const randomIndex = Math.floor(Math.random() * loadingSvgArray.length);
+      return loadingSvgArray[randomIndex]?.url || '';
+    }) || [];
+  }, [userData.projects, loadingSvgArray]);
   
   // Function to get initials from name
   const getInitials = (name) => {
@@ -397,13 +399,13 @@ const Index = () => {
       <ProjectCard sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: 380 }}>
         <ProjectImageWrapper sx={{ height: '180px', flexShrink: 0 }}>
           <img 
-            src={project.image || getRandomSvg()} 
+            src={project.image || projectFallbackImages[index] || ''} 
             alt={project.title}
             onError={(e) => {
               // Prevent continuous reloading by checking if we already set a fallback
               if (!e.target.dataset.usingFallback) {
                 e.target.dataset.usingFallback = 'true';
-                e.target.src = getRandomSvg();
+                e.target.src = projectFallbackImages[index] || getRandomSvg();
               }
             }}
           />
@@ -1156,7 +1158,7 @@ const Index = () => {
               slidesPerView={'auto'}
               loop={userData.projects.length > 5 ? true : false}
               navigation={true}
-              spaceBetween={80}
+              spaceBetween={isMobile ? 40 : 80}
               coverflowEffect={{
                 rotate: 30,
                 stretch: 0,

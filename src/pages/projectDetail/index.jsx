@@ -51,8 +51,8 @@ const ProjectDetail = () => {
   // Get all projects
   const projects = useSelector((state) => state.user.projects || [])
   
-  // Compute the actual index (params id is 1-based, array is 0-based)
-  const projectIndex = parseInt(id) - 1
+  // Find the project by its ID instead of using index
+  const project = projects.find(proj => proj.id === id)
   
   // Helper for random SVG
   const loadingSvgArray = React.useMemo(() => generateSvgArray(loadingSvgs), []);
@@ -80,23 +80,15 @@ const ProjectDetail = () => {
     }
   }, [])
   
-  // Redirect if invalid project index or project has no readme
+  // Redirect if project not found or project has no readme
   useEffect(() => {
-    if (
-      projectIndex < 0 || 
-      projectIndex >= projects.length || 
-      !projects[projectIndex]?.additional_data?.readme_file
-    ) {
+    if (!project || !project.additional_data?.readme_file) {
       navigate('/projects')
     }
-  }, [projectIndex, projects, navigate])
+  }, [project, navigate])
   
-  // If still validating or redirecting, show loading
-  if (
-    projectIndex < 0 || 
-    projectIndex >= projects.length || 
-    !projects[projectIndex]
-  ) {
+  // If project not found, show loading
+  if (!project) {
     return (
       <Box 
         sx={{ 
@@ -112,7 +104,6 @@ const ProjectDetail = () => {
   }
   
   // Get current project and its data
-  const project = projects[projectIndex]
   const additionalData = project.additional_data || {}
   
   // Handle image error
