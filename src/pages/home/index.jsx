@@ -492,7 +492,7 @@ const Index = () => {
           
           <Box
             component={Link}
-            to={"/projects/" + (index+1)}
+            to={"/projects/" + project?.id}
             sx={{
               display: 'flex',
               alignItems: 'center',
