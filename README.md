@@ -89,6 +89,22 @@ portfolio-website/
 - `/admin` - Admin authentication
 - `/admin/dashboard` - Content management dashboard
 
+## 🖥️ Backend Setup
+
+### 🔗 Backend Repository
+
+**For standalone backend setup or detailed backend customization:**
+
+👉 **[Portfolio Website Backend](https://github.com/Portfolio-Website-DarylCFerns99/portfolio-website-backend)**
+
+This repository contains:
+- **Python3/Fast API** - RESTful API with authentication
+- **Database Models** - User management and data schemas
+- **Authentication System** - JWT-based auth with role management
+- **File Upload Handling** - Image and document management
+- **Email Services** - Contact form and notification system
+- **API Documentation** - Swagger/OpenAPI specifications
+
 ## 🚀 Getting Started
 
 ### Prerequisites
