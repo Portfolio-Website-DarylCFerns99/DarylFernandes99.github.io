@@ -518,7 +518,7 @@ export const SkillsDashboardTitle = styled(Typography)(({ theme }) => ({
 }));
 
 export const SkillsSearchField = styled(TextField)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
+  // marginBottom: theme.spacing(3),
   width: '100%',
   '& .MuiOutlinedInput-root': {
     borderRadius: '8px',
@@ -557,7 +557,7 @@ export const SkillsFilterButton = styled(Button, {
 export const SkillsFilterContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
-  marginBottom: theme.spacing(3),
+  // marginBottom: theme.spacing(3),
 }));
 
 export const SkillGroupsContainer = styled(Grid)(() => ({

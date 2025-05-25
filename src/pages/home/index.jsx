@@ -9,7 +9,8 @@ import {
   useTheme,
   Tooltip,
   InputAdornment,
-  Button
+  Button,
+  IconButton
 } from '@mui/material'
 import { Link } from 'react-router-dom'
 import NorthEastIcon from '@mui/icons-material/NorthEast'
@@ -18,7 +19,11 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import SchoolIcon from '@mui/icons-material/School'
 import WorkIcon from '@mui/icons-material/Work'
 import GitHubIcon from '@mui/icons-material/GitHub'
-import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from '@mui/icons-material/Search'
+import ClearIcon from '@mui/icons-material/Clear'
+import FilterListIcon from '@mui/icons-material/FilterList'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
 import ReactMarkdown from 'react-markdown'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { EffectCoverflow, Pagination, Autoplay, Keyboard, Navigation } from 'swiper/modules'
@@ -36,6 +41,7 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline';
 
 // Import SkillGroup component
 import SkillGroup from '../../components/skillGroup'
+import CompactSkills from '../../components/compactSkills'
 
 // Import styled components from styles file
 import { 
@@ -103,6 +109,8 @@ const Index = () => {
   // Skills dashboard state
   const [searchTerm, setSearchTerm] = useState('');
   const [skillFilter, setSkillFilter] = useState('all');
+  const [skillsMode, setSkillsMode] = useState('standard'); // 'standard' or 'detailed'
+  const [showFilters, setShowFilters] = useState(false); // Toggle for filter visibility
   
   // Generate SVG array for loading images
   const loadingSvgArray = useMemo(() => generateSvgArray(loadingSvgs), []);
@@ -657,6 +665,16 @@ const Index = () => {
     return stars;
   };
 
+  // Function to clear search term
+  const clearSearch = () => {
+    setSearchTerm('');
+  };
+  
+  // Function to toggle filter visibility
+  const toggleFilters = () => {
+    setShowFilters(prev => !prev);
+  };
+
   return (
     <>
       {/* Hero Section */}
@@ -1053,67 +1071,230 @@ const Index = () => {
 			</Typography>
 
             <SkillsDashboardContainer>
-              {/* Search Bar */}
-              <SkillsSearchField
-                placeholder="Search skills..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                variant="outlined"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon color="action" />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-              
-              {/* Filter Buttons */}
-              <SkillsFilterContainer>
-                <SkillsFilterButton 
-                  active={skillFilter === 'all'} 
-                  onClick={() => setSkillFilter('all')}
+              {/* Mode Toggle */}
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center',
+                mb: 3,
+                gap: 1
+              }}>
+                <Button
+                  variant={skillsMode === 'standard' ? 'contained' : 'outlined'}
+                  onClick={() => setSkillsMode('standard')}
+                  sx={{
+                    borderRadius: '25px',
+                    px: 3,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                  }}
                 >
-                  All Skills
-                </SkillsFilterButton>
-                <SkillsFilterButton 
-                  active={skillFilter === 'basic'} 
-                  onClick={() => setSkillFilter('basic')}
+                  📋 Standard View
+                </Button>
+                <Button
+                  variant={skillsMode === 'detailed' ? 'contained' : 'outlined'}
+                  onClick={() => setSkillsMode('detailed')}
+                  sx={{
+                    borderRadius: '25px',
+                    px: 3,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                  }}
                 >
-                  Basic (Level 1)
-                </SkillsFilterButton>
-                <SkillsFilterButton 
-                  active={skillFilter === 'proficient'} 
-                  onClick={() => setSkillFilter('proficient')}
+                  📊 Detailed View
+                </Button>
+              </Box>
+
+              {/* Search Bar for Skill Groups */}
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 2, 
+                alignItems: 'stretch',
+                mb: 3,
+                flexDirection: { xs: 'column', sm: 'row' }
+              }}>
+                <SkillsSearchField
+                  placeholder="Search skills..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  variant="outlined"
+                  sx={{ 
+                    flex: 1,
+                    '& .MuiOutlinedInput-root': {
+                      height: '48px',
+                    }
+                  }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: searchTerm && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          onClick={clearSearch}
+                          edge="end"
+                          size="small"
+                          sx={{ 
+                            color: 'action.active',
+                            '&:hover': {
+                              color: 'primary.main'
+                            }
+                          }}
+                        >
+                          <ClearIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                
+                {/* Filter Toggle Button */}
+                <Button
+                  onClick={toggleFilters}
+                  variant="outlined"
+                  startIcon={<FilterListIcon />}
+                  endIcon={showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  sx={{
+                    borderRadius: '25px',
+                    px: 3,
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    minWidth: { xs: '100%', sm: 'auto' },
+                    height: '48px',
+                    backgroundColor: showFilters ? theme.palette.action.selected : 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  Proficient (Level 2-3)
-                </SkillsFilterButton>
-                <SkillsFilterButton 
-                  active={skillFilter === 'expert'} 
-                  onClick={() => setSkillFilter('expert')}
-                >
-                  Expert (Level 4)
-                </SkillsFilterButton>
-              </SkillsFilterContainer>
-              
-              {/* Skills Groups */}
-              <SkillGroupsContainer container spacing={3} direction={'row'}>
-                {userData.skillGroups && userData.skillGroups.length > 0 && filteredSkillGroups.map((group, index) => (
-                  <Grid 
-                    item 
-                    xs={12} 
-                    md={6} 
-                    key={group.id || index}
-                  >
-                    <SkillGroup 
-						index={index}
-						name={group.name} 
-						skills={group.skills} 
-						filterLevel={skillFilter}
-                    />
-                  </Grid>
-                ))}
-              </SkillGroupsContainer>
+                  Filters
+                </Button>
+              </Box>
+                
+                {/* Filter Buttons - Now collapsible */}
+                {showFilters && (
+                  <SkillsFilterContainer>
+                    <SkillsFilterButton 
+                      active={skillFilter === 'all'} 
+                      onClick={() => setSkillFilter('all')}
+                    >
+                      All Skills
+                    </SkillsFilterButton>
+                    <SkillsFilterButton 
+                      active={skillFilter === 'basic'} 
+                      onClick={() => setSkillFilter('basic')}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 12,
+                          height: 12,
+                          borderRadius: '50%',
+                          backgroundColor: theme.palette.text.secondary,
+                          flexShrink: 0
+                        }}
+                      />
+                      Basic (Level 1)
+                    </SkillsFilterButton>
+                    <SkillsFilterButton 
+                      active={skillFilter === 'proficient'} 
+                      onClick={() => setSkillFilter('proficient')}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            backgroundColor: theme.palette.secondary.main,
+                            flexShrink: 0
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            backgroundColor: theme.palette.warning.main,
+                            flexShrink: 0
+                          }}
+                        />
+                      </Box>
+                      Proficient (Level 2-3)
+                    </SkillsFilterButton>
+                    <SkillsFilterButton 
+                      active={skillFilter === 'expert'} 
+                      onClick={() => setSkillFilter('expert')}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            backgroundColor: theme.palette.info.main,
+                            flexShrink: 0
+                          }}
+                        />
+                        <Box
+                          sx={{
+                            width: 8,
+                            height: 8,
+                            borderRadius: '50%',
+                            backgroundColor: theme.palette.success.main,
+                            flexShrink: 0
+                          }}
+                        />
+                      </Box>
+                      Expert (Level 4-5)
+                    </SkillsFilterButton>
+                  </SkillsFilterContainer>
+                )}
+
+              {/* Standard Mode - Compact View */}
+              {skillsMode === 'standard' && (
+                <CompactSkills 
+                  skillGroups={filteredSkillGroups} 
+                  filterLevel={skillFilter}
+                />
+              )}
+
+              {/* Detailed Mode - Current Full UI */}
+              {skillsMode === 'detailed' && (
+                <SkillGroupsContainer container spacing={3} direction={'row'}>
+                  {userData.skillGroups && userData.skillGroups.length > 0 && filteredSkillGroups.map((group, index) => (
+                    <Grid 
+                      item 
+                      xs={12} 
+                      md={6} 
+                      key={group.id || index}
+                    >
+                      <SkillGroup 
+                        index={index}
+                        name={group.name} 
+                        skills={group.skills} 
+                        filterLevel={skillFilter}
+                      />
+                    </Grid>
+                  ))}
+                </SkillGroupsContainer>
+              )}
             </SkillsDashboardContainer>
           </Container>
         </SkillsSection>
