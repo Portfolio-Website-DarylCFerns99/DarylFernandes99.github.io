@@ -58,20 +58,24 @@ const SkillName = styled(Typography)(() => ({
   flex: 1,
 }));
 
-const SkillLevelChip = styled(Chip)(({ theme, level }) => {
-  const colorMap = {
-    'basic': theme.palette.grey[600],
-    'intermediate': '#2196f3',
-    'advanced': '#ff9800',
-    'expert': '#f44336',
+const SkillLevelChip = styled(Chip)(({ theme, level, proficiency }) => {
+  // Use the same color logic as CompactSkills component
+  const getColor = () => {
+    switch(proficiency) {
+      case 5: return theme.palette.success.main;     // Green
+      case 4: return theme.palette.info.main;       // Blue  
+      case 3: return theme.palette.warning.main;    // Orange
+      case 2: return theme.palette.secondary.main;  // Secondary
+      default: return theme.palette.text.secondary; // Gray (Level 1)
+    }
   };
   
   return {
     fontSize: '0.7rem',
     height: 22,
     borderRadius: 12,
-    backgroundColor: alpha(colorMap[level] || theme.palette.grey[300], 0.15),
-    color: colorMap[level] || theme.palette.text.secondary,
+    backgroundColor: alpha(getColor(), 0.15),
+    color: getColor(),
     fontWeight: 500,
     '& .MuiChip-label': {
       padding: '0 8px',
@@ -79,12 +83,16 @@ const SkillLevelChip = styled(Chip)(({ theme, level }) => {
   };
 });
 
-const StyledLinearProgress = styled(LinearProgress)(({ theme, level }) => {
-  const colorMap = {
-    'basic': theme.palette.grey[400],
-    'intermediate': theme.palette.primary.main,
-    'advanced': theme.palette.secondary.main,
-    'expert': theme.palette.tertiary.main,
+const StyledLinearProgress = styled(LinearProgress)(({ theme, level, proficiency }) => {
+  // Use the same color logic as CompactSkills component
+  const getColor = () => {
+    switch(proficiency) {
+      case 5: return theme.palette.success.main;     // Green
+      case 4: return theme.palette.info.main;       // Blue  
+      case 3: return theme.palette.warning.main;    // Orange
+      case 2: return theme.palette.secondary.main;  // Secondary
+      default: return theme.palette.text.secondary; // Gray (Level 1)
+    }
   };
   
   return {
@@ -92,7 +100,7 @@ const StyledLinearProgress = styled(LinearProgress)(({ theme, level }) => {
     borderRadius: 4,
     backgroundColor: alpha(theme.palette.divider, 0.2),
     '& .MuiLinearProgress-bar': {
-      backgroundColor: colorMap[level] || theme.palette.primary.main,
+      backgroundColor: getColor(),
       borderRadius: 4,
     }
   };
@@ -150,12 +158,14 @@ const SkillGroup = ({ index, name, skills, filterLevel }) => {
                       size="small" 
                       label={label} 
                       level={label}
+                      proficiency={skill.proficiency}
                     />
                   </SkillNameWrapper>
                   <StyledLinearProgress 
                     variant="determinate" 
                     value={value} 
                     level={label}
+                    proficiency={skill.proficiency}
                   />
                 </SkillItem>
               </Grid>
