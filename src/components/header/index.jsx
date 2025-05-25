@@ -4,6 +4,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { Link, useLocation } from 'react-router-dom';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import { 
     AppBar, 
     Box, 
@@ -23,8 +24,32 @@ import {
 } from '@mui/material'
 
 import { ROUTES } from '../../common/common'
+import { THEME_MODES, THEME_MODE_LABELS, getNextThemeMode } from '../../utils/themeUtils'
 
 const drawerWidth = 280;
+
+// Get icon and label for current theme mode
+const getThemeIcon = (mode) => {
+    switch (mode) {
+        case THEME_MODES.LIGHT:
+            return <LightModeIcon fontSize="small" />;
+        case THEME_MODES.DARK:
+            return <DarkModeIcon fontSize="small" />;
+        case THEME_MODES.SYSTEM:
+            return <SettingsBrightnessIcon fontSize="small" />;
+        default:
+            return <SettingsBrightnessIcon fontSize="small" />;
+    }
+};
+
+const getThemeLabel = (mode) => {
+    return THEME_MODE_LABELS[mode] || 'System Mode';
+};
+
+const getNextThemeLabel = (currentMode) => {
+    const nextMode = getNextThemeMode(currentMode);
+    return getThemeLabel(nextMode);
+};
 
 const Index = (props) => {
     const { window } = props;
@@ -61,7 +86,10 @@ const Index = (props) => {
         setMobileOpen((prevState) => !prevState);
     };
 
-    const handleToggleDarkMode = () => props.setDarkMode(!props.darkMode);
+    const handleThemeModeToggle = () => {
+        const nextMode = getNextThemeMode(props.themeMode);
+        props.setThemeMode(nextMode);
+    };
 
     const drawer = (
         <Box sx={{ 
@@ -137,8 +165,8 @@ const Index = (props) => {
                     component={Button}
                     fullWidth
                     variant="outlined"
-                    onClick={handleToggleDarkMode}
-                    startIcon={props.darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+                    onClick={handleThemeModeToggle}
+                    startIcon={getThemeIcon(props.themeMode)}
                     sx={{
                         display: 'flex',
                         justifyContent: 'flex-start',
@@ -157,7 +185,7 @@ const Index = (props) => {
                         }
                     }}
                 >
-                    {props.darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                    {getThemeLabel(props.themeMode)}
                 </Box>
             </Box>
         </Box>
@@ -259,9 +287,9 @@ const Index = (props) => {
                                 ))}
                             </Box>
                             
-                            <Tooltip title={`Toggle ${props.darkMode ? 'Light' : 'Dark'} Mode`}>
+                            <Tooltip title={`Switch to ${getNextThemeLabel(props.themeMode)}`}>
                                 <IconButton 
-                                    onClick={handleToggleDarkMode} 
+                                    onClick={handleThemeModeToggle} 
                                     size="small"
                                     sx={{
                                         bgcolor: 'transparent',
@@ -273,7 +301,7 @@ const Index = (props) => {
                                         }
                                     }}
                                 >
-                                    {props.darkMode ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+                                    {getThemeIcon(props.themeMode)}
                                 </IconButton>
                             </Tooltip>
                         </Toolbar>
@@ -318,8 +346,8 @@ const Index = (props) => {
 
 Index.propTypes = {
     window: PropTypes.any,
-    darkMode: PropTypes.bool,
-    setDarkMode: PropTypes.func
+    themeMode: PropTypes.string,
+    setThemeMode: PropTypes.func
 };
 
 export default Index;

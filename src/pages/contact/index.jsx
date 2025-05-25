@@ -47,14 +47,6 @@ const Index = () => {
 	// Check if form is valid for enabling/disabling submit button
 	const isFormValid = useMemo(() => {
 		const { name, email, subject, message } = formData
-
-		console.log(name.trim() !== '',
-		email.trim() !== '',
-		VALIDATION_PATTERNS.name.test(name),
-		VALIDATION_PATTERNS.email.test(email),
-		subject.trim() !== '',
-		message.trim() !== '',
-		Object.keys(errors).length === 0, errors)
 		
 		return (
 			name.trim() !== '' && 

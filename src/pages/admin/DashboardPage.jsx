@@ -89,6 +89,7 @@ import {
 import LogoutIcon from '@mui/icons-material/Logout';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
 import PersonIcon from '@mui/icons-material/Person';
 import LinkIcon from '@mui/icons-material/Link';
 import InfoIcon from '@mui/icons-material/Info';
@@ -101,8 +102,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import ArticleIcon from '@mui/icons-material/Article';
-import { getTypeName } from '../../common/common';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { THEME_MODES, getNextThemeMode } from '../../utils/themeUtils';
+import { getTypeName } from '../../common/common';
 
 const drawerWidth = 220;
 
@@ -116,7 +119,7 @@ const sections = [
   { id: 'reviews', name: 'Reviews', icon: <ArticleIcon /> }
 ];
 
-const DashboardPage = ({ darkMode, setDarkMode }) => {
+const DashboardPage = ({ themeMode, setThemeMode }) => {
   const navigate = useNavigate();
   const appBarRef = useRef(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -181,7 +184,8 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
   };
 
   const handleThemeToggle = () => {
-    setDarkMode(!darkMode);
+    const nextMode = getNextThemeMode(themeMode);
+    setThemeMode(nextMode);
   };
 
   // Individual save functions for each section
@@ -466,6 +470,20 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
       return undefined;
   }, []);
 
+  // Helper function to get theme icon
+  const getThemeIcon = () => {
+    switch (themeMode) {
+      case THEME_MODES.LIGHT:
+        return <LightModeIcon />;
+      case THEME_MODES.DARK:
+        return <DarkModeIcon />;
+      case THEME_MODES.SYSTEM:
+        return <SettingsBrightnessIcon />;
+      default:
+        return <SettingsBrightnessIcon />;
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" ref={appBarRef} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
@@ -483,7 +501,7 @@ const DashboardPage = ({ darkMode, setDarkMode }) => {
             Portfolio Admin Dashboard
           </Typography>
           <IconButton color="inherit" onClick={handleThemeToggle}>
-            {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+            {getThemeIcon()}
           </IconButton>
           <Button
             color="inherit"
