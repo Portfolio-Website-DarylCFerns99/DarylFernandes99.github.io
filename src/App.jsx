@@ -20,6 +20,13 @@ import { AuthProvider } from './authRouter/authContext.jsx'
 import ScrollToTop from './components/ScrollToTop';
 import { updateUserData, setGithubDataLoading, setTestDataFlag } from './redux/reducers/userSlice';
 import { getCookie, TOKEN_COOKIE_NAME } from './utils/cookieUtils';
+import { 
+  THEME_MODES, 
+  getStoredThemeMode, 
+  setStoredThemeMode, 
+  resolveTheme, 
+  createSystemThemeListener 
+} from './utils/themeUtils';
 
 const ErrorPage = lazy(() => import('./pages/errorPage'));
 const LoginPage = lazy(() => import('./pages/admin/LoginPage'));
@@ -32,9 +39,17 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [themeMode, setThemeMode] = useState(getStoredThemeMode());
+  const [resolvedTheme, setResolvedTheme] = useState(resolveTheme(themeMode));
   const dispatch = useDispatch();
   const isGithubDataLoading = useSelector(state => state.user.isGithubDataLoading);
+
+  // Handle theme mode changes
+  const handleThemeModeChange = (newMode) => {
+    setThemeMode(newMode);
+    setStoredThemeMode(newMode);
+    setResolvedTheme(resolveTheme(newMode));
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -67,23 +82,18 @@ function App() {
     // Fetch user data
     fetchUserData();
     
-    // Handle theme preference
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    // Set up system theme listener for when mode is 'system'
+    const cleanupSystemListener = createSystemThemeListener((systemTheme) => {
+      if (themeMode === THEME_MODES.SYSTEM) {
+        setResolvedTheme(systemTheme);
+      }
+    });
 
-    const handleChange = (e) => {
-      setDarkMode(e.matches);
-    };
-
-    // Set initial theme based on system preference
-    setDarkMode(mediaQuery.matches);
-
-    // Listen for changes
-    mediaQuery.addEventListener('change', handleChange);
+    // Initial theme resolution
+    setResolvedTheme(resolveTheme(themeMode));
 
     // Clean up the event listener
-    return () => {
-      mediaQuery.removeEventListener('change', handleChange);
-    };
+    return cleanupSystemListener;
   }, [dispatch]);
 
   const errorHandler = (error, errorInfo) => {
@@ -93,7 +103,7 @@ function App() {
   // If github data is loading, show loading layout
   if (isGithubDataLoading) {
     return (
-      <ThemeProvider theme={THEME(darkMode ? 'dark' : 'light')}>
+      <ThemeProvider theme={THEME(resolvedTheme)}>
         <CssBaseline />
         <LoadingLayout />
       </ThemeProvider>
@@ -101,7 +111,7 @@ function App() {
   }
 
   return (
-    <ThemeProvider theme={THEME(darkMode ? 'dark' : 'light')}>
+    <ThemeProvider theme={THEME(resolvedTheme)}>
       <Suspense fallback={<LoadingLayout />}>
         <ErrorBoundary
           FallbackComponent={ErrorPage}
@@ -115,14 +125,14 @@ function App() {
               <Route path="/admin" element={<LoginPage />} />
               <Route path="/admin/dashboard" element={
                 <ProtectedRoute>
-                  <DashboardPage darkMode={darkMode} setDarkMode={setDarkMode} />
+                  <DashboardPage themeMode={themeMode} setThemeMode={handleThemeModeChange} />
                 </ProtectedRoute>
               } />
 
               {/* Public Routes - With Header/Footer */}
               <Route element={
                 <>
-                  <Header darkMode={darkMode} setDarkMode={setDarkMode} />
+                  <Header themeMode={themeMode} setThemeMode={handleThemeModeChange} />
                   <Box component="main" sx={{ flexGrow: 1 }}>
                     <GuestRoute />
                   </Box>
@@ -152,7 +162,7 @@ function App() {
               pauseOnFocusLoss
               draggable
               pauseOnHover
-              theme={darkMode ? 'dark' : 'light'}
+              theme={resolvedTheme}
             />
           </AuthProvider>
         </ErrorBoundary>
