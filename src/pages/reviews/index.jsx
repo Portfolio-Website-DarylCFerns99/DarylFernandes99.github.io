@@ -210,19 +210,19 @@ const Index = () => {
         }
         
         // Use the reviewService to submit the review
-        const response = await submitPublicReview(reviewData)
+        const _ = await submitPublicReview(reviewData)
         
-        // Add the new review to Redux store
-        const newReview = {
-          ...reviewData,
-          _id: response.data._id || `temp_${Date.now()}`, // Use returned ID or create temporary one
-          created_at: new Date().toISOString() // Add timestamp
-        }
+        // // Add the new review to Redux store
+        // const newReview = {
+        //   ...reviewData,
+        //   _id: response.data._id || `temp_${Date.now()}`, // Use returned ID or create temporary one
+        //   created_at: new Date().toISOString() // Add timestamp
+        // }
         
-        // Update Redux store with new review
-        dispatch(updateUserData({
-          reviews: [...userData.reviews || [], newReview]
-        }))
+        // // Update Redux store with new review
+        // dispatch(updateUserData({
+        //   reviews: [...userData.reviews || [], newReview]
+        // }))
         
         // Switch back to reviews view
         setShowForm(false)
