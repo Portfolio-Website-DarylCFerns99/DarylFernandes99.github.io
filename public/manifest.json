@@ -1,0 +1,16 @@
+{
+  "name": "Daryl Fernandes - Software Engineer Portfolio",
+  "short_name": "Daryl Portfolio",
+  "description": "Software Engineer specializing in React, Node.js, Python, and cloud computing",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4CAF50",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

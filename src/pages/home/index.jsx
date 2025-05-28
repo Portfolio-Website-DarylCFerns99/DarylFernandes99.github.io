@@ -83,6 +83,7 @@ import {
 } from './styles'
 import { getSocialIcon, generateSvgArray } from '../../common/common'
 import aboutSectionSvg from '../../assets/aboutSection.svg'
+import { DynamicSEO } from '../../components/SEO/DynamicSEO'
 
 // Dynamic import of all SVG files from the loading folder
 const loadingSvgs = import.meta.glob('../../assets/loading/*.svg', { eager: true });
@@ -677,6 +678,7 @@ const Index = () => {
 
   return (
     <>
+      <DynamicSEO title="Home" />
       {/* Hero Section */}
       <Box sx={{ 
         bgcolor: theme.palette.background.default,

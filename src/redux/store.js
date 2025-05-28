@@ -17,11 +17,11 @@ const store = configureStore({
     },
     // Add middleware with logger
     middleware: (getDefaultMiddleware) => 
-      import.meta.env.NODE_ENV !== 'production' 
+      import.meta.env.DEV 
         ? getDefaultMiddleware().concat(logger)
         : getDefaultMiddleware(),
     // Add devTools configuration for development
-    devTools: import.meta.env.NODE_ENV !== 'production'
+    devTools: import.meta.env.DEV
 });
 
 export default store;

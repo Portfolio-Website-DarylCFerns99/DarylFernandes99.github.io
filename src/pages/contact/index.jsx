@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, Fragment } from 'react'
 import { 
 	Box, 
 	Typography, 
@@ -16,6 +16,7 @@ import { sendContactMessage } from '../../api/services/contactService'
 
 import { useSelector } from 'react-redux'
 import { ContactButton, responsiveStyles } from './styles'
+import { DynamicSEO } from '../../components/SEO/DynamicSEO'
 
 // Define validation patterns
 const VALIDATION_PATTERNS = {
@@ -175,155 +176,161 @@ const Index = () => {
 	}
 
 	return (
-		<Box sx={{ 
-			...responsiveStyles.mainContainer,
-			pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` },
-			bgcolor: theme.palette.background.default,
-		}}>
-			<Container maxWidth="lg">
-				{/* Page Title */}
-				<Box sx={{ mb: 6, textAlign: 'center' }}>
-					<Typography 
-						variant="subtitle1" 
-						component="p" 
-						sx={{
-							...responsiveStyles.sectionSubtitle,
-							color: theme.palette.text.secondary,
-							fontWeight: 500,
-							mb: 1
-						}}
-					>
-						Get in Touch
-					</Typography>
-					<Typography 
-						variant="h2" 
-						component="h1" 
-						sx={responsiveStyles.pageTitle}
-					>
-						Contact{' '}
+		<Fragment>
+			<DynamicSEO 
+				title="Contact"
+				description={`Contact ${userData?.name} ${userData?.surname}`}
+			/>
+			<Box sx={{ 
+				...responsiveStyles.mainContainer,
+				pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` },
+				bgcolor: theme.palette.background.default,
+			}}>
+				<Container maxWidth="lg">
+					{/* Page Title */}
+					<Box sx={{ mb: 6, textAlign: 'center' }}>
+						<Typography 
+							variant="subtitle1" 
+							component="p" 
+							sx={{
+								...responsiveStyles.sectionSubtitle,
+								color: theme.palette.text.secondary,
+								fontWeight: 500,
+								mb: 1
+							}}
+						>
+							Get in Touch
+						</Typography>
 						<Typography 
 							variant="h2" 
-							component="span" 
-							color="primary"
-							sx={responsiveStyles.pageTitleSpan}
+							component="h1" 
+							sx={responsiveStyles.pageTitle}
 						>
-							Me
-						</Typography>
-					</Typography>
-					<Typography 
-						variant="body1" 
-						sx={{ 
-							...responsiveStyles.pageDescription,
-							color: theme.palette.text.secondary
-						}}
-					>
-						Feel free to reach out with any questions, project inquiries, or just to say hello. 
-						I&apos;m always open to discussing new opportunities and ideas.
-					</Typography>
-				</Box>
-
-				<Grid container spacing={4}>
-					{/* Contact Form */}
-					<Grid item xs={12}>
-						<Paper elevation={3} sx={responsiveStyles.contactForm}>
-							<Typography variant="h5" component="h2" sx={responsiveStyles.formTitle}>
-								Send a Message
+							Contact{' '}
+							<Typography 
+								variant="h2" 
+								component="span" 
+								color="primary"
+								sx={responsiveStyles.pageTitleSpan}
+							>
+								Me
 							</Typography>
-							
-							<form onSubmit={handleSubmit}>
-								<Grid container spacing={2}>
-									<Grid item xs={12} sm={6}>
-										<TextField
-											fullWidth
-											label="Your Name"
-											name="name"
-											value={formData.name}
-											onChange={handleChange}
-											error={!!errors.name}
-											helperText={errors.name}
-											required
-											variant="outlined"
-										/>
-									</Grid>
-									<Grid item xs={12} sm={6}>
-										<TextField
-											fullWidth
-											label="Your Email"
-											name="email"
-											type="email"
-											value={formData.email}
-											onChange={handleChange}
-											error={!!errors.email}
-											helperText={errors.email}
-											required
-											variant="outlined"
-										/>
-									</Grid>
-									<Grid item xs={12}>
-										<TextField
-											fullWidth
-											label="Subject"
-											name="subject"
-											value={formData.subject}
-											onChange={handleChange}
-											error={!!errors.subject}
-											helperText={errors.subject}
-											required
-											variant="outlined"
-										/>
-									</Grid>
-									<Grid item xs={12}>
-										<TextField
-											fullWidth
-											label="Your Message"
-											name="message"
-											value={formData.message}
-											onChange={handleChange}
-											error={!!errors.message}
-											helperText={errors.message}
-											multiline
-											rows={5}
-											required
-											variant="outlined"
-										/>
-									</Grid>
-									<Grid item xs={12}>
-										<ContactButton
-											type="submit"
-											variant="contained"
-											color="primary"
-											fullWidth={isMobile}
-											size="large"
-											disabled={!isFormValid || loading || userData.isTestData}
-											endIcon={<SendIcon />}
-										>
-											{loading ? 'Sending...' : 'Send Message'}
-										</ContactButton>
-									</Grid>
-								</Grid>
-							</form>
-						</Paper>
-					</Grid>
-				</Grid>
-			</Container>
+						</Typography>
+						<Typography 
+							variant="body1" 
+							sx={{ 
+								...responsiveStyles.pageDescription,
+								color: theme.palette.text.secondary
+							}}
+						>
+							Feel free to reach out with any questions, project inquiries, or just to say hello. 
+							I&apos;m always open to discussing new opportunities and ideas.
+						</Typography>
+					</Box>
 
-			{/* Success/Error notification */}
-			<Snackbar
-				open={snackbar.open}
-				autoHideDuration={6000}
-				onClose={handleCloseSnackbar}
-				anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-			>
-				<Alert 
-					onClose={handleCloseSnackbar} 
-					severity={snackbar.severity} 
-					elevation={6} 
-					variant="filled"
+					<Grid container spacing={4}>
+						{/* Contact Form */}
+						<Grid item xs={12}>
+							<Paper elevation={3} sx={responsiveStyles.contactForm}>
+								<Typography variant="h5" component="h2" sx={responsiveStyles.formTitle}>
+									Send a Message
+								</Typography>
+								
+								<form onSubmit={handleSubmit}>
+									<Grid container spacing={2}>
+										<Grid item xs={12} sm={6}>
+											<TextField
+												fullWidth
+												label="Your Name"
+												name="name"
+												value={formData.name}
+												onChange={handleChange}
+												error={!!errors.name}
+												helperText={errors.name}
+												required
+												variant="outlined"
+											/>
+										</Grid>
+										<Grid item xs={12} sm={6}>
+											<TextField
+												fullWidth
+												label="Your Email"
+												name="email"
+												type="email"
+												value={formData.email}
+												onChange={handleChange}
+												error={!!errors.email}
+												helperText={errors.email}
+												required
+												variant="outlined"
+											/>
+										</Grid>
+										<Grid item xs={12}>
+											<TextField
+												fullWidth
+												label="Subject"
+												name="subject"
+												value={formData.subject}
+												onChange={handleChange}
+												error={!!errors.subject}
+												helperText={errors.subject}
+												required
+												variant="outlined"
+											/>
+										</Grid>
+										<Grid item xs={12}>
+											<TextField
+												fullWidth
+												label="Your Message"
+												name="message"
+												value={formData.message}
+												onChange={handleChange}
+												error={!!errors.message}
+												helperText={errors.message}
+												multiline
+												rows={5}
+												required
+												variant="outlined"
+											/>
+										</Grid>
+										<Grid item xs={12}>
+											<ContactButton
+												type="submit"
+												variant="contained"
+												color="primary"
+												fullWidth={isMobile}
+												size="large"
+												disabled={!isFormValid || loading || userData.isTestData}
+												endIcon={<SendIcon />}
+											>
+												{loading ? 'Sending...' : 'Send Message'}
+											</ContactButton>
+										</Grid>
+									</Grid>
+								</form>
+							</Paper>
+						</Grid>
+					</Grid>
+				</Container>
+
+				{/* Success/Error notification */}
+				<Snackbar
+					open={snackbar.open}
+					autoHideDuration={6000}
+					onClose={handleCloseSnackbar}
+					anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
 				>
-					{snackbar.message}
-				</Alert>
-			</Snackbar>
-		</Box>
+					<Alert 
+						onClose={handleCloseSnackbar} 
+						severity={snackbar.severity} 
+						elevation={6} 
+						variant="filled"
+					>
+						{snackbar.message}
+					</Alert>
+				</Snackbar>
+			</Box>
+		</Fragment>
 	)
 }
 

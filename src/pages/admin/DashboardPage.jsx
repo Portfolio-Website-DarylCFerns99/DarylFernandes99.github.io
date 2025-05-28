@@ -1,6 +1,6 @@
 import { typeMapping, fileToBase64 } from '../../common/common';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { removeCookie, TOKEN_COOKIE_NAME } from '../../utils/cookieUtils';
 import { toast } from 'react-toastify';
@@ -106,6 +106,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { THEME_MODES, getNextThemeMode } from '../../utils/themeUtils';
 import { getTypeName } from '../../common/common';
+import { DynamicSEO } from '../../components/SEO/DynamicSEO';
 
 const drawerWidth = 220;
 
@@ -485,237 +486,240 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" ref={appBarRef} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+    <Fragment>
+      <DynamicSEO title="Admin" noIndex={true} />
+      <Box sx={{ display: 'flex' }}>
+        <AppBar position="fixed" ref={appBarRef} sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { md: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+              Portfolio Admin Dashboard
+            </Typography>
+            <IconButton color="inherit" onClick={handleThemeToggle}>
+              {getThemeIcon()}
+            </IconButton>
+            <Button
+              color="inherit"
+              onClick={handleLogout}
+              startIcon={<LogoutIcon />}
+            >
+              Logout
+            </Button>
+          </Toolbar>
+        </AppBar>
+        
+        {/* Mobile drawer */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{ keepMounted: true }}
+          sx={{
+            display: { xs: 'block', sm: 'block', md: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        
+        {/* Desktop permanent drawer */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', sm: 'none', md: 'block' },
+            width: drawerWidth,
+            flexShrink: 0,
+            [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
+          }}
+          open
+        >
+          <Toolbar />
+          {drawer}
+        </Drawer>
+        
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: { xs: 1, sm: 2, md: 3 },  // Responsive padding
+            width: '100%',  // Full width
+            maxWidth: '100%',  // Constrain to viewport
+            overflowX: 'hidden',  // Prevent horizontal scroll
+            bgcolor: 'background.default',
+            minHeight: '100vh'
+          }}
+        >
+          <Toolbar />
+          
+          {/* Basic Info Section */}
+          <Paper 
+            sx={{ p: 2, mb: 4 }}
+            ref={(el) => sectionRefs.current['basic'] = el}
+            id="basic-section"
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Portfolio Admin Dashboard
-          </Typography>
-          <IconButton color="inherit" onClick={handleThemeToggle}>
-            {getThemeIcon()}
-          </IconButton>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            startIcon={<LogoutIcon />}
-          >
-            Logout
-          </Button>
-        </Toolbar>
-      </AppBar>
-      
-      {/* Mobile drawer */}
-      <Drawer
-        variant="temporary"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: 'block', sm: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-        }}
-      >
-        {drawer}
-      </Drawer>
-      
-      {/* Desktop permanent drawer */}
-      <Drawer
-        variant="permanent"
-        sx={{
-          display: { xs: 'none', sm: 'none', md: 'block' },
-          width: drawerWidth,
-          flexShrink: 0,
-          [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
-        }}
-        open
-      >
-        <Toolbar />
-        {drawer}
-      </Drawer>
-      
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          p: { xs: 1, sm: 2, md: 3 },  // Responsive padding
-          width: '100%',  // Full width
-          maxWidth: '100%',  // Constrain to viewport
-          overflowX: 'hidden',  // Prevent horizontal scroll
-          bgcolor: 'background.default',
-          minHeight: '100vh'
-        }}
-      >
-        <Toolbar />
-        
-        {/* Basic Info Section */}
-        <Paper 
-          sx={{ p: 2, mb: 4 }}
-          ref={(el) => sectionRefs.current['basic'] = el}
-          id="basic-section"
-        >
-          <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'basic')?.name || 'Basic Info'}
-          </Typography>
-          {loading.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading profile data...</Typography>
-            </Box>
-          ) : errors.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.profile}</Typography>
-            </Box>
-          ) : (
-            <BasicInfoSection basicInfo={basicInfo} setBasicInfo={setBasicInfo} onSave={handleSaveBasicInfo} />
-          )}
-        </Paper>
-        
-        {/* About Section */}
-        <Paper 
-          sx={{ p: 2, mb: 4 }}
-          ref={(el) => sectionRefs.current['about'] = el}
-          id="about-section"
-        >
-          <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'about')?.name || 'About'}
-          </Typography>
-          {loading.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading about data...</Typography>
-            </Box>
-          ) : errors.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.profile}</Typography>
-            </Box>
-          ) : (
-            <AboutSection aboutInfo={aboutInfo} setAboutInfo={setAboutInfo} onSave={handleSaveAboutInfo} />
-          )}
-        </Paper>
-        
-        {/* Social Links Section */}
-        <Paper 
-          sx={{ p: 2, mb: 4 }}
-          ref={(el) => sectionRefs.current['social'] = el}
-          id="social-section"
-        >
-          <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'social')?.name || 'Social Links'}
-          </Typography>
-          {loading.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading social links data...</Typography>
-            </Box>
-          ) : errors.profile ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.profile}</Typography>
-            </Box>
-          ) : (
-            <SocialLinksSection socialLinks={socialLinks} setSocialLinks={setSocialLinks} />
-          )}
-        </Paper>
-        
-        {/* Skills Section */}
-        <Paper 
-        sx={{ p: 2, mb: 4 }}
-        ref={(el) => sectionRefs.current['skills'] = el}
-        id="skills-section"
-        >
-        <Typography variant="h5" gutterBottom>
-        {sections.find(s => s.id === 'skills')?.name || 'Skills'}
-        </Typography>
-        {loading.skills ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <Typography>Loading skills data...</Typography>
-        </Box>
-        ) : errors.skills ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <Typography color="error">{errors.skills}</Typography>
-        </Box>
-        ) : (
-        <SkillsSection 
-            skillGroups={skillGroups} 
-                setSkillGroups={setSkillGroups} 
-                selectedSkills={selectedSkills}
-                setSelectedSkills={setSelectedSkills}
-              />
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'basic')?.name || 'Basic Info'}
+            </Typography>
+            {loading.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading profile data...</Typography>
+              </Box>
+            ) : errors.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.profile}</Typography>
+              </Box>
+            ) : (
+              <BasicInfoSection basicInfo={basicInfo} setBasicInfo={setBasicInfo} onSave={handleSaveBasicInfo} />
             )}
-        </Paper>
-        
-        {/* Timeline Section */}
-        <Paper 
+          </Paper>
+          
+          {/* About Section */}
+          <Paper 
+            sx={{ p: 2, mb: 4 }}
+            ref={(el) => sectionRefs.current['about'] = el}
+            id="about-section"
+          >
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'about')?.name || 'About'}
+            </Typography>
+            {loading.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading about data...</Typography>
+              </Box>
+            ) : errors.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.profile}</Typography>
+              </Box>
+            ) : (
+              <AboutSection aboutInfo={aboutInfo} setAboutInfo={setAboutInfo} onSave={handleSaveAboutInfo} />
+            )}
+          </Paper>
+          
+          {/* Social Links Section */}
+          <Paper 
+            sx={{ p: 2, mb: 4 }}
+            ref={(el) => sectionRefs.current['social'] = el}
+            id="social-section"
+          >
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'social')?.name || 'Social Links'}
+            </Typography>
+            {loading.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading social links data...</Typography>
+              </Box>
+            ) : errors.profile ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.profile}</Typography>
+              </Box>
+            ) : (
+              <SocialLinksSection socialLinks={socialLinks} setSocialLinks={setSocialLinks} />
+            )}
+          </Paper>
+          
+          {/* Skills Section */}
+          <Paper 
           sx={{ p: 2, mb: 4 }}
-          ref={(el) => sectionRefs.current['timeline'] = el}
-          id="timeline-section"
-        >
+          ref={(el) => sectionRefs.current['skills'] = el}
+          id="skills-section"
+          >
           <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'timeline')?.name || 'Timeline'}
+          {sections.find(s => s.id === 'skills')?.name || 'Skills'}
           </Typography>
-          {loading.experiences ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading timeline data...</Typography>
-            </Box>
-          ) : errors.experiences ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.experiences}</Typography>
-            </Box>
+          {loading.skills ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Typography>Loading skills data...</Typography>
+          </Box>
+          ) : errors.skills ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+          <Typography color="error">{errors.skills}</Typography>
+          </Box>
           ) : (
-            <TimelineSection experiences={experiences} setExperiences={setExperiences} />
-          )}
-        </Paper>
-        
-        {/* Projects Section */}
-        <Paper 
-          sx={{ p: 2, mb: 4 }}
-          ref={(el) => sectionRefs.current['projects'] = el}
-          id="projects-section"
-        >
-          <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'projects')?.name || 'Projects'}
-          </Typography>
-          {loading.projects ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading projects data...</Typography>
-            </Box>
-          ) : errors.projects ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.projects}</Typography>
-            </Box>
-          ) : (
-            <ProjectsSection projects={projects} setProjects={setProjects} />
-          )}
-        </Paper>
+          <SkillsSection 
+              skillGroups={skillGroups} 
+                  setSkillGroups={setSkillGroups} 
+                  selectedSkills={selectedSkills}
+                  setSelectedSkills={setSelectedSkills}
+                />
+              )}
+          </Paper>
+          
+          {/* Timeline Section */}
+          <Paper 
+            sx={{ p: 2, mb: 4 }}
+            ref={(el) => sectionRefs.current['timeline'] = el}
+            id="timeline-section"
+          >
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'timeline')?.name || 'Timeline'}
+            </Typography>
+            {loading.experiences ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading timeline data...</Typography>
+              </Box>
+            ) : errors.experiences ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.experiences}</Typography>
+              </Box>
+            ) : (
+              <TimelineSection experiences={experiences} setExperiences={setExperiences} />
+            )}
+          </Paper>
+          
+          {/* Projects Section */}
+          <Paper 
+            sx={{ p: 2, mb: 4 }}
+            ref={(el) => sectionRefs.current['projects'] = el}
+            id="projects-section"
+          >
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'projects')?.name || 'Projects'}
+            </Typography>
+            {loading.projects ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading projects data...</Typography>
+              </Box>
+            ) : errors.projects ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.projects}</Typography>
+              </Box>
+            ) : (
+              <ProjectsSection projects={projects} setProjects={setProjects} />
+            )}
+          </Paper>
 
-        {/* Reviews Section */}
-        <Paper 
-          sx={{ p: 2 }}
-          ref={(el) => sectionRefs.current['reviews'] = el}
-          id="reviews-section"
-        >
-          <Typography variant="h5" gutterBottom>
-            {sections.find(s => s.id === 'reviews')?.name || 'Reviews'}
-          </Typography>
-          {loading.reviews ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography>Loading reviews data...</Typography>
-            </Box>
-          ) : errors.reviews ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-              <Typography color="error">{errors.reviews}</Typography>
-            </Box>
-          ) : (
-            <ReviewsSection reviews={reviews} setReviews={setReviews} />
-          )}
-        </Paper>
+          {/* Reviews Section */}
+          <Paper 
+            sx={{ p: 2 }}
+            ref={(el) => sectionRefs.current['reviews'] = el}
+            id="reviews-section"
+          >
+            <Typography variant="h5" gutterBottom>
+              {sections.find(s => s.id === 'reviews')?.name || 'Reviews'}
+            </Typography>
+            {loading.reviews ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography>Loading reviews data...</Typography>
+              </Box>
+            ) : errors.reviews ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <Typography color="error">{errors.reviews}</Typography>
+              </Box>
+            ) : (
+              <ReviewsSection reviews={reviews} setReviews={setReviews} />
+            )}
+          </Paper>
+        </Box>
       </Box>
-    </Box>
+    </Fragment>
   );
 };
 

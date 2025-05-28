@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, Fragment } from 'react'
 import { 
   Box, 
   Typography, 
@@ -44,6 +44,7 @@ import {
   formHeadingStyles, 
   submitButtonStyles 
 } from './styles'
+import { DynamicSEO } from '../../components/SEO/DynamicSEO'
 
 const Index = () => {
   const userData = useSelector((state) => state.user);
@@ -291,368 +292,374 @@ const Index = () => {
   };
 
   return (
-    <Box sx={pageContainerStyles(theme, appBarHeight)}>
-      <Container maxWidth="lg">
-        {/* Page Title */}
-        <Box sx={pageTitleStyles}>
-          <Typography 
-            variant="subtitle1" 
-            component="p" 
-            sx={sectionSubtitleStyles(theme)}
-          >
-            Share Your Experience
-          </Typography>
-          <Typography 
-            variant="h2" 
-            component="h1" 
-            sx={mainHeadingStyles}
-          >
-            Client{' '}
+    <Fragment>
+      <DynamicSEO 
+        title="Reviews"
+        description={`Client testimonials for ${userData.name} ${userData.surname}`}
+      />
+      <Box sx={pageContainerStyles(theme, appBarHeight)}>
+        <Container maxWidth="lg">
+          {/* Page Title */}
+          <Box sx={pageTitleStyles}>
+            <Typography 
+              variant="subtitle1" 
+              component="p" 
+              sx={sectionSubtitleStyles(theme)}
+            >
+              Share Your Experience
+            </Typography>
             <Typography 
               variant="h2" 
-              component="span" 
-              color="primary"
-              sx={headingSpanStyles}
+              component="h1" 
+              sx={mainHeadingStyles}
             >
-              Reviews
+              Client{' '}
+              <Typography 
+                variant="h2" 
+                component="span" 
+                color="primary"
+                sx={headingSpanStyles}
+              >
+                Reviews
+              </Typography>
             </Typography>
-          </Typography>
-          <Typography 
-            variant="body1" 
-            sx={descriptionTextStyles(theme)}
-          >
-            See what others have to say about working with me. Your feedback is valuable!
-          </Typography>
-        </Box>
-
-        {!showForm ? (
-          <>
-            {/* Section header with review count and submit button */}
-            <Box 
-              sx={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                flexDirection: isMobile ? 'column' : 'row',
-                gap: 2,
-                mb: 4
-              }}
+            <Typography 
+              variant="body1" 
+              sx={descriptionTextStyles(theme)}
             >
-              {/* Sort filter - Left */}
-              {reviews.length > 0 && (
-                <FormControl 
-                  size="small" 
+              See what others have to say about working with me. Your feedback is valuable!
+            </Typography>
+          </Box>
+
+          {!showForm ? (
+            <>
+              {/* Section header with review count and submit button */}
+              <Box 
+                sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  gap: 2,
+                  mb: 4
+                }}
+              >
+                {/* Sort filter - Left */}
+                {reviews.length > 0 && (
+                  <FormControl 
+                    size="small" 
+                    sx={{ 
+                      minWidth: 150,
+                      width: isMobile ? '100%' : 'auto',
+                      order: isMobile ? 2 : 1
+                    }}
+                  >
+                    <InputLabel id="sort-reviews-label">Sort By</InputLabel>
+                    <Select
+                      labelId="sort-reviews-label"
+                      id="sort-reviews"
+                      value={sortOption}
+                      onChange={handleSortChange}
+                      label="Sort By"
+                      startAdornment={<SortIcon fontSize="small" sx={{ mr: 1 }} />}
+                    >
+                      <MenuItem value="newest">Newest First</MenuItem>
+                      <MenuItem value="oldest">Oldest First</MenuItem>
+                      <MenuItem value="highest">Highest Rating</MenuItem>
+                      <MenuItem value="lowest">Lowest Rating</MenuItem>
+                    </Select>
+                  </FormControl>
+                )}
+                
+                {/* Review count - Center */}
+                <Typography 
+                  variant="h6" 
+                  color="text.secondary"
                   sx={{ 
-                    minWidth: 150,
-                    width: isMobile ? '100%' : 'auto',
-                    order: isMobile ? 2 : 1
+                    textAlign: 'center',
+                    order: isMobile ? 1 : 2,
+                    flexGrow: 1
                   }}
                 >
-                  <InputLabel id="sort-reviews-label">Sort By</InputLabel>
-                  <Select
-                    labelId="sort-reviews-label"
-                    id="sort-reviews"
-                    value={sortOption}
-                    onChange={handleSortChange}
-                    label="Sort By"
-                    startAdornment={<SortIcon fontSize="small" sx={{ mr: 1 }} />}
-                  >
-                    <MenuItem value="newest">Newest First</MenuItem>
-                    <MenuItem value="oldest">Oldest First</MenuItem>
-                    <MenuItem value="highest">Highest Rating</MenuItem>
-                    <MenuItem value="lowest">Lowest Rating</MenuItem>
-                  </Select>
-                </FormControl>
+                  {reviews.length > 0 
+                    ? `${reviews.length} ${reviews.length === 1 ? 'Review' : 'Reviews'}`
+                    : 'No reviews yet'
+                  }
+                </Typography>
+                
+                {/* Submit button - Right */}
+                <ContactButton
+                  onClick={() => setShowForm(true)}
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  endIcon={<RateReviewIcon />}
+                  disabled={userData.isTestData}
+                  sx={{
+                    minWidth: isMobile ? '100%' : '200px',
+                    order: isMobile ? 3 : 3
+                  }}
+                >
+                  Submit a Review
+                </ContactButton>
+              </Box>
+              
+              {/* Reviews Display Section */}
+              {reviews.length > 0 ? (
+                <>
+                  <Grid container spacing={3} sx={{ mb: 3 }}>
+                    {currentReviews.map((review, index) => (
+                      <Grid item xs={12} md={6} lg={4} key={review._id || index}>
+                        <Card 
+                          elevation={3} 
+                          sx={{ 
+                            height: '100%', 
+                            display: 'flex', 
+                            flexDirection: 'column',
+                            position: 'relative',
+                            p: 2 
+                          }}
+                        >
+                          <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
+                            <FormatQuoteIcon color="primary" fontSize="large" />
+                          </Box>
+                          <CardContent sx={{ flexGrow: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                              <Avatar 
+                                sx={{ 
+                                  bgcolor: getAvatarColor(review.name),
+                                  mr: 2
+                                }}
+                              >
+                                {getInitials(review.name)}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="h6" component="div">
+                                  {review.name}
+                                </Typography>
+                                <Typography variant="caption" color="text.secondary">
+                                  via {review.where_known_from}
+                                </Typography>
+                              </Box>
+                            </Box>
+                            
+                            <Rating 
+                              value={review.rating} 
+                              readOnly 
+                              size="small" 
+                              sx={{ mb: 2 }}
+                            />
+                            
+                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                              {review.content}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                  
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 4 }}>
+                      <Pagination 
+                        count={totalPages} 
+                        page={page} 
+                        onChange={handlePageChange} 
+                        color="primary"
+                        size={isMobile ? "small" : "medium"}
+                      />
+                    </Box>
+                  )}
+                </>
+              ) : (
+                <Box sx={{ textAlign: 'center', my: 4, p: 4, bgcolor: 'background.paper', borderRadius: 2 }}>
+                  <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+                    No reviews yet. Be the first to leave a review!
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+                    Your feedback is important and helps others learn about my work.
+                  </Typography>
+                </Box>
               )}
-              
-              {/* Review count - Center */}
-              <Typography 
-                variant="h6" 
-                color="text.secondary"
-                sx={{ 
-                  textAlign: 'center',
-                  order: isMobile ? 1 : 2,
-                  flexGrow: 1
-                }}
-              >
-                {reviews.length > 0 
-                  ? `${reviews.length} ${reviews.length === 1 ? 'Review' : 'Reviews'}`
-                  : 'No reviews yet'
-                }
-              </Typography>
-              
-              {/* Submit button - Right */}
-              <ContactButton
-                onClick={() => setShowForm(true)}
-                variant="contained"
-                color="primary"
-                size="large"
-                endIcon={<RateReviewIcon />}
-                disabled={userData.isTestData}
-                sx={{
-                  minWidth: isMobile ? '100%' : '200px',
-                  order: isMobile ? 3 : 3
-                }}
-              >
-                Submit a Review
-              </ContactButton>
-            </Box>
-            
-            {/* Reviews Display Section */}
-            {reviews.length > 0 ? (
-              <>
-                <Grid container spacing={3} sx={{ mb: 3 }}>
-                  {currentReviews.map((review, index) => (
-                    <Grid item xs={12} md={6} lg={4} key={review._id || index}>
-                      <Card 
-                        elevation={3} 
+            </>
+          ) : (
+            <>
+              {/* Review Form */}
+              <Grid container spacing={4} justifyContent="center">
+                <Grid item xs={12} md={8}>
+                  <Paper elevation={3} sx={paperContainerStyles}>
+                    {/* Form Header with Title and Back Button */}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexDirection: isMobile ? 'column' : 'row',
+                      justifyContent: 'space-between', 
+                      alignItems: 'center',
+                      mb: 3,
+                      position: 'relative',
+                      gap: isMobile ? 2 : 0
+                    }}>
+                      <Button
+                        onClick={() => setShowForm(false)}
+                        startIcon={<ArrowBackIcon />}
+                        variant="outlined"
+                        color="primary"
+                        size="small"
                         sx={{ 
-                          height: '100%', 
-                          display: 'flex', 
-                          flexDirection: 'column',
-                          position: 'relative',
-                          p: 2 
+                          position: isMobile ? 'relative' : 'absolute', 
+                          left: 0 
                         }}
                       >
-                        <Box sx={{ position: 'absolute', top: 16, right: 16 }}>
-                          <FormatQuoteIcon color="primary" fontSize="large" />
-                        </Box>
-                        <CardContent sx={{ flexGrow: 1 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                            <Avatar 
-                              sx={{ 
-                                bgcolor: getAvatarColor(review.name),
-                                mr: 2
-                              }}
-                            >
-                              {getInitials(review.name)}
-                            </Avatar>
-                            <Box>
-                              <Typography variant="h6" component="div">
-                                {review.name}
-                              </Typography>
-                              <Typography variant="caption" color="text.secondary">
-                                via {review.where_known_from}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          
-                          <Rating 
-                            value={review.rating} 
-                            readOnly 
-                            size="small" 
-                            sx={{ mb: 2 }}
-                          />
-                          
-                          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            {review.content}
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    </Grid>
-                  ))}
-                </Grid>
-                
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4, mb: 4 }}>
-                    <Pagination 
-                      count={totalPages} 
-                      page={page} 
-                      onChange={handlePageChange} 
-                      color="primary"
-                      size={isMobile ? "small" : "medium"}
-                    />
-                  </Box>
-                )}
-              </>
-            ) : (
-              <Box sx={{ textAlign: 'center', my: 4, p: 4, bgcolor: 'background.paper', borderRadius: 2 }}>
-                <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-                  No reviews yet. Be the first to leave a review!
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-                  Your feedback is important and helps others learn about my work.
-                </Typography>
-              </Box>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Review Form */}
-            <Grid container spacing={4} justifyContent="center">
-              <Grid item xs={12} md={8}>
-                <Paper elevation={3} sx={paperContainerStyles}>
-                  {/* Form Header with Title and Back Button */}
-                  <Box sx={{ 
-                    display: 'flex', 
-                    flexDirection: isMobile ? 'column' : 'row',
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    mb: 3,
-                    position: 'relative',
-                    gap: isMobile ? 2 : 0
-                  }}>
-                    <Button
-                      onClick={() => setShowForm(false)}
-                      startIcon={<ArrowBackIcon />}
-                      variant="outlined"
-                      color="primary"
-                      size="small"
-                      sx={{ 
-                        position: isMobile ? 'relative' : 'absolute', 
-                        left: 0 
-                      }}
-                    >
-                      Back to Reviews
-                    </Button>
+                        Back to Reviews
+                      </Button>
+                      
+                      <Typography 
+                        variant="h5" 
+                        component="h2" 
+                        sx={{ 
+                          ...formHeadingStyles,
+                          width: '100%',
+                          textAlign: 'center',
+                          fontSize: isMobile ? '1.5rem' : '1.75rem'
+                        }}
+                      >
+                        Submit Your Review
+                      </Typography>
+                    </Box>
                     
-                    <Typography 
-                      variant="h5" 
-                      component="h2" 
-                      sx={{ 
-                        ...formHeadingStyles,
-                        width: '100%',
-                        textAlign: 'center',
-                        fontSize: isMobile ? '1.5rem' : '1.75rem'
-                      }}
-                    >
-                      Submit Your Review
-                    </Typography>
-                  </Box>
-                  
-                  <form onSubmit={handleSubmit}>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label="Full Name"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleChange}
-                          error={!!errors.name}
-                          helperText={errors.name}
-                          required
-                          variant="outlined"
-                          placeholder="John Doe"
-                        />
-                      </Grid>
-                      
-                      <Grid item xs={12}>
-                        <FormControl fullWidth required error={!!errors.where_known_from}>
-                          <InputLabel id="where-known-from-label">How Do You Know Me?</InputLabel>
-                          <Select
-                            labelId="where-known-from-label"
-                            name="where_known_from"
-                            value={formData.where_known_from}
-                            onChange={handleChange}
-                            label="How Do You Know Me?"
-                          >
-                            {knownFromOptions.map((option) => (
-                              <MenuItem key={option} value={option}>
-                                {option}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                          {errors.where_known_from && (
-                            <FormHelperText>{errors.where_known_from}</FormHelperText>
-                          )}
-                        </FormControl>
-                      </Grid>
-                      
-                      {/* Conditional text field when "Other" is selected */}
-                      {formData.where_known_from === 'Other' && (
+                    <form onSubmit={handleSubmit}>
+                      <Grid container spacing={2}>
                         <Grid item xs={12}>
                           <TextField
                             fullWidth
-                            label="Please specify"
-                            name="other_source"
-                            value={formData.other_source}
+                            label="Full Name"
+                            name="name"
+                            value={formData.name}
                             onChange={handleChange}
+                            error={!!errors.name}
+                            helperText={errors.name}
+                            required
                             variant="outlined"
-                            placeholder="Where did you hear about me?"
-                            helperText="Optional - please let me know where you found me"
+                            placeholder="John Doe"
                           />
                         </Grid>
-                      )}
-                      
-                      <Grid item xs={12}>
-                        <Typography component="legend" sx={{ mb: 1, color: errors.rating ? theme.palette.error.main : 'inherit' }}>
-                          Your Rating*
-                        </Typography>
-                        <Rating
-                          name="rating"
-                          value={Number(formData.rating)}
-                          onChange={handleRatingChange}
-                          precision={1}
-                          size="large"
-                          sx={{ mb: 1 }}
-                        />
-                        {errors.rating && (
-                          <FormHelperText error>{errors.rating}</FormHelperText>
+                        
+                        <Grid item xs={12}>
+                          <FormControl fullWidth required error={!!errors.where_known_from}>
+                            <InputLabel id="where-known-from-label">How Do You Know Me?</InputLabel>
+                            <Select
+                              labelId="where-known-from-label"
+                              name="where_known_from"
+                              value={formData.where_known_from}
+                              onChange={handleChange}
+                              label="How Do You Know Me?"
+                            >
+                              {knownFromOptions.map((option) => (
+                                <MenuItem key={option} value={option}>
+                                  {option}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            {errors.where_known_from && (
+                              <FormHelperText>{errors.where_known_from}</FormHelperText>
+                            )}
+                          </FormControl>
+                        </Grid>
+                        
+                        {/* Conditional text field when "Other" is selected */}
+                        {formData.where_known_from === 'Other' && (
+                          <Grid item xs={12}>
+                            <TextField
+                              fullWidth
+                              label="Please specify"
+                              name="other_source"
+                              value={formData.other_source}
+                              onChange={handleChange}
+                              variant="outlined"
+                              placeholder="Where did you hear about me?"
+                              helperText="Optional - please let me know where you found me"
+                            />
+                          </Grid>
                         )}
-                      </Grid>
-                      
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label="Review Content"
-                          name="content"
-                          value={formData.content}
-                          onChange={handleChange}
-                          error={!!errors.content}
-                          helperText={errors.content || `${formData.content.length}/500 characters`}
-                          multiline
-                          rows={5}
-                          required
-                          variant="outlined"
-                          placeholder="Share your experience working with me or using my services..."
-                          inputProps={{ maxLength: 500 }}
-                        />
-                      </Grid>
-                      
-                      <Grid item xs={12}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                          <ContactButton
-                            type="submit"
-                            variant="contained"
-                            color="primary"
-                            fullWidth={isMobile}
+                        
+                        <Grid item xs={12}>
+                          <Typography component="legend" sx={{ mb: 1, color: errors.rating ? theme.palette.error.main : 'inherit' }}>
+                            Your Rating*
+                          </Typography>
+                          <Rating
+                            name="rating"
+                            value={Number(formData.rating)}
+                            onChange={handleRatingChange}
+                            precision={1}
                             size="large"
-                            disabled={!isFormValid}
-                            endIcon={<RateReviewIcon />}
-                            sx={submitButtonStyles(theme, isMobile)}
-                          >
-                            Submit Review
-                          </ContactButton>
-                        </Box>
+                            sx={{ mb: 1 }}
+                          />
+                          {errors.rating && (
+                            <FormHelperText error>{errors.rating}</FormHelperText>
+                          )}
+                        </Grid>
+                        
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            label="Review Content"
+                            name="content"
+                            value={formData.content}
+                            onChange={handleChange}
+                            error={!!errors.content}
+                            helperText={errors.content || `${formData.content.length}/500 characters`}
+                            multiline
+                            rows={5}
+                            required
+                            variant="outlined"
+                            placeholder="Share your experience working with me or using my services..."
+                            inputProps={{ maxLength: 500 }}
+                          />
+                        </Grid>
+                        
+                        <Grid item xs={12}>
+                          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <ContactButton
+                              type="submit"
+                              variant="contained"
+                              color="primary"
+                              fullWidth={isMobile}
+                              size="large"
+                              disabled={!isFormValid}
+                              endIcon={<RateReviewIcon />}
+                              sx={submitButtonStyles(theme, isMobile)}
+                            >
+                              Submit Review
+                            </ContactButton>
+                          </Box>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </form>
-                </Paper>
+                    </form>
+                  </Paper>
+                </Grid>
               </Grid>
-            </Grid>
-          </>
-        )}
-      </Container>
+            </>
+          )}
+        </Container>
 
-      {/* Success/Error notification */}
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity} 
-          elevation={6} 
-          variant="filled"
+        {/* Success/Error notification */}
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </Box>
+          <Alert 
+            onClose={handleCloseSnackbar} 
+            severity={snackbar.severity} 
+            elevation={6} 
+            variant="filled"
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </Fragment>
   )
 }
 

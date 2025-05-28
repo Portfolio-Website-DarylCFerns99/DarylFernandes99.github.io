@@ -1,0 +1,16 @@
+# Robots.txt for Portfolio Website
+# https://daryl-fernandes.com
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin pages
+Disallow: /admin
+Disallow: /admin/*
+
+# Sitemap location
+Sitemap: https://daryl-fernandes.com/sitemap.xml
+
+# Crawl-delay (optional - be nice to servers)
+Crawl-delay: 1
