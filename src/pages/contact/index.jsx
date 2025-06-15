@@ -183,7 +183,7 @@ const Index = () => {
 			/>
 			<Box sx={{ 
 				...responsiveStyles.mainContainer,
-				pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` },
+				pt: { xs: '2rem', md: `calc(${appBarHeight / 2}px + 4rem)` }, // Less padding on mobile since no header
 				bgcolor: theme.palette.background.default,
 			}}>
 				<Container maxWidth="lg">

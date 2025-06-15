@@ -177,7 +177,7 @@ const Index = () => {
 				description={`Browse ${projects.length} projects`}
 			/>
 			<ProjectsContainer maxWidth="lg" sx={{ 
-				pt: { xs: `calc(${appBarHeight}px + 2rem)`, md: `calc(${appBarHeight / 2}px + 4rem)` }
+				pt: { xs: '2rem', md: `calc(${appBarHeight / 2}px + 4rem)` } // Less padding on mobile since no header
 			}}>
 				<Box mb={6} textAlign="center">
 					<Typography 
@@ -220,13 +220,23 @@ const Index = () => {
 				{/* Filter Section */}
 				<Box mb={4}>
 					{/* Filter Toggle and Search */}
-					<Box sx={{ display: 'flex', gap: 2, mb: 2, alignItems: 'center', flexWrap: 'wrap' }}>
+					<Box sx={{ 
+						display: 'flex', 
+						flexDirection: { xs: 'column', sm: 'row' },
+						gap: 2, 
+						mb: 2, 
+						alignItems: 'stretch'
+					}}>
 						<TextField
 							placeholder="Search projects..."
 							value={searchText}
 							onChange={(e) => setSearchText(e.target.value)}
-							sx={{ flex: 1, minWidth: 300 }}
-							size="small"
+							sx={{ 
+								flex: { xs: 'none', sm: 1 },
+								width: { xs: '100%', sm: 'auto' },
+								minWidth: { sm: 300 }
+							}}
+							size="medium"
 							InputProps={{
 								startAdornment: (
 									<InputAdornment position="start">
@@ -250,9 +260,11 @@ const Index = () => {
 							startIcon={<FilterListIcon />}
 							onClick={() => setShowFilters(!showFilters)}
 							variant={hasActiveFilters ? "contained" : "outlined"}
-							size="small"
+							size="large"
 							sx={{ 
-								minWidth: 120,
+								width: { xs: '100%', sm: 'auto' },
+								minWidth: { sm: 120 },
+								height: { xs: 'auto', sm: '56px' }, // Match TextField height
 								backgroundColor: hasActiveFilters ? theme.palette.primary.main : 'transparent'
 							}}
 						>
@@ -264,13 +276,33 @@ const Index = () => {
 								startIcon={<ClearIcon />}
 								onClick={clearAllFilters}
 								variant="text"
-								size="small"
+								size="large"
 								color="secondary"
+								sx={{
+									display: { xs: 'none', sm: 'flex' },
+									height: '56px'
+								}}
 							>
 								Clear All
 							</Button>
 						)}
 					</Box>
+
+					{/* Mobile Clear All Button */}
+					{hasActiveFilters && (
+						<Box sx={{ display: { xs: 'block', sm: 'none' }, width: '100%' }}>
+							<Button
+								startIcon={<ClearIcon />}
+								onClick={clearAllFilters}
+								variant="text"
+								fullWidth
+								size="medium"
+								color="secondary"
+							>
+								Clear All Filters
+							</Button>
+						</Box>
+					)}
 
 					{/* Advanced Filters */}
 					<Collapse in={showFilters}>
@@ -285,7 +317,7 @@ const Index = () => {
 							<Grid container spacing={3}>
 								{/* Sort Controls */}
 								<Grid item xs={12} md={4}>
-									<FormControl fullWidth size="small">
+									<FormControl fullWidth size="medium">
 										<InputLabel>Sort By</InputLabel>
 										<Select
 											value={sortBy}
@@ -312,7 +344,7 @@ const Index = () => {
 								{/* Sort Order - only show when sorting is selected */}
 								{sortBy && (
 									<Grid item xs={12} md={4}>
-										<FormControl fullWidth size="small">
+										<FormControl fullWidth size="medium">
 											<InputLabel>Sort Order</InputLabel>
 											<Select
 												value={sortOrder}
@@ -340,7 +372,7 @@ const Index = () => {
 								{
 									uniqueTypes.length > 1 && (
 										<Grid item xs={12} md={sortBy ? 4 : 6}>
-											<FormControl fullWidth size="small">
+											<FormControl fullWidth size="medium">
 												<InputLabel>Project Type</InputLabel>
 												<Select
 													value={selectedType}

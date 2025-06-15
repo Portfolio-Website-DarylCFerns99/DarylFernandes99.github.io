@@ -49,7 +49,7 @@ function App() {
     const fetchUserData = async () => {
       try {
         // Only fetch user data if we're not on the admin route
-        if (!window.location.pathname.startsWith('/admin')) {
+        if (!window.location.pathname.startsWith('/admin') && import.meta.env.VITE_USER_ID ) {
           dispatch(setGithubDataLoading(true));
           
           // Import and use the userService

@@ -423,36 +423,6 @@ const Index = () => {
               <ProjectTag key={idx}>{tag}</ProjectTag>
             ))}
           </ProjectTags>
-          {project.type && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: theme.spacing(1.5),
-                right: theme.spacing(1.5),
-                zIndex: 2,
-                display: 'flex',
-                alignItems: 'center',
-                gap: theme.spacing(0.5),
-                padding: theme.spacing(0.5, 1),
-                borderRadius: theme.shape.borderRadius * 5,
-                backgroundColor: project.type === 'github' 
-                  ? alpha(theme.palette.mode === 'dark' ? '#333' : '#24292e', 0.85)
-                  : alpha(theme.palette.primary.main, 0.15),
-                color: project.type === 'github'
-                  ? theme.palette.common.white
-                  : theme.palette.primary.main,
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                backdropFilter: 'blur(4px)',
-                cursor: 'pointer',
-              }}
-              onClick={() => project.url && window.open(project.url, '_blank', 'noopener,noreferrer')}
-            >
-              {project.type === 'github' ? (
-                <><GitHubIcon fontSize="small" sx={{ fontSize: 16 }} /> GitHub</>
-              ) : project.type}
-            </Box>
-          )}
         </ProjectImageWrapper>
         <Box 
           sx={{ 
@@ -685,7 +655,7 @@ const Index = () => {
         position: 'relative',
         overflow: 'hidden',
         backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(30, 45, 90, 0.15) 0%, rgba(30, 45, 90, 0) 70%)',
-        pt: { xs: `${appBarHeight}px` }
+        pt: { xs: 0, md: `${appBarHeight}px` } // No padding on mobile since header is hidden
       }}>
         <Container maxWidth="lg">
           <Grid 
@@ -774,11 +744,14 @@ const Index = () => {
                   <Box 
                     key={skill.name}
                     sx={{
-                      bgcolor: index === 0 ? theme.palette.primary.main : theme.palette.background.paper,
-                      color: index === 0 ? theme.palette.primary.contrastText : theme.palette.text.primary,
+                      bgcolor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      // bgcolor: index === 0 ? theme.palette.primary.main : theme.palette.background.paper,
+                      // color: index === 0 ? theme.palette.primary.contrastText : theme.palette.text.primary,
                       px: { xs: 1.5, sm: 2 },
                       py: 0.8,
-                      border: index !== 0 ? `1px solid ${theme.palette.divider}` : 'none',
+                      // border: index !== 0 ? `1px solid ${theme.palette.divider}` : 'none',
+                      border: 'none',
                       borderRadius: '20px',
                       fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
                       boxShadow: theme.shadows[1],
@@ -798,13 +771,13 @@ const Index = () => {
                     px: { xs: 1.5, sm: 2 },
                     py: 0.8,
                     fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.875rem' },
-                    color: theme.palette.secondary.main,
+                    color: theme.palette.primary.main,
                     textTransform: 'none',
                     whiteSpace: 'nowrap',
-                    backgroundColor: alpha(theme.palette.secondary.main, 0.05),
+                    backgroundColor: alpha(theme.palette.primary.main, 0.05),
                     '&:hover': {
-                      backgroundColor: alpha(theme.palette.secondary.main, 0.1),
-                      borderColor: theme.palette.secondary.main,
+                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      borderColor: theme.palette.primary.main,
                     }
                   }}
                 >
@@ -834,7 +807,8 @@ const Index = () => {
                     textTransform: 'none',
                     bgcolor: theme.palette.primary.main,
                     '&:hover': {
-                      bgcolor: theme.palette.primary.dark
+                      bgcolor: theme.palette.primary.dark,
+                      color: theme.palette.primary.contrastText
                     },
                     fontSize: { xs: '0.875rem', sm: '0.9rem', md: '1rem' }
                   }}
@@ -1025,6 +999,14 @@ const Index = () => {
                   to="/contact"
                   variant="outlined"
                   endIcon={<NorthEastIcon fontSize={isMobile ? 'small' : 'medium'} />}
+                  sx={{
+                    color: theme.palette.primary.contrastText,
+                    bgcolor: theme.palette.primary.main,
+                    '&:hover': {
+                      bgcolor: theme.palette.primary.dark,
+                      color: theme.palette.primary.contrastText
+                    },
+                  }}
                 >
                   Contact Me
                 </ContactButton>
@@ -1050,253 +1032,32 @@ const Index = () => {
       <Box sx={{ bgcolor: theme.palette.background.default }}>
         <SkillsSection ref={skillsSectionRef}>
           <Container maxWidth="lg">
-		  	<Typography 
-				variant="subtitle1" 
-				component="p" 
-				sx={responsiveStyles.sectionSubtitle}
-			>
-				{userData.skillsSection.subtitle}
-			</Typography>
-			<Typography 
-				variant="h2" 
-				component="h2" 
-				sx={responsiveStyles.sectionTitle}
-			>
-				{userData.skillsSection.title}{' '}
-				<Typography 
-					variant="h2" 
-					component="span" 
-					sx={responsiveStyles.highlightItalic}
-				>
-					{userData.skillsSection.highlight}
-				</Typography>
-			</Typography>
-
+            <Typography 
+              variant="subtitle1" 
+              component="p" 
+              sx={responsiveStyles.sectionSubtitle}
+            >
+              {userData.skillsSection.subtitle}
+            </Typography>
+            <Typography 
+              variant="h2" 
+              component="h2" 
+              sx={responsiveStyles.sectionTitle}
+            >
+              {userData.skillsSection.title}{' '}
+              <Typography 
+                variant="h2" 
+                component="span" 
+                sx={responsiveStyles.highlightItalic}
+              >
+                {userData.skillsSection.highlight}
+              </Typography>
+            </Typography>
             <SkillsDashboardContainer>
-              {/* Mode Toggle */}
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center',
-                mb: 3,
-                gap: 1
-              }}>
-                <Button
-                  variant={skillsMode === 'standard' ? 'contained' : 'outlined'}
-                  onClick={() => setSkillsMode('standard')}
-                  sx={{
-                    borderRadius: '25px',
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                  }}
-                >
-                  📋 Standard View
-                </Button>
-                <Button
-                  variant={skillsMode === 'detailed' ? 'contained' : 'outlined'}
-                  onClick={() => setSkillsMode('detailed')}
-                  sx={{
-                    borderRadius: '25px',
-                    px: 3,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                  }}
-                >
-                  📊 Detailed View
-                </Button>
-              </Box>
-
-              {/* Search Bar for Skill Groups */}
-              <Box sx={{ 
-                display: 'flex', 
-                gap: 2, 
-                alignItems: 'stretch',
-                mb: 3,
-                flexDirection: { xs: 'column', sm: 'row' }
-              }}>
-                <SkillsSearchField
-                  placeholder="Search skills..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  variant="outlined"
-                  sx={{ 
-                    flex: 1,
-                    '& .MuiOutlinedInput-root': {
-                      height: '48px',
-                    }
-                  }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SearchIcon color="action" />
-                      </InputAdornment>
-                    ),
-                    endAdornment: searchTerm && (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={clearSearch}
-                          edge="end"
-                          size="small"
-                          sx={{ 
-                            color: 'action.active',
-                            '&:hover': {
-                              color: 'primary.main'
-                            }
-                          }}
-                        >
-                          <ClearIcon fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-                
-                {/* Filter Toggle Button */}
-                <Button
-                  onClick={toggleFilters}
-                  variant="outlined"
-                  startIcon={<FilterListIcon />}
-                  endIcon={showFilters ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  sx={{
-                    borderRadius: '25px',
-                    px: 3,
-                    py: 1.5,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    minWidth: { xs: '100%', sm: 'auto' },
-                    height: '48px',
-                    backgroundColor: showFilters ? theme.palette.action.selected : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  Filters
-                </Button>
-              </Box>
-                
-                {/* Filter Buttons - Now collapsible */}
-                {showFilters && (
-                  <SkillsFilterContainer>
-                    <SkillsFilterButton 
-                      active={skillFilter === 'all'} 
-                      onClick={() => setSkillFilter('all')}
-                    >
-                      All Skills
-                    </SkillsFilterButton>
-                    <SkillsFilterButton 
-                      active={skillFilter === 'basic'} 
-                      onClick={() => setSkillFilter('basic')}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }}
-                    >
-                      <Box
-                        sx={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          backgroundColor: theme.palette.text.secondary,
-                          flexShrink: 0
-                        }}
-                      />
-                      Basic (Level 1)
-                    </SkillsFilterButton>
-                    <SkillsFilterButton 
-                      active={skillFilter === 'proficient'} 
-                      onClick={() => setSkillFilter('proficient')}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: theme.palette.secondary.main,
-                            flexShrink: 0
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: theme.palette.warning.main,
-                            flexShrink: 0
-                          }}
-                        />
-                      </Box>
-                      Proficient (Level 2-3)
-                    </SkillsFilterButton>
-                    <SkillsFilterButton 
-                      active={skillFilter === 'expert'} 
-                      onClick={() => setSkillFilter('expert')}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: theme.palette.info.main,
-                            flexShrink: 0
-                          }}
-                        />
-                        <Box
-                          sx={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: '50%',
-                            backgroundColor: theme.palette.success.main,
-                            flexShrink: 0
-                          }}
-                        />
-                      </Box>
-                      Expert (Level 4-5)
-                    </SkillsFilterButton>
-                  </SkillsFilterContainer>
-                )}
-
-              {/* Standard Mode - Compact View */}
-              {skillsMode === 'standard' && (
-                <CompactSkills 
-                  skillGroups={filteredSkillGroups} 
-                  filterLevel={skillFilter}
-                />
-              )}
-
-              {/* Detailed Mode - Current Full UI */}
-              {skillsMode === 'detailed' && (
-                <SkillGroupsContainer container spacing={3} direction={'row'}>
-                  {userData.skillGroups && userData.skillGroups.length > 0 && filteredSkillGroups.map((group, index) => (
-                    <Grid 
-                      item 
-                      xs={12} 
-                      md={6} 
-                      key={group.id || index}
-                    >
-                      <SkillGroup 
-                        index={index}
-                        name={group.name} 
-                        skills={group.skills} 
-                        filterLevel={skillFilter}
-                      />
-                    </Grid>
-                  ))}
-                </SkillGroupsContainer>
-              )}
+              <CompactSkills 
+                skillGroups={filteredSkillGroups} 
+                filterLevel={skillFilter}
+              />
             </SkillsDashboardContainer>
           </Container>
         </SkillsSection>
@@ -1466,208 +1227,6 @@ const Index = () => {
           </Container>
         </ExperienceSection>
       </Box>
-
-      {/* Reviews Section */}
-      {
-        userData.reviews && userData.reviews.length > 0 && (
-          <Box sx={{ bgcolor: theme.palette.background.paper }}>
-            <ReviewsSection ref={reviewsSectionRef}>
-              <Container maxWidth="lg">
-                <Typography 
-                  variant="subtitle1" 
-                  component="p" 
-                  sx={responsiveStyles.sectionSubtitle}
-                >
-                  What others say
-                </Typography>
-                <Typography 
-                  variant="h2" 
-                  component="h2" 
-                  sx={responsiveStyles.sectionTitle}
-                >
-                  Client&nbsp;
-                  <Typography 
-                    variant="h2" 
-                    component="span" 
-                    sx={responsiveStyles.highlightItalic}
-                  >
-                    Reviews
-                  </Typography>
-                </Typography>
-
-                {/* Marquee-style review display */}
-                <Box sx={{ 
-                  position: 'relative', 
-                  overflow: 'hidden',
-                  mt: 6,
-                  pb: 4,
-                  '&::before, &::after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    width: { xs: '50px', md: '100px' },
-                    height: '100%',
-                    zIndex: 2,
-                    pointerEvents: 'none'
-                  },
-                  '&::before': {
-                    left: 0,
-                    background: `linear-gradient(to right, ${theme.palette.background.paper}, transparent)`
-                  },
-                  '&::after': {
-                    right: 0,
-                    background: `linear-gradient(to left, ${theme.palette.background.paper}, transparent)`
-                  },
-                  '.swiper-wrapper': {
-                    transitionTimingFunction: 'linear !important',
-                    WebkitTransitionTimingFunction: 'linear !important',
-                    OTransitionTimingFunction: 'linear !important'
-                  }
-                }}>
-                  <Swiper
-                    slidesPerView="auto"
-                    spaceBetween={24}
-                    loop={true}
-                    centeredSlides={false}
-                    autoplay={{
-                      delay: 0,
-                      disableOnInteraction: false,
-                      pauseOnMouseEnter: true,
-                      reverseDirection: false,
-                      stopOnLastSlide: false
-                    }}
-                    speed={6000}
-                    modules={[Autoplay]}
-                    className="swiper-wrapper"
-                    grabCursor={false}
-                    allowTouchMove={true}
-                    pagination={false}
-                    navigation={false}
-                    freeMode={{
-                      enabled: true,
-                      momentum: false
-                    }}
-                    simulateTouch={false}
-                    cssMode={false}
-                    preventInteractionOnTransition={true}
-                  >
-                    {userData.reviews?.map((review, index) => (
-                      <SwiperSlide key={index} style={{ width: 'auto', maxWidth: '450px' }}>
-                        <ReviewCard>
-                            {/* Header with name and initials */}
-                            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                              <Box
-                                sx={{
-                                  width: 60,
-                                  height: 60,
-                                  borderRadius: '50%',
-                                  bgcolor: '#5F9BE4',
-                                  color: '#fff',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontWeight: 'bold',
-                                  fontSize: '1.4rem',
-                                  mr: 2
-                                }}
-                              >
-                                {getInitials(review.name)}
-                              </Box>
-                              
-                              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                <Typography 
-                                  variant="h6" 
-                                  sx={{ 
-                                    fontWeight: 600, 
-                                    fontSize: '1.1rem',
-                                    color: theme.palette.text.primary,
-                                    mb: 0.5
-                                  }}
-                                >
-                                  {review.name}
-                                </Typography>
-                                <Box sx={{ display: 'flex', mt: 0.5 }}>
-                                  {renderRatingStars(review.rating)}
-                                </Box>
-                              </Box>
-                            </Box>
-
-                            {/* Divider */}
-                            <Box
-                              sx={{
-                                height: '1px',
-                                width: '100%',
-                                bgcolor: alpha(theme.palette.divider, 0.6),
-                                mt: 2
-                              }}
-                            />
-
-                            {/* Review content with quote icon */}
-                            <Box sx={{ 
-                              display: 'grid',
-                              gridTemplateColumns: 'auto 1fr',
-                              gap: 2,
-                              alignItems: 'start'
-                            }}>
-                              <FormatQuoteIcon 
-                                sx={{ 
-                                  color: alpha(theme.palette.text.secondary, 0.3),
-                                  fontSize: 42,
-                                  transform: 'rotate(180deg)',
-                                  mt: 0.5
-                                }} 
-                              />
-                              
-                              <Box>
-                                <Typography 
-                                  variant="body2" 
-                                  sx={{ 
-                                    color: theme.palette.text.secondary,
-                                    lineHeight: 1.6,
-                                    fontSize: '0.9rem'
-                                  }}
-                                >
-                                  {review.text}
-                                </Typography>
-
-                                {/* Additional content if available */}
-                                {review.content && (
-                                  <Typography 
-                                    variant="body2" 
-                                    color="text.secondary"
-                                    sx={{ 
-                                      mt: 1.5,
-                                      opacity: 0.8,
-                                      fontSize: '0.85rem'
-                                    }}
-                                  >
-                                    {review.content}
-                                  </Typography>
-                                )}
-                              </Box>
-                            </Box>
-                        </ReviewCard>
-                      </SwiperSlide>
-                    ))}
-                  </Swiper>
-                </Box>
-
-                {/* Call-to-action button */}
-                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-                  <ContactButton 
-                    component={Link}
-                    to="/reviews"
-                    variant="outlined"
-                    endIcon={<NorthEastIcon />}
-                  >
-                    See All Reviews
-                  </ContactButton>
-                </Box>
-              </Container>
-            </ReviewsSection>
-          </Box>
-        )
-      }
     </>
   );
 };

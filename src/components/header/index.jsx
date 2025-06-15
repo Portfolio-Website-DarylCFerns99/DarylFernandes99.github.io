@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { Fragment, useRef, useState, useEffect } from 'react'
-import MenuIcon from '@mui/icons-material/Menu';
+import { Fragment, useRef } from 'react'
 import { Link, useLocation } from 'react-router-dom';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -9,24 +8,17 @@ import {
     AppBar, 
     Box, 
     Button, 
-    Drawer, 
     IconButton, 
-    List, 
-    ListItem, 
-    ListItemButton, 
-    ListItemIcon, 
-    ListItemText, 
     Toolbar, 
     Tooltip, 
-    Divider,
     useTheme,
-    Container
+    Container,
+    BottomNavigation,
+    BottomNavigationAction
 } from '@mui/material'
 
 import { ROUTES } from '../../common/common'
 import { THEME_MODES, THEME_MODE_LABELS, getNextThemeMode } from '../../utils/themeUtils'
-
-const drawerWidth = 280;
 
 // Get icon and label for current theme mode
 const getThemeIcon = (mode) => {
@@ -52,155 +44,98 @@ const getNextThemeLabel = (currentMode) => {
 };
 
 const Index = (props) => {
-    const { window } = props;
     const theme = useTheme();
     const appBarRef = useRef(null);
     const location = useLocation();
-    const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [appBarHeight, setAppBarHeight] = useState(64); // Default height
-
-    useEffect(() => {
-        // Update appBar height when component mounts
-        if (appBarRef.current) {
-            setAppBarHeight(appBarRef.current.clientHeight);
-        }
-        
-        // Optional: Add resize listener to handle dynamic changes
-        const handleResize = () => {
-            if (appBarRef.current) {
-                setAppBarHeight(appBarRef.current.clientHeight);
-            }
-        };
-        
-        // Add event listener to window object
-        if (typeof window !== 'undefined') {
-            window.addEventListener('resize', handleResize);
-            return () => {
-                window.removeEventListener('resize', handleResize);
-            };
-        }
-        return undefined;
-    }, []);
-
-    const handleDrawerToggle = () => {
-        setMobileOpen((prevState) => !prevState);
-    };
 
     const handleThemeModeToggle = () => {
         const nextMode = getNextThemeMode(props.themeMode);
         props.setThemeMode(nextMode);
     };
 
-    const drawer = (
-        <Box sx={{ 
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            bgcolor: theme.palette.mode === 'dark' 
-                ? 'rgba(10, 15, 30, 0.75)' 
-                : 'rgba(250, 250, 255, 0.85)',
-            backdropFilter: 'blur(15px)',
-            WebkitBackdropFilter: 'blur(15px)', // For Safari
-            pt: `${appBarHeight}px`,
-            borderRight: '1px solid',
-            borderColor: theme.palette.mode === 'dark' 
-                ? 'rgba(255, 255, 255, 0.05)' 
-                : 'rgba(255, 255, 255, 0.5)',
-        }}>
-            {/* Navigation Links */}
-            <List sx={{ flexGrow: 1 }}>
-                {ROUTES.map((item) => item.hide ? null : (
-                <ListItem key={item.title} disablePadding>
-                    <ListItemButton 
-                      component={Link} 
-                      to={item.path}
-                      onClick={handleDrawerToggle}
-                      sx={{ 
-                        py: 1,
-                        px: 2,
-                        my: 0.5,
-                        borderRadius: 2,
-                        bgcolor: location.pathname === item.path 
-                          ? theme.palette.mode === 'dark' ? 'rgba(93, 113, 168, 0.2)' : 'rgba(93, 113, 168, 0.1)'
-                          : 'transparent',
-                        '&:hover': {
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(93, 113, 168, 0.15)' : 'rgba(93, 113, 168, 0.05)'
-                        },
-                        position: 'relative'
-                      }}
-                    >
-                      <ListItemIcon sx={{ 
-                          color: location.pathname === item.path 
-                            ? theme.palette.mode === 'dark' ? '#8b9cda' : '#5D71A8' 
-                            : theme.palette.text.secondary,
-                          minWidth: '40px',
-                          opacity: location.pathname === item.path ? 1 : 0.7
-                      }}>
-                          {item.icon && <item.icon />}
-                      </ListItemIcon>
-                      <ListItemText 
-                        primary={item.title} 
-                        primaryTypographyProps={{
-                          fontWeight: location.pathname === item.path ? 500 : 400,
-                          color: location.pathname === item.path 
-                            ? theme.palette.mode === 'dark' ? '#8b9cda' : '#5D71A8' 
-                            : theme.palette.text.primary,
-                          fontSize: '0.95rem'
-                        }}
-                      />
-                    </ListItemButton>
-                </ListItem>
-                ))}
-            </List>
-            
-            {/* Theme Toggle in Drawer - Better integrated with theme */}
-            <Box sx={{ p: 2, pt: 0 }}>
-                <Divider sx={{  
-                    mb: 2,
-                    borderColor: theme.palette.mode === 'dark' 
-                        ? 'rgba(255, 255, 255, 0.05)' 
-                        : 'rgba(93, 113, 168, 0.15)' 
-                }} />
-                <Box
-                    component={Button}
-                    fullWidth
-                    variant="outlined"
-                    onClick={handleThemeModeToggle}
-                    startIcon={getThemeIcon(props.themeMode)}
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-start',
-                        color: theme.palette.mode === 'dark' ? '#fff' : '#3a3a4c',
-                        borderColor: theme.palette.mode === 'dark' 
-                            ? 'rgba(255, 255, 255, 0.15)' 
-                            : 'rgba(93, 113, 168, 0.25)',
-                        borderRadius: 2,
-                        py: 1,
-                        textTransform: 'none',
-                        '&:hover': {
-                            borderColor: theme.palette.mode === 'dark' ? '#8b9cda' : '#5D71A8',
-                            bgcolor: theme.palette.mode === 'dark' 
-                                ? 'rgba(255, 255, 255, 0.05)'
-                                : 'rgba(93, 113, 168, 0.05)'
-                        }
-                    }}
-                >
-                    {getThemeLabel(props.themeMode)}
-                </Box>
-            </Box>
-        </Box>
-    );
-
-    const container = window !== undefined ? () => window().document.body : undefined;
-
     return (
         <Fragment>
+            {/* Mobile/Tablet Bottom Navigation */}
+            <Box
+                sx={{ 
+                    position: 'fixed', 
+                    bottom: '10px', 
+                    left: 0, 
+                    right: 0,
+                    display: { xs: 'flex', md: 'none' },
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    p: { xs: 2, sm: 3 },
+                    zIndex: 1100,
+                }} 
+            >
+                <Box
+                    sx={{
+                        background: theme.palette.mode === 'dark' 
+                            ? 'rgba(10, 15, 30, 0.75)' 
+                            : 'rgba(250, 250, 255, 0.25)',
+                        backdropFilter: 'blur(2px)',
+                        WebkitBackdropFilter: 'blur(2px)',
+                        borderRadius: '100px',
+                        boxShadow: theme.palette.mode === 'dark'
+                            ? '0 4px 20px rgba(0, 0, 0, 0.2)'
+                            : '0 4px 20px rgba(0, 0, 0, 0.08)',
+                        border: '1px solid',
+                        borderColor: theme.palette.mode === 'dark'
+                            ? 'rgba(255, 255, 255, 0.05)'
+                            : 'rgba(255, 255, 255, 0.6)',
+                        px: 2,
+                        py: 0.5,
+                        width: 'auto',
+                        maxWidth: 'calc(100% - 32px)',
+                    }}
+                >
+                    <BottomNavigation
+                        value={location.pathname}
+                        showLabels={false}
+                        sx={{
+                            background: 'transparent',
+                            height: 48,
+                            minWidth: 'auto',
+                            '& .MuiBottomNavigationAction-root': {
+                                minWidth: { xs: 56, sm: 64 },
+                                padding: 0,
+                                color: theme.palette.mode === 'dark' 
+                                    ? 'rgba(255, 255, 255, 0.7)' 
+                                    : 'rgba(58, 58, 76, 0.7)',
+                                '&.Mui-selected': {
+                                    color: theme.palette.mode === 'dark' ? '#8b9cda' : '#5D71A8',
+                                },
+                                '& .MuiSvgIcon-root': {
+                                    fontSize: '1.25rem',
+                                },
+                            },
+                        }}
+                    >
+                        {ROUTES.filter(item => !item.hide).map((item) => (
+                            <BottomNavigationAction
+                                key={item.path}
+                                value={item.path}
+                                icon={item.icon && <item.icon />}
+                                component={Link}
+                                to={item.path}
+                            />
+                        ))}
+                        <BottomNavigationAction
+                            icon={getThemeIcon(props.themeMode)}
+                            onClick={handleThemeModeToggle}
+                        />
+                    </BottomNavigation>
+                </Box>
+            </Box>
+
             <AppBar 
                 position='fixed'
                 variant='primary' 
                 ref={appBarRef}
                 elevation={0}
                 sx={{
+                    display: { xs: 'none', md: 'block' }, // Hide on mobile, show on desktop
                     background: 'transparent',
                     backdropFilter: 'none',
                     borderBottom: 'none',
@@ -216,9 +151,9 @@ const Index = (props) => {
                         sx={{
                             background: theme.palette.mode === 'dark' 
                                 ? 'rgba(10, 15, 30, 0.75)' 
-                                : 'rgba(250, 250, 255, 0.85)',
-                            backdropFilter: 'blur(15px)',
-                            WebkitBackdropFilter: 'blur(15px)',
+                                : 'rgba(250, 250, 255, 0.25)',
+                            backdropFilter: 'blur(2px)',
+                            WebkitBackdropFilter: 'blur(2px)',
                             borderRadius: '100px',
                             boxShadow: theme.palette.mode === 'dark'
                                 ? '0 4px 20px rgba(0, 0, 0, 0.2)'
@@ -240,17 +175,14 @@ const Index = (props) => {
                             p: 0,
                             minHeight: { xs: '48px', sm: '52px' }
                         }}>
-                            <IconButton
-                                aria-label="open drawer"
-                                edge="start"
-                                onClick={handleDrawerToggle}
-                                sx={{ 
-                                    display: { xs: 'flex', md: 'none' },
-                                    color: theme.palette.mode === 'dark' ? '#fff' : '#3a3a4c'
-                                }}
-                            >
-                                <MenuIcon />
-                            </IconButton>
+                            {/* Logo or Title for mobile - you can add your logo here if needed */}
+                            <Box sx={{ 
+                                display: { xs: 'none', md: 'none' }, // Hidden by default since AppBar is hidden on mobile
+                                alignItems: 'center',
+                                flexGrow: 1
+                            }}>
+                                {/* Add your logo or title here if needed */}
+                            </Box>
                             
                             {/* Desktop Navigation */}
                             <Box sx={{ 
@@ -309,37 +241,7 @@ const Index = (props) => {
                 </Container>
             </AppBar>
             
-            {/* Empty toolbar to create space below fixed AppBar */}
-            {/* <Box sx={{ height: { xs: `${appBarRef?.current?.clientHeight}px` } }} /> */}
-            
-            <Drawer
-                container={container}
-                variant="temporary"
-                anchor="left"
-                open={mobileOpen}
-                onClose={handleDrawerToggle}
-                ModalProps={{
-                    keepMounted: true, // Better open performance on mobile.
-                }}
-                sx={{
-                    display: { xs: 'block', md: 'none' },
-                    '& .MuiDrawer-paper': { 
-                        boxSizing: 'border-box', 
-                        width: drawerWidth,
-                        border: 'none',
-                        backdropFilter: 'blur(15px)',
-                        WebkitBackdropFilter: 'blur(15px)', // For Safari
-                        bgcolor: theme.palette.mode === 'dark' 
-                            ? 'rgba(10, 15, 30, 0.75)' 
-                            : 'rgba(250, 250, 255, 0.85)',
-                        boxShadow: theme.palette.mode === 'dark' 
-                            ? '0px 0px 20px rgba(0, 0, 0, 0.3)' 
-                            : '0px 0px 20px rgba(0, 0, 0, 0.1)',
-                    }
-                }}
-            >
-                {drawer}
-            </Drawer>
+
         </Fragment>
     )
 }

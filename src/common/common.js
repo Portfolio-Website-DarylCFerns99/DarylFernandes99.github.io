@@ -21,7 +21,7 @@ export const ROUTES = [
     {path: '/', title: 'Home', component: HomePage, icon: HomeIcon},
     {path: '/projects', title: 'Projects', component: ProjectsPage, icon: WorkIcon},
     {path: '/projects/:id', title: 'Project Detail', component: ProjectDetailPage, icon: WorkIcon, hide: true},
-    {path: '/reviews', title: 'Reviews', component: ReviewsPage, icon: RateReviewIcon},
+    // {path: '/reviews', title: 'Reviews', component: ReviewsPage, icon: RateReviewIcon},
     {path: '/contact', title: 'Contact', component: ContactPage, icon: MailIcon},
 ]
 
