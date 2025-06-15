@@ -1,21 +1,20 @@
-import React from 'react';
-import { Box, Typography, Chip, useTheme } from '@mui/material';
+import { Box, Typography, Chip, useTheme, Grid } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 
-const CompactContainer = styled(Box)(({ theme }) => ({
+const CompactContainer = styled(Grid)(({ theme }) => ({
   width: '100%',
   maxWidth: '1200px',
   margin: '0 auto',
 }));
 
-const SkillGroupContainer = styled(Box)(({ theme }) => ({
-  marginBottom: theme.spacing(3),
+const SkillGroupContainer = styled(Grid)(({ theme }) => ({
+  // marginBottom: theme.spacing(3),
   padding: theme.spacing(2),
   backgroundColor: alpha(theme.palette.background.paper, 0.5),
   borderRadius: theme.shape.borderRadius,
   border: `1px solid ${alpha(theme.palette.divider, 0.2)}`,
   [theme.breakpoints.down('sm')]: {
-    marginBottom: theme.spacing(2),
+    // marginBottom: theme.spacing(2),
     padding: theme.spacing(1.5),
   },
 }));
@@ -172,7 +171,7 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
     : 0;
 
   return (
-    <CompactContainer>
+    <CompactContainer container spacing={3}>
       {/* Statistics */}
       {/* <SkillsStats>
         <StatItem>
@@ -195,22 +194,25 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
 
       {/* Skill Groups */}
       {filteredGroups.map((group, index) => (
-        <SkillGroupContainer key={group.id || index}>
-          <GroupTitle>
-            {group.name} ({group.skills.length})
-          </GroupTitle>
-          <SkillsContainer>
-            {group.skills.map((skill, skillIndex) => (
-              <SkillChip
-                key={`${skill.name}-${skillIndex}`}
-                label={skill.name}
-                proficiency={skill.proficiency}
-                size="small"
-                variant="outlined"
-              />
-            ))}
-          </SkillsContainer>
-        </SkillGroupContainer>
+        <Grid item md={6} sm={12} key={group.id || index}>
+          <SkillGroupContainer key={group.id || index}>
+            <GroupTitle>
+              {group.name} ({group.skills.length})
+            </GroupTitle>
+            <SkillsContainer>
+              {group.skills.map((skill, skillIndex) => (
+                <SkillChip
+                  key={`${skill.name}-${skillIndex}`}
+                  label={skill.name}
+                  proficiency={4}
+                  size="small"
+                  variant="outlined"
+                />
+              ))}
+            </SkillsContainer>
+          </SkillGroupContainer>
+        </Grid>
+          
       ))}
     </CompactContainer>
   );

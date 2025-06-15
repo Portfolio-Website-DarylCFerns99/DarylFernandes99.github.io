@@ -128,7 +128,7 @@ const ProjectDetail = () => {
         type="article"
       />
       <DetailContainer maxWidth="lg" sx={{ 
-        pt: { xs: `calc(${appBarHeight}px + 1rem)`, md: `calc(${appBarHeight / 2}px + 3rem)` }
+        pt: { xs: '1rem', md: `calc(${appBarHeight / 2}px + 3rem)` } // Less padding on mobile since no header
       }}>
         <BackButton 
           component={Link} 

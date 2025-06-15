@@ -443,7 +443,7 @@ export const ProjectImageWrapper = styled('div')({
   '& img': {
     width: '100%',
     height: '100%',
-    objectFit: 'cover',
+    objectFit: 'contain',
     transition: 'transform 0.5s ease',
   },
 });
@@ -501,7 +501,7 @@ export const ExperienceSection = styled('div')(({ theme }) => ({
 export const SkillsDashboardContainer = styled(Box)(({ theme }) => ({
   // backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.9)',
   borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(3),
+  // padding: theme.spacing(3),
   // boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
   width: '100%',
   maxWidth: 1200,
@@ -812,18 +812,11 @@ export const TimelineContent = styled(Box, {
   transition: 'all 0.3s ease',
   borderLeft: `4px solid ${itemType === 'experience' ? '#f8d07a' : '#a6e1d5'}`,
   textAlign: 'left',
-  paddingLeft: theme.spacing(4), // Add extra padding on the left for the icon
-  
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: theme.palette.mode === 'dark'
-      ? '0 4px 12px rgba(0,0,0,0.2)'
-      : '0 4px 10px rgba(0,0,0,0.1)',
-  },
+  paddingLeft: theme.spacing(4),
   
   [theme.breakpoints.down('md')]: {
     padding: theme.spacing(2),
-    paddingLeft: theme.spacing(3), // Keep some extra padding on mobile
+    paddingLeft: theme.spacing(3),
     maxWidth: '100%',
   },
 }));
