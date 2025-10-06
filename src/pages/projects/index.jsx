@@ -15,8 +15,11 @@ import {
 	Chip,
 	Paper,
 	InputAdornment,
-	Collapse
+	Collapse,
+	Menu,
+	Divider
 } from '@mui/material'
+import { alpha } from '@mui/material/styles'
 import { Link } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import NorthEastIcon from '@mui/icons-material/NorthEast'
@@ -48,8 +51,12 @@ const loadingSvgs = import.meta.glob('../../assets/loading/*.svg', { eager: true
 
 const Index = () => {
 	const projects = useSelector((state) => state.user.projects || [])
+	const projectCategories = useSelector((state) => state.user.projectCategories || [])
 	const theme = useTheme()
 	const [appBarHeight, setAppBarHeight] = useState(64) // Default height
+	
+	// Category filter state
+	const [selectedCategoryId, setSelectedCategoryId] = useState('all') // defaults to all projects
 	
 	// Filter states
 	const [searchText, setSearchText] = useState('')
@@ -58,8 +65,9 @@ const Index = () => {
 	const [showFilters, setShowFilters] = useState(false)
 	
 	// Sort states
-	const [sortBy, setSortBy] = useState('')
+	const [sortBy, setSortBy] = useState('date') // Default to date sorting
 	const [sortOrder, setSortOrder] = useState('desc') // desc for newest first by default
+	const [sortMenuAnchor, setSortMenuAnchor] = useState(null)
 
 	// Generate SVG array for loading images
 	const loadingSvgArray = useMemo(() => generateSvgArray(loadingSvgs), []);
@@ -70,12 +78,28 @@ const Index = () => {
 		return loadingSvgArray[randomIndex]?.url || '';
 	}, [loadingSvgArray]);
 
-	// Get unique types and tags from projects
+	// Build category tabs with "All Projects" option
+	const categoryTabs = useMemo(() => {
+		const allTab = { id: 'all', name: 'All Projects' };
+		const categoryTabs = projectCategories.map(c => ({ id: c.id, name: c.name }));
+		return [allTab, ...categoryTabs];
+	}, [projectCategories]);
+
+	// First filter by category
+	const categoryFilteredProjects = useMemo(() => {
+		// If "all" is selected or no category is selected, return all projects
+		if (selectedCategoryId === 'all') {
+			return projects;
+		}
+		return projects.filter(project => project.project_category_id === selectedCategoryId);
+	}, [projects, selectedCategoryId]);
+
+	// Get unique types and tags from category-filtered projects
 	const { uniqueTypes, uniqueTags } = useMemo(() => {
 		const types = new Set()
 		const tags = new Set()
 		
-		projects.forEach(project => {
+		categoryFilteredProjects.forEach(project => {
 			if (project.type) types.add(project.type)
 			if (project.tags) {
 				project.tags.forEach(tag => tags.add(tag))
@@ -86,15 +110,16 @@ const Index = () => {
 			uniqueTypes: Array.from(types).sort(),
 			uniqueTags: Array.from(tags).sort()
 		}
-	}, [projects])
+	}, [categoryFilteredProjects]);
 
-	// Filter projects based on current filters
+	// Then apply filter panel filters on top of category-filtered projects
 	const filteredProjects = useMemo(() => {
-		let filtered = projects.filter(project => {
+		let filtered = categoryFilteredProjects.filter(project => {
 			// Search text filter
 			const matchesSearch = !searchText || 
 				project.title?.toLowerCase().includes(searchText.toLowerCase()) ||
-				project.description?.toLowerCase().includes(searchText.toLowerCase())
+				project.description?.toLowerCase().includes(searchText.toLowerCase()) ||
+				project.tags?.some(tag => tag.toLowerCase().includes(searchText.toLowerCase()))
 			
 			// Type filter
 			const matchesType = !selectedType || project.type === selectedType
@@ -126,7 +151,7 @@ const Index = () => {
 		}
 
 		return filtered
-	}, [projects, searchText, selectedType, selectedTags, sortBy, sortOrder])
+	}, [categoryFilteredProjects, searchText, selectedType, selectedTags, sortBy, sortOrder])
 
 	// Handle tag selection
 	const handleTagToggle = (tag) => {
@@ -142,12 +167,31 @@ const Index = () => {
 		setSearchText('')
 		setSelectedType('')
 		setSelectedTags([])
-		setSortBy('')
-		setSortOrder('desc')
+		setSortBy('date') // Reset to default date sorting
+		setSortOrder('desc') // Reset to default descending order
+		// Reset category to all
+		setSelectedCategoryId('all');
 	}
 
-	// Check if any filters are active
-	const hasActiveFilters = searchText || selectedType || selectedTags.length > 0 || sortBy
+	// Check if any filters are active (excluding category and sort)
+	const hasActiveFilters = searchText || selectedType || selectedTags.length > 0
+
+	// Handle sort menu
+	const handleSortMenuOpen = (event) => {
+		setSortMenuAnchor(event.currentTarget)
+	}
+
+	const handleSortMenuClose = () => {
+		setSortMenuAnchor(null)
+	}
+
+	const handleSortFieldChange = (sortField) => {
+		setSortBy(sortField)
+	}
+
+	const handleSortOrderChange = (order) => {
+		setSortOrder(order)
+	}
 
 	// Get the appBar height
 	useEffect(() => {
@@ -219,6 +263,47 @@ const Index = () => {
 
 				{/* Filter Section */}
 				<Box mb={4}>
+
+					{/* Category Pill Tabs */}
+					{categoryTabs.length > 0 && (
+						<Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, mt: 2 }}>
+							<Box sx={{
+								display: 'flex',
+								flexWrap: 'wrap',
+								gap: 1,
+								justifyContent: 'center'
+							}}>
+								{categoryTabs.map(tab => {
+									const isActive = selectedCategoryId === tab.id;
+									return (
+										<Button
+											key={tab.id}
+											onClick={() => setSelectedCategoryId(tab.id)}
+											size="small"
+											sx={{
+												textTransform: 'none',
+												fontWeight: 500,
+												borderRadius: '999px',
+												border: `1px solid ${isActive ? theme.palette.primary.main : theme.palette.divider}`,
+												minHeight: 32,
+												px: 1.75,
+												py: 0.5,
+												color: isActive ? theme.palette.primary.main : theme.palette.text.primary,
+												backgroundColor: isActive ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+												'&:hover': {
+													backgroundColor: isActive ? alpha(theme.palette.primary.main, 0.18) : theme.palette.action.hover
+												}
+											}}
+											variant="outlined"
+										>
+											{tab.name}
+										</Button>
+									);
+								})}
+							</Box>
+						</Box>
+					)}
+
 					{/* Filter Toggle and Search */}
 					<Box sx={{ 
 						display: 'flex', 
@@ -255,37 +340,125 @@ const Index = () => {
 								)
 							}}
 						/>
-						
-						<Button
-							startIcon={<FilterListIcon />}
-							onClick={() => setShowFilters(!showFilters)}
-							variant={hasActiveFilters ? "contained" : "outlined"}
-							size="large"
-							sx={{ 
-								width: { xs: '100%', sm: 'auto' },
-								minWidth: { sm: 120 },
-								height: { xs: 'auto', sm: '56px' }, // Match TextField height
-								backgroundColor: hasActiveFilters ? theme.palette.primary.main : 'transparent'
-							}}
-						>
-							Filters {hasActiveFilters && `(${(selectedType ? 1 : 0) + selectedTags.length + (searchText ? 1 : 0) + (sortBy ? 1 : 0)})`}
-						</Button>
 
-						{hasActiveFilters && (
-							<Button
-								startIcon={<ClearIcon />}
-								onClick={clearAllFilters}
-								variant="text"
-								size="large"
-								color="secondary"
+						{/* Sort and Filter Controls Row */}
+						<Box sx={{ 
+							display: 'flex', 
+							gap: 2, 
+							alignItems: 'stretch'
+						}}>
+							<IconButton
+								onClick={handleSortMenuOpen}
 								sx={{
-									display: { xs: 'none', sm: 'flex' },
-									height: '56px'
+									width: { sm: theme.spacing(7), xs: theme.spacing(5) },
+									height: { sm: theme.spacing(7), xs: theme.spacing(5) },
+									borderRadius: '50%',
+									border: `1px solid ${theme.palette.divider}`,
+									backgroundColor: 'transparent',
+									color: theme.palette.text.secondary,
+									flexShrink: 0,
+									'&:hover': {
+										backgroundColor: theme.palette.action.hover,
+										borderColor: theme.palette.primary.main
+									}
 								}}
 							>
-								Clear All
+								<SortIcon />
+							</IconButton>
+
+							<Menu
+								anchorEl={sortMenuAnchor}
+								open={Boolean(sortMenuAnchor)}
+								onClose={handleSortMenuClose}
+								anchorOrigin={{
+									vertical: 'bottom',
+									horizontal: 'right',
+								}}
+								transformOrigin={{
+									vertical: 'top',
+									horizontal: 'right',
+								}}
+								PaperProps={{
+									elevation: 3,
+									sx: {
+										minWidth: 180,
+										mt: 1
+									}
+								}}
+							>
+								<MenuItem 
+									onClick={() => handleSortFieldChange('date')}
+									selected={sortBy === 'date'}
+								>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+										<SortIcon fontSize="small" />
+										<Typography variant="body2">Date</Typography>
+									</Box>
+								</MenuItem>
+								<MenuItem 
+									onClick={() => handleSortFieldChange('name')}
+									selected={sortBy === 'name'}
+								>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+										<SortIcon fontSize="small" />
+										<Typography variant="body2">Name</Typography>
+									</Box>
+								</MenuItem>
+								
+								<Divider sx={{ my: 1 }} />
+								
+								<MenuItem 
+									onClick={() => handleSortOrderChange('asc')}
+									selected={sortOrder === 'asc'}
+									disabled={!sortBy}
+								>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+										<ArrowUpwardIcon fontSize="small" />
+										<Typography variant="body2">Ascending</Typography>
+									</Box>
+								</MenuItem>
+								<MenuItem 
+									onClick={() => handleSortOrderChange('desc')}
+									selected={sortOrder === 'desc'}
+									disabled={!sortBy}
+								>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%' }}>
+										<ArrowDownwardIcon fontSize="small" />
+										<Typography variant="body2">Descending</Typography>
+									</Box>
+								</MenuItem>
+							</Menu>
+							
+							<Button
+								startIcon={<FilterListIcon />}
+								onClick={() => setShowFilters(!showFilters)}
+								variant={hasActiveFilters ? "contained" : "outlined"}
+								size="large"
+								sx={{ 
+									flex: 1,
+									height: { sm: theme.spacing(7), xs: theme.spacing(5) },
+									backgroundColor: hasActiveFilters ? theme.palette.primary.main : 'transparent'
+								}}
+							>
+								Filters {hasActiveFilters && `(${(selectedType ? 1 : 0) + selectedTags.length + (searchText ? 1 : 0)})`}
 							</Button>
-						)}
+
+							{hasActiveFilters && (
+								<Button
+									startIcon={<ClearIcon />}
+									onClick={clearAllFilters}
+									variant="text"
+									size="large"
+									color="secondary"
+									sx={{
+										display: { xs: 'none', sm: 'flex' },
+										height: '56px'
+									}}
+								>
+									Clear All
+								</Button>
+							)}
+						</Box>
 					</Box>
 
 					{/* Mobile Clear All Button */}
@@ -315,63 +488,10 @@ const Index = () => {
 							}}
 						>
 							<Grid container spacing={3}>
-								{/* Sort Controls */}
-								<Grid item xs={12} md={4}>
-									<FormControl fullWidth size="medium">
-										<InputLabel>Sort By</InputLabel>
-										<Select
-											value={sortBy}
-											label="Sort By"
-											onChange={(e) => setSortBy(e.target.value)}
-										>
-											<MenuItem value="">No Sorting</MenuItem>
-											<MenuItem value="date">
-												<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-													<SortIcon fontSize="small" />
-													Date Created
-												</Box>
-											</MenuItem>
-											<MenuItem value="name">
-												<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-													<SortIcon fontSize="small" />
-													Name
-												</Box>
-											</MenuItem>
-										</Select>
-									</FormControl>
-								</Grid>
-
-								{/* Sort Order - only show when sorting is selected */}
-								{sortBy && (
-									<Grid item xs={12} md={4}>
-										<FormControl fullWidth size="medium">
-											<InputLabel>Sort Order</InputLabel>
-											<Select
-												value={sortOrder}
-												label="Sort Order"
-												onChange={(e) => setSortOrder(e.target.value)}
-											>
-												<MenuItem value="asc">
-													<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-														<ArrowUpwardIcon fontSize="small" />
-														{sortBy === 'date' ? 'Oldest First' : 'A to Z'}
-													</Box>
-												</MenuItem>
-												<MenuItem value="desc">
-													<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-														<ArrowDownwardIcon fontSize="small" />
-														{sortBy === 'date' ? 'Newest First' : 'Z to A'}
-													</Box>
-												</MenuItem>
-											</Select>
-										</FormControl>
-									</Grid>
-								)}
-
 								{/* Type Filter */}
 								{
 									uniqueTypes.length > 1 && (
-										<Grid item xs={12} md={sortBy ? 4 : 6}>
+										<Grid item xs={12} md={6}>
 											<FormControl fullWidth size="medium">
 												<InputLabel>Project Type</InputLabel>
 												<Select
@@ -395,7 +515,7 @@ const Index = () => {
 								}
 
 								{/* Tags Filter */}
-								<Grid item xs={12} md={uniqueTypes.length > 1 ? (sortBy ? 12 : 6) : 12}>
+								<Grid item xs={12} md={uniqueTypes.length > 1 ? 6 : 12}>
 									<Typography variant="subtitle2" gutterBottom color="text.secondary">
 										Technologies & Tags
 									</Typography>
@@ -425,57 +545,66 @@ const Index = () => {
 					</Collapse>
 
 					{/* Results Summary */}
-					<Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+					<Box sx={{ 
+						mt: 2, 
+						display: 'flex', 
+						flexDirection: { xs: 'column', sm: 'row' },
+						justifyContent: 'space-between', 
+						alignItems: { xs: 'flex-start', sm: 'center' },
+						gap: { xs: 1.5, sm: 2 }
+					}}>
 						<Typography variant="body2" color="text.secondary">
-							Showing {filteredProjects.length} of {projects.length} project{projects.length !== 1 ? 's' : ''}
+							Showing {filteredProjects.length} of {categoryFilteredProjects.length} project{categoryFilteredProjects.length !== 1 ? 's' : ''}
 						</Typography>
 						
-						{/* Active Filter Tags */}
-						{hasActiveFilters && (
-							<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-								{searchText && (
-									<Chip 
-										label={`Search: "${searchText}"`} 
-										size="small" 
-										onDelete={() => setSearchText('')}
-										color="primary"
-										variant="outlined"
-									/>
-								)}
-								{selectedType && (
-									<Chip 
-										label={`Type: ${selectedType}`} 
-										size="small" 
-										onDelete={() => setSelectedType('')}
-										color="primary"
-										variant="outlined"
-									/>
-								)}
-								{sortBy && (
-									<Chip 
-										label={`Sort: ${sortBy === 'date' ? 'Date' : 'Name'} (${
-											sortOrder === 'asc' 
-												? (sortBy === 'date' ? 'Oldest First' : 'A-Z')
-												: (sortBy === 'date' ? 'Newest First' : 'Z-A')
-										})`} 
-										size="small" 
-										onDelete={() => setSortBy('')}
-										color="primary"
-										variant="outlined"
-									/>
-								)}
-								{selectedTags.map(tag => (
-									<Chip 
-										key={tag}
-										label={`Tag: ${tag}`} 
-										size="small" 
-										onDelete={() => handleTagToggle(tag)}
-										color="primary"
-										variant="outlined"
-									/>
-								))}
-							</Box>
-						)}
+						{/* Filter Tags and Sort Indicator */}
+						<Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+							{/* Sort Indicator (always visible, non-deletable) */}
+							<Chip 
+								label={`Sort: ${sortBy === 'date' ? 'Date' : 'Name'} (${
+									sortOrder === 'asc' 
+										? (sortBy === 'date' ? 'Oldest First' : 'A-Z')
+										: (sortBy === 'date' ? 'Newest First' : 'Z-A')
+								})`} 
+								size="small" 
+								color="primary"
+								variant="outlined"
+							/>
+							
+							{/* Active Filter Tags */}
+							{hasActiveFilters && (
+								<>
+									{searchText && (
+										<Chip 
+											label={`Search: "${searchText}"`} 
+											size="small" 
+											onDelete={() => setSearchText('')}
+											color="primary"
+											variant="outlined"
+										/>
+									)}
+									{selectedType && (
+										<Chip 
+											label={`Type: ${selectedType}`} 
+											size="small" 
+											onDelete={() => setSelectedType('')}
+											color="primary"
+											variant="outlined"
+										/>
+									)}
+									{selectedTags.map(tag => (
+										<Chip 
+											key={tag}
+											label={`Tag: ${tag}`} 
+											size="small" 
+											onDelete={() => handleTagToggle(tag)}
+											color="primary"
+											variant="outlined"
+										/>
+									))}
+								</>
+							)}
+						</Box>
 					</Box>
 				</Box>
 

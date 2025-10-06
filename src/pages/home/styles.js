@@ -214,7 +214,7 @@ export const AboutSection = styled('div')(({ theme }) => ({
     padding: theme.spacing(6, 2),
   },
   [theme.breakpoints.up('md')]: {
-    padding: theme.spacing(10, 4),
+    padding: theme.spacing(10, 0),
   },
 }));
 
@@ -271,7 +271,7 @@ export const CarouselContainer = styled('div')(({ theme }) => ({
   width: '100%',
   maxWidth: 1200,
   margin: '0 auto',
-  padding: theme.spacing(0, 2),
+  padding: theme.spacing(0, 3),
   overflow: 'hidden',
   [theme.breakpoints.down('sm')]: {
     padding: theme.spacing(0, 1),

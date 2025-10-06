@@ -1,5 +1,6 @@
 import { Box, Typography, Chip, useTheme, Grid } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
+import Masonry from '@mui/lab/Masonry';
 
 const CompactContainer = styled(Grid)(({ theme }) => ({
   width: '100%',
@@ -33,6 +34,7 @@ const GroupTitle = styled(Typography)(({ theme }) => ({
 const SkillsContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexWrap: 'wrap',
+  justifyContent: 'center',
   gap: theme.spacing(1),
   [theme.breakpoints.down('sm')]: {
     gap: theme.spacing(0.5),
@@ -171,7 +173,13 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
     : 0;
 
   return (
-    <CompactContainer container spacing={3}>
+    // <CompactContainer container spacing={3}>
+    <Masonry
+      columns={{ xs: 1, sm: 2, md: 3, lg: 3 }}
+      spacing={3}
+      sequential
+      sx={{ width: 'auto !important' }}
+    >
       {/* Statistics */}
       {/* <SkillsStats>
         <StatItem>
@@ -194,8 +202,8 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
 
       {/* Skill Groups */}
       {filteredGroups.map((group, index) => (
-        <Grid item md={6} sm={12} key={group.id || index}>
-          <SkillGroupContainer key={group.id || index}>
+        <Box key={group.id || index}>
+          <SkillGroupContainer>
             <GroupTitle>
               {group.name} ({group.skills.length})
             </GroupTitle>
@@ -211,10 +219,10 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
               ))}
             </SkillsContainer>
           </SkillGroupContainer>
-        </Grid>
-          
+        </Box>
+        
       ))}
-    </CompactContainer>
+    </Masonry>
   );
 };
 

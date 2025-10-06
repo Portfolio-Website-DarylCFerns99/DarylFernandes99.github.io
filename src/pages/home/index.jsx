@@ -175,6 +175,47 @@ const Index = () => {
   const carouselRef = useRef(null);
   const slidesPerView = isMobile ? 1 : isTablet ? 2 : 3;
   
+  // Projects category filtering
+  const [selectedCategoryId, setSelectedCategoryId] = useState(null); // defaults to first category when available
+  const categoryTabs = useMemo(() => {
+    const categories = (userData.projectCategories || [])// include if visible or undefined
+    
+    return [
+      // { id: 'all', name: 'All' },
+      ...categories.map(c => ({ id: c.id, name: c.name })),
+      // { id: 'uncategorized', name: 'Uncategorized' }
+    ];
+  }, [userData.projectCategories]);
+  
+  // Set default to first category when categories load
+  useEffect(() => {
+    if (!selectedCategoryId && categoryTabs.length > 0) {
+      setSelectedCategoryId(categoryTabs[0].id);
+    }
+  }, [categoryTabs, selectedCategoryId]);
+  
+  const filteredProjects = useMemo(() => {
+    const projects = userData.projects || [];
+    // If not selected yet, use first category by default
+    const effectiveCategoryId = selectedCategoryId || categoryTabs[0]?.id;
+    if (effectiveCategoryId === 'all') return projects;
+    if (effectiveCategoryId === 'uncategorized') {
+      return projects.filter(p => p?.project_category_id == "None");
+    }
+    return projects.filter(p => p?.project_category_id === effectiveCategoryId);
+  }, [userData.projects, selectedCategoryId, categoryTabs]);
+  
+  const handleCategoryChange = useCallback((event, value) => {
+    setSelectedCategoryId(value);
+  }, []);
+  
+  // When filter changes, reset the swiper to the first slide
+  useEffect(() => {
+    if (swiperRef.current) {
+      try { swiperRef.current.slideTo?.(0); } catch (e) { /* noop */ }
+    }
+  }, [selectedCategoryId]);
+  
   // Toggle visibility for timeline item type
   const toggleTypeVisibility = (type) => {
     setVisibleTypes(prev => {
@@ -679,19 +720,19 @@ const Index = () => {
               transition: 'all 0.3s ease-in-out',
               mt: { xs: 2, md: 0 }
             }}>
-				{
-					userData.availability &&
-					<Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-						<StatusIndicator />
-						<Typography 
-						variant="body2" 
-						color="text.secondary"
-						sx={responsiveStyles.availabilityText}
-						>
-						{userData.availability}
-						</Typography>
-					</Box>
-				}
+              {
+                userData.availability &&
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <StatusIndicator />
+                  <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={responsiveStyles.availabilityText}
+                  >
+                  {userData.availability}
+                  </Typography>
+                </Box>
+              }
               
               <Typography 
                 variant="h2" 
@@ -923,7 +964,7 @@ const Index = () => {
                   <Box sx={{
                     position: 'absolute',
                     top: '50%',
-                    right: { xs: '-20px', sm: '-25px', md: '-30px' },
+                    left: { xs: '-20px', sm: '-25px', md: '-30px' },
                     transform: 'translateY(-50%)',
                     bgcolor: theme.palette.secondary.main,
                     color: theme.palette.secondary.contrastText,
@@ -1053,12 +1094,12 @@ const Index = () => {
                 {userData.skillsSection.highlight}
               </Typography>
             </Typography>
-            <SkillsDashboardContainer>
-              <CompactSkills 
-                skillGroups={filteredSkillGroups} 
-                filterLevel={skillFilter}
-              />
-            </SkillsDashboardContainer>
+            {/* <SkillsDashboardContainer>
+            </SkillsDashboardContainer> */}
+            <CompactSkills 
+              skillGroups={filteredSkillGroups} 
+              filterLevel={skillFilter}
+            />
           </Container>
         </SkillsSection>
       </Box>
@@ -1090,6 +1131,44 @@ const Index = () => {
             </Typography>
           </Container>
 
+          {/* Category Tabs */}
+          <Box sx={{ display: 'flex', justifyContent: 'center', mb: { xs: 2, md: 3 } }}>
+            <Box sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 1,
+              justifyContent: 'center'
+            }}>
+              {categoryTabs.map(tab => {
+                const isActive = selectedCategoryId === tab.id;
+                return (
+                  <Button
+                    key={tab.id}
+                    onClick={() => setSelectedCategoryId(tab.id)}
+                    size="small"
+                    sx={{
+                      textTransform: 'none',
+                      fontWeight: 500,
+                      borderRadius: '999px',
+                      border: `1px solid ${isActive ? theme.palette.primary.main : theme.palette.divider}`,
+                      minHeight: 32,
+                      px: 1.75,
+                      py: 0.5,
+                      color: isActive ? theme.palette.primary.main : theme.palette.text.primary,
+                      backgroundColor: isActive ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+                      '&:hover': {
+                        backgroundColor: isActive ? alpha(theme.palette.primary.main, 0.18) : theme.palette.action.hover
+                      }
+                    }}
+                    variant="outlined"
+                  >
+                    {tab.name}
+                  </Button>
+                );
+              })}
+            </Box>
+          </Box>
+
           {/* Swiper Carousel Implementation */}
           <CarouselContainer ref={carouselRef} sx={{...SwiperStyles, '.swiper-slide': { height: 'auto' }}}>
             <Swiper
@@ -1100,7 +1179,7 @@ const Index = () => {
               grabCursor={true}
               centeredSlides={true}
               slidesPerView={'auto'}
-              loop={userData.projects.length > 5 ? true : false}
+              loop={filteredProjects.length > 5 ? true : false}
               navigation={true}
               spaceBetween={isMobile ? 40 : 80}
               coverflowEffect={{
@@ -1121,11 +1200,31 @@ const Index = () => {
               className="mySwiper"
               style={{ height: 'auto', paddingBottom: { xs: 2, md: 6 } }}
             >
-              {userData.projects.map((project, index) => (
-                <SwiperSlide key={index} style={{ height: 'auto' }}>
-                  {renderProjectCard(project, index)}
+              {filteredProjects.length === 0 ? (
+                <SwiperSlide key="empty" style={{ height: 'auto' }}>
+                  <Box 
+                    sx={{
+                      flex: '0 0 auto',
+                      width: { xs: '300px', md: '350px' },
+                      minWidth: { xs: '300px', md: '350px' },
+                      height: '100%',
+                    }}
+                  >
+                    <ProjectCard sx={{ height: '100%', minHeight: 380, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Box sx={{ p: 3, textAlign: 'center' }}>
+                        <Typography variant="h6" sx={{ mb: 1 }}>No projects found</Typography>
+                        <Typography variant="body2" color="text.secondary">Try another category.</Typography>
+                      </Box>
+                    </ProjectCard>
+                  </Box>
                 </SwiperSlide>
-              ))}
+              ) : (
+                filteredProjects.map((project, index) => (
+                  <SwiperSlide key={index} style={{ height: 'auto' }}>
+                    {renderProjectCard(project, index)}
+                  </SwiperSlide>
+                ))
+              )}
               <div className="swiper-pagination"></div>
             </Swiper>
           </CarouselContainer>
