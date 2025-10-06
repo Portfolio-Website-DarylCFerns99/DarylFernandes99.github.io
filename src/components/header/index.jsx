@@ -172,7 +172,7 @@ const Index = (props) => {
                             alignItems: 'center', 
                             justifyContent: 'space-between',
                             width: '100%',
-                            p: 0,
+                            p: { xs: 0, md: 0 },
                             minHeight: { xs: '48px', sm: '52px' }
                         }}>
                             {/* Logo or Title for mobile - you can add your logo here if needed */}

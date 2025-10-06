@@ -1,6 +1,6 @@
 import { typeMapping, fileToBase64 } from '../../common/common';
 
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { removeCookie, TOKEN_COOKIE_NAME } from '../../utils/cookieUtils';
 import { toast } from 'react-toastify';
@@ -11,6 +11,7 @@ import { getAllProjects, createProject, updateProject, deleteProject, updateProj
 import { getAllReviews, deleteReview, updateReviewVisibility } from '../../api/services/reviewService';
 import { createExperience, getAllExperiences, updateExperience, updateExperienceVisibility } from '../../api/services/experienceService';
 import { getAllSkillGroups, createSkillGroup, updateSkillGroup, deleteSkillGroup, updateSkillGroupVisibility } from '../../api/services/skillService';
+import { getAllProjectCategories, createProjectCategory, updateProjectCategory } from '../../api/services/projectCategoryService';
 
 // Delete Confirmation Dialog
 const DeleteConfirmationDialog = ({ open, title, onClose, onConfirm, isLoading }) => {
@@ -1216,8 +1217,8 @@ const SocialLinksSection = ({ socialLinks, setSocialLinks }) => {
 
   return (
     <>
-      <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table>
+      <TableContainer sx={{ width: '100%', overflowX: 'auto', maxHeight: 520, overflowY: 'auto' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
             <TableCell width="120px">Actions</TableCell>
@@ -1852,8 +1853,8 @@ const SkillsSection = ({ skillGroups, setSkillGroups, selectedSkills, setSelecte
 
   return (
     <>
-      <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table>
+      <TableContainer sx={{ width: '100%', overflowX: 'auto', maxHeight: 520, overflowY: 'auto' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
               <TableCell width="120px">Actions</TableCell>
@@ -2399,8 +2400,8 @@ const TimelineSection = ({ experiences, setExperiences }) => {
         />
       </Box>
 
-      <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-        <Table>
+      <TableContainer sx={{ width: '100%', overflowX: 'auto', maxHeight: 520, overflowY: 'auto' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
               <TableCell width="80px">Actions</TableCell>
@@ -2641,6 +2642,7 @@ const TimelineSection = ({ experiences, setExperiences }) => {
 };
 
 const ProjectsSection = ({ projects, setProjects }) => {
+  const [tab, setTab] = useState('categories');
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -2661,11 +2663,128 @@ const ProjectsSection = ({ projects, setProjects }) => {
   const [searchText, setSearchText] = useState('');
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
+  // Categories state
+  const [categories, setCategories] = useState([]);
+  const [catLoading, setCatLoading] = useState(false);
+  const [catSaving, setCatSaving] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [categoryForm, setCategoryForm] = useState({ name: '', is_visible: true });
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
   
   // Initialize filteredProjects with all projects when component mounts
   useEffect(() => {
     setFilteredProjects(projects);
   }, [projects]);
+
+  // Load categories
+  useEffect(() => {
+    setCatLoading(true);
+    getAllProjectCategories()
+      .then(data => {
+        setCategories(data);
+      })
+      .catch(error => {
+        console.error('Error fetching project categories:', error);
+        toast.error('Failed to load project categories');
+      })
+      .finally(() => setCatLoading(false));
+  }, []);
+
+  // Map of categoryId to number of projects
+  const categoryIdToProjectCount = useMemo(() => {
+    const map = {};
+    (projects || []).forEach(p => {
+      const cid = p.project_category_id;
+      if (!cid) return;
+      map[cid] = (map[cid] || 0) + 1;
+    });
+    return map;
+  }, [projects]);
+
+  const handleTabChange = (newTab) => {
+    const leavingWithUnsaved = (showForm && newTab !== 'projects') || (showCategoryForm && newTab !== 'categories');
+    if (leavingWithUnsaved) {
+      if (window.confirm('Changing tabs will discard unsaved changes. Continue?')) {
+        setTab(newTab);
+        if (showForm) {
+          setShowForm(false);
+          setEditingItem(null);
+        }
+        if (showCategoryForm) {
+          setShowCategoryForm(false);
+          setEditingCategoryId(null);
+        }
+      }
+    } else {
+      setTab(newTab);
+    }
+  };
+
+  const handleCategoryInputChange = (e) => {
+    const { name, value, checked, type } = e.target;
+    setCategoryForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategoryId(category.id);
+    setCategoryForm({ name: category.name || '', is_visible: !!category.is_visible });
+    setShowCategoryForm(true);
+  };
+
+  const resetCategoryForm = () => {
+    setEditingCategoryId(null);
+    setCategoryForm({ name: '', is_visible: true });
+  };
+
+  const handleAddCategory = () => {
+    resetCategoryForm();
+    setShowCategoryForm(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!categoryForm.name?.trim()) {
+      toast.error('Please enter a category name');
+      return;
+    }
+    setCatSaving(true);
+    try {
+      if (editingCategoryId) {
+        const response = await updateProjectCategory(editingCategoryId, categoryForm);
+        const saved = response.data;
+        setCategories(prev => prev.map(c => c.id === saved.id ? saved : c));
+        toast.success('Category updated');
+      } else {
+        const response = await createProjectCategory(categoryForm);
+        const saved = response.data;
+        setCategories(prev => [...prev, saved]);
+        toast.success('Category created');
+      }
+      resetCategoryForm();
+      setShowCategoryForm(false);
+    } catch (error) {
+      console.error('Error saving category:', error);
+      toast.error('Failed to save category');
+    } finally {
+      setCatSaving(false);
+    }
+  };
+
+  const handleToggleCategoryVisibility = async (category) => {
+    const updated = { name: category.name, is_visible: !category.is_visible };
+    // Optimistic UI update
+    setCategories(prev => prev.map(c => c.id === category.id ? { ...c, is_visible: updated.is_visible } : c));
+    try {
+      await updateProjectCategory(category.id, updated);
+    } catch (error) {
+      console.error('Error updating category visibility:', error);
+      toast.error('Failed to update category visibility');
+      // Revert on failure
+      setCategories(prev => prev.map(c => c.id === category.id ? { ...c, is_visible: category.is_visible } : c));
+    }
+  };
 
   // Handle sorting
   const handleSort = (key) => {
@@ -2756,7 +2875,8 @@ const ProjectsSection = ({ projects, setProjects }) => {
     tags: [],
     url: '',
     detail_page: '', // Add this new field
-    is_visible: true
+    is_visible: true,
+    project_category_id: null
   };
   
   const [newProject, setNewProject] = useState(emptyProject);
@@ -2863,7 +2983,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
     // Update the project data
     setNewProject(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : (name === 'project_category_id' ? (value || null) : value)
     }));
     
     // If changing project type to GitHub, automatically turn off detail page
@@ -3030,7 +3150,153 @@ const ProjectsSection = ({ projects, setProjects }) => {
   
   return (
     <>
-      {!showForm && (
+      {/* Tabs header for Projects vs Categories */}
+      <Box sx={{ bgcolor: 'action.hover', borderRadius: 1, mb: 2 }}>
+        <Box sx={{ display: 'flex', p: 1 }}>
+          <Button
+            variant={tab === 'categories' ? 'contained' : 'text'}
+            color={tab === 'categories' ? 'primary' : 'inherit'}
+            onClick={() => handleTabChange('categories')}
+          >
+            Categories
+          </Button>
+          <Button
+            variant={tab === 'projects' ? 'contained' : 'text'}
+            color="primary"
+            onClick={() => handleTabChange('projects')}
+            sx={{ ml: 1 }}
+          >
+            Projects
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Project Categories Manager */}
+      {tab === 'categories' && (
+        <>
+          {showCategoryForm ? (
+            <Card sx={{ mt: 2, p: 2, bgcolor: 'background.default' }}>
+              <Typography variant="h6" gutterBottom>
+                {editingCategoryId ? 'Edit Category' : 'Add Category'}
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    required
+                    label="Category Name"
+                    name="name"
+                    value={categoryForm.name}
+                    onChange={handleCategoryInputChange}
+                    margin="normal"
+                    variant="outlined"
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 2 }}>
+                    <Switch
+                      checked={categoryForm.is_visible}
+                      onChange={handleCategoryInputChange}
+                      name="is_visible"
+                      color="success"
+                    />
+                    <Typography sx={{ ml: 1 }}>Visible</Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      onClick={() => setShowCategoryForm(false)}
+                      disabled={catSaving}
+                      sx={{ width: { xs: '100%', sm: 'auto' } }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleSaveCategory}
+                      disabled={catSaving || !categoryForm.name?.trim()}
+                      sx={{ width: { xs: '100%', sm: 'auto' } }}
+                    >
+                      {catSaving ? 'Saving...' : (editingCategoryId ? 'Update' : 'Create') + ' Category'}
+                    </Button>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Card>
+          ) : (
+            <>
+              <TableContainer component={Paper} sx={{ maxHeight: 520, overflowY: 'auto' }}>
+                <Table stickyHeader>
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'action.hover' }}>
+                      <TableCell width="100px">Actions</TableCell>
+                      <TableCell width="200px">Name</TableCell>
+                      <TableCell width="100px">Projects</TableCell>
+                      <TableCell width="100px">Visible</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {catLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center">Loading...</TableCell>
+                      </TableRow>
+                    ) : categories.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={4} align="center">No categories found</TableCell>
+                      </TableRow>
+                    ) : (
+                      categories.map((category) => (
+                        <TableRow key={category.id}>
+                          <TableCell>
+                            <IconButton 
+                              size="small" 
+                              color="primary"
+                              onClick={() => handleEditCategory(category)}
+                            >
+                              <EditIcon />
+                            </IconButton>
+                          </TableCell>
+                          <TableCell>{category.name}</TableCell>
+                          <TableCell>{categoryIdToProjectCount[category.id] || 0}</TableCell>
+                          <TableCell>
+                            <Switch 
+                              checked={!!category.is_visible} 
+                              onChange={() => handleToggleCategoryVisibility(category)} 
+                              color="success" 
+                              size="small"
+                            />
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Box
+                sx={{
+                  mt: 2,
+                  p: 2,
+                  border: '1px dashed',
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  cursor: 'pointer'
+                }}
+                onClick={handleAddCategory}
+              >
+                <AddIcon color="success" />
+                <Typography color="success.main" sx={{ ml: 1 }}>
+                  Add Category
+                </Typography>
+              </Box>
+            </>
+          )}
+        </>
+      )}
+
+      {tab === 'projects' && !showForm && (
         <>
           <Box sx={{ width: '100%', mb: 2 }}>
             <TextField
@@ -3055,8 +3321,8 @@ const ProjectsSection = ({ projects, setProjects }) => {
             />
           </Box>
 
-          <TableContainer sx={{ width: '100%', overflowX: 'auto' }}>
-            <Table>
+          <TableContainer sx={{ width: '100%', overflowX: 'auto', maxHeight: 520, overflowY: 'auto' }}>
+            <Table stickyHeader>
               <TableHead>
                 <TableRow sx={{ bgcolor: 'action.hover' }}>
                   <TableCell width="120px">Actions</TableCell>
@@ -3148,7 +3414,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
         </>
       )}
       
-      {showForm ? (
+      {tab === 'projects' && showForm ? (
         <Card sx={{ mt: 2, p: 2, bgcolor: 'background.default' }}>
           <Typography variant="h6" gutterBottom>
             {editingItem ? 'Edit Project' : 'Add Project'}
@@ -3250,6 +3516,26 @@ const ProjectsSection = ({ projects, setProjects }) => {
               >
                 <MenuItem value="github">GitHub</MenuItem>
                 <MenuItem value="custom">Custom</MenuItem>
+              </TextField>
+            </Grid>
+
+            {/* Project Category */}
+            <Grid item xs={12} sm={6}>
+              <TextField
+                select
+                fullWidth
+                label="Category"
+                name="project_category_id"
+                value={newProject.project_category_id || ''}
+                onChange={handleProjectChange}
+                margin="normal"
+                variant="outlined"
+                helperText="Optional"
+              >
+                <MenuItem value="">None</MenuItem>
+                {categories.map(cat => (
+                  <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                ))}
               </TextField>
             </Grid>
             
@@ -3518,7 +3804,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
             </Grid>
           </Grid>
         </Card>
-      ) : (
+      ) : tab === 'projects' ? (
         <Box
           sx={{
             mt: 2,
@@ -3538,7 +3824,7 @@ const ProjectsSection = ({ projects, setProjects }) => {
             Add Project
           </Typography>
         </Box>
-      )}
+      ) : null}
       
       <DeleteConfirmationDialog
         open={deleteDialog.open}
@@ -3712,8 +3998,8 @@ const ReviewsSection = ({ reviews, setReviews }) => {
         />
       </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer component={Paper} sx={{ maxHeight: 520, overflowY: 'auto' }}>
+        <Table stickyHeader>
           <TableHead>
             <TableRow sx={{ bgcolor: 'action.hover' }}>
               <TableCell width="120px">Actions</TableCell>
