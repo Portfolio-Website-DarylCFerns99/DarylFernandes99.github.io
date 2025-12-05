@@ -3,7 +3,7 @@ import { Avatar, Button, IconButton, Card, Box, Typography, Grid, TextField } fr
 import { alpha } from '@mui/material/styles';
 
 // Helper to filter out custom props from DOM elements
-const shouldForwardProp = (prop) => 
+const shouldForwardProp = (prop) =>
   !['itemType', 'align', 'index', 'isActive', 'isExpanded', 'isCurrent', 'direction', 'level', 'skillColor', 'active'].includes(prop);
 
 // Common transition for all responsive elements
@@ -133,12 +133,13 @@ export const StatusIndicator = styled('div')(({ theme }) => ({
 export const SocialButton = styled(Button)(({ theme }) => ({
   borderRadius: '50%',
   padding: 0,
-  color: theme.palette.text.primary,
+  color: theme.palette.text.secondary,
   border: `1px solid ${theme.palette.divider}`,
   transition: responsiveTransition,
   '&:hover': {
     backgroundColor: theme.palette.action.hover,
     transform: 'scale(1.05)',
+    color: theme.palette.primary.main,
   },
   [theme.breakpoints.down('sm')]: {
     minWidth: 36,
@@ -163,6 +164,8 @@ export const ContactButton = styled(Button)(({ theme }) => ({
     backgroundColor: theme.palette.action.hover,
     boxShadow: theme.shadows[4],
     transform: 'translateY(-2px)',
+    borderColor: theme.palette.primary.main,
+    color: theme.palette.primary.main,
   },
   '& .MuiButton-endIcon': {
     marginLeft: 8,
@@ -244,7 +247,7 @@ export const AboutImage = styled('div')(({ theme }) => ({
   },
   [theme.breakpoints.up('md')]: {
     width: '45%',
-    height: 400,
+    // height: 400,
   },
 }));
 
@@ -385,14 +388,14 @@ export const PaginationDot = styled('button', {
   borderRadius: 4,
   border: 'none',
   padding: 0,
-  backgroundColor: isActive 
-    ? theme.palette.primary.main 
+  backgroundColor: isActive
+    ? theme.palette.primary.main
     : theme.palette.divider,
   transition: 'all 0.3s ease',
   cursor: 'pointer',
   '&:hover': {
-    backgroundColor: isActive 
-      ? theme.palette.primary.main 
+    backgroundColor: isActive
+      ? theme.palette.primary.main
       : theme.palette.action.hover,
   },
 }));
@@ -467,7 +470,7 @@ export const ProjectTag = styled('span')(({ theme }) => ({
     ? 'rgba(0, 0, 0, 0.6)'
     : 'rgba(37, 99, 235, 0.8)',
   color: theme.palette.mode === 'dark'
-    ? theme.palette.common.white 
+    ? theme.palette.common.white
     : theme.palette.common.white,
   backdropFilter: 'blur(4px)',
   fontWeight: 500,
@@ -690,33 +693,65 @@ export const responsiveStyles = {
 // Filter Legend Button
 export const FilterLegendButton = styled('div', {
   shouldForwardProp
-})(({ theme, isActive = true, itemType }) => ({
-  display: 'flex', 
-  alignItems: 'center', 
+})(({ theme, isActive = true }) => ({
+  display: 'flex',
+  alignItems: 'center',
   gap: theme.spacing(1),
-  padding: theme.spacing(1, 2),
-  borderRadius: theme.shape.borderRadius * 2,
-  backgroundColor: isActive 
-    ? itemType === 'experience' 
-      ? 'rgba(76, 175, 80, 0.1)' 
-      : 'rgba(25, 118, 210, 0.1)'
-    : theme.palette.action.disabledBackground,
-  border: '1px solid',
-  borderColor: isActive 
-    ? itemType === 'experience' 
-      ? theme.palette.success.main 
-      : theme.palette.primary.main
-    : theme.palette.divider,
-  color: isActive ? theme.palette.text.primary : theme.palette.text.disabled,
-  transition: 'all 0.3s ease',
+  padding: theme.spacing(1.2, 3),
+  borderRadius: '50px',
+  position: 'relative',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
   cursor: 'pointer',
   userSelect: 'none',
-  
-  '&:hover': {
-    backgroundColor: itemType === 'experience' 
-      ? 'rgba(76, 175, 80, 0.2)' 
-      : 'rgba(25, 118, 210, 0.2)',
+
+  // Active State - Gradient Glow
+  ...(isActive ? {
+    background: theme.palette.mode === 'dark'
+      ? `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.9)}, ${alpha(theme.palette.secondary.main, 0.9)})`
+      : `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+    color: '#fff', // Always white text on gradient
+    boxShadow: `0 0 20px ${alpha(theme.palette.primary.main, 0.5)}`,
+    border: '1px solid transparent',
     transform: 'translateY(-2px)',
+
+    '&:hover': {
+      boxShadow: `0 0 30px ${alpha(theme.palette.primary.main, 0.7)}`,
+      transform: 'translateY(-3px) scale(1.02)',
+    }
+  } : {
+    // Inactive State - Subtle Glass
+    background: theme.palette.mode === 'dark'
+      ? 'rgba(255, 255, 255, 0.03)'
+      : 'rgba(0, 0, 0, 0.03)',
+    border: `1px solid ${theme.palette.divider}`,
+    color: theme.palette.text.secondary,
+
+    '&:hover': {
+      background: theme.palette.mode === 'dark'
+        ? 'rgba(255, 255, 255, 0.08)'
+        : 'rgba(0, 0, 0, 0.08)',
+      borderColor: theme.palette.text.primary,
+      color: theme.palette.text.primary,
+      transform: 'translateY(-1px)',
+    }
+  }),
+
+  // Font styles
+  fontWeight: 600,
+  fontSize: '0.95rem',
+  letterSpacing: '0.5px',
+
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(0.8, 2),
+    fontSize: '0.85rem',
+    width: '100%', // On very small screens, full width might be better, or let them wrap?
+    // Actually, if they are stacked, full width looks okay but maybe too big.
+    // If I want them side by side, I should use width: 'auto' or flex: 1.
+    // Let's try to make them compact so they might fit side-by-side.
+    width: 'auto',
+    flex: '1 1 auto', // Allow grow/shrink
+    justifyContent: 'center',
   }
 }));
 
@@ -743,7 +778,7 @@ export const TimelineWavyLine = styled(Box)(({ theme }) => ({
   bottom: 0,
   height: '100%',
   zIndex: 1,
-  
+
   '& svg': {
     display: 'block',
     position: 'absolute',
@@ -751,19 +786,19 @@ export const TimelineWavyLine = styled(Box)(({ theme }) => ({
     top: '20px',
     left: '10px',
   },
-  
+
   '& text': {
     fontFamily: theme.typography.fontFamily,
     userSelect: 'none',
   },
-  
+
   '& circle': {
     transition: 'all 0.3s ease',
     '&:hover': {
       r: 10,
     }
   },
-  
+
   [theme.breakpoints.down('md')]: {
     display: 'none', // Hide completely on mobile
   }
@@ -780,12 +815,12 @@ export const TimelineItem = styled(Box, {
   minHeight: '140px',
   opacity: 0,
   animation: `${fadeIn} 0.5s ease forwards ${(index * 0.2) + 0.1}s`,
-  
+
   // Distribute items on either side of the timeline
   justifyContent: align === 'left' ? 'flex-end' : 'flex-start',
   paddingLeft: align === 'left' ? 0 : '52%',
   paddingRight: align === 'left' ? '52%' : 0,
-  
+
   // Mobile view - all items aligned to right side
   [theme.breakpoints.down('md')]: {
     justifyContent: 'flex-start',
@@ -802,7 +837,7 @@ export const TimelineContent = styled(Box, {
   background: theme.palette.mode === 'dark' ? '#1E1E1E' : theme.palette.background.paper,
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(3),
-  boxShadow: theme.palette.mode === 'dark' 
+  boxShadow: theme.palette.mode === 'dark'
     ? '0 2px 8px rgba(0,0,0,0.15)'
     : '0 2px 6px rgba(0,0,0,0.08)',
   position: 'relative',
@@ -813,7 +848,7 @@ export const TimelineContent = styled(Box, {
   borderLeft: `4px solid ${itemType === 'experience' ? '#f8d07a' : '#a6e1d5'}`,
   textAlign: 'left',
   paddingLeft: theme.spacing(4),
-  
+
   [theme.breakpoints.down('md')]: {
     padding: theme.spacing(2),
     paddingLeft: theme.spacing(3),
@@ -840,26 +875,26 @@ export const TimelineTypeIcon = styled(Box, {
   boxShadow: '0 3px 5px rgba(0,0,0,0.2)',
   zIndex: 10,
   transition: 'all 0.3s ease',
-  
+
   '& svg': {
     fontSize: 22,
     transition: 'all 0.3s ease',
   },
-  
+
   '&:hover': {
     transform: 'translateY(-50%) scale(1.05)',
     boxShadow: '0 4px 6px rgba(0,0,0,0.25)',
-    
+
     '& svg': {
       fontSize: 24,
     }
   },
-  
+
   [theme.breakpoints.down('md')]: {
     left: -18,
     width: 36,
     height: 36,
-    
+
     '& svg': {
       fontSize: 18,
     },
@@ -872,7 +907,7 @@ export const TimelineRole = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
   color: theme.palette.text.primary,
   fontSize: '1.1rem',
-  
+
   [theme.breakpoints.down('md')]: {
     fontSize: '1rem',
   },
@@ -884,7 +919,7 @@ export const TimelineCompany = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(1.5),
   color: theme.palette.text.secondary,
   fontSize: '0.95rem',
-  
+
   [theme.breakpoints.down('md')]: {
     fontSize: '0.9rem',
     marginBottom: theme.spacing(1),
@@ -896,14 +931,14 @@ export const TimelineDescription = styled('div')(({ theme }) => ({
   color: theme.palette.text.secondary,
   fontSize: '0.875rem',
   lineHeight: 1.6,
-  
+
   '& p': {
     margin: '0 0 0.75rem 0',
     '&:last-child': {
       marginBottom: 0
     }
   },
-  
+
   '& a': {
     color: theme.palette.primary.main,
     textDecoration: 'none',
@@ -911,16 +946,16 @@ export const TimelineDescription = styled('div')(({ theme }) => ({
       textDecoration: 'underline'
     }
   },
-  
+
   '& ul, & ol': {
     paddingLeft: '1.5rem',
     marginBottom: '0.75rem'
   },
-  
+
   '& li': {
     marginBottom: '0.25rem'
   },
-  
+
   [theme.breakpoints.down('md')]: {
     fontSize: '0.8rem',
   },
@@ -958,6 +993,12 @@ export const SwiperStyles = {
   '& .swiper-pagination-bullet-active': {
     opacity: 1,
     transform: 'scale(1.2)',
+  },
+  '& .swiper-button-prev': {
+    color: theme => theme.palette.primary.main,
+  },
+  '& .swiper-button-next': {
+    color: theme => theme.palette.primary.main,
   },
 };
 

@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { Box, Typography, Chip, useTheme, Grid } from '@mui/material';
 import { styled, alpha } from '@mui/material/styles';
 import Masonry from '@mui/lab/Masonry';
@@ -46,7 +47,7 @@ const SkillChip = styled(Chip, {
 })(({ theme, proficiency }) => {
   // Color intensity based on proficiency level
   const getColor = () => {
-    switch(proficiency) {
+    switch (proficiency) {
       case 5: return theme.palette.success.main;
       case 4: return theme.palette.info.main;
       case 3: return theme.palette.warning.main;
@@ -68,13 +69,13 @@ const SkillChip = styled(Chip, {
     height: '28px',
     transition: 'all 0.2s ease',
     opacity: getIntensity(),
-    
+
     '&:hover': {
       backgroundColor: alpha(getColor(), 0.25),
       transform: 'translateY(-1px)',
       boxShadow: `0 2px 8px ${alpha(getColor(), 0.3)}`,
     },
-    
+
     '& .MuiChip-label': {
       padding: '0 8px',
       [theme.breakpoints.down('sm')]: {
@@ -135,7 +136,7 @@ const StatLabel = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const CompactSkills = ({ skillGroups, filterLevel }) => {
+const CompactSkills = memo(({ skillGroups, filterLevel }) => {
   const theme = useTheme();
 
   if (!skillGroups || skillGroups.length === 0) {
@@ -156,7 +157,7 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
       if (filterLevel === 'expert') return skill.proficiency >= 4;
       return true;
     });
-    
+
     return {
       ...group,
       skills: filteredSkills
@@ -168,7 +169,7 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
   const totalSkills = allSkills.length;
   const totalGroups = filteredGroups.length;
   const expertSkills = allSkills.filter(skill => skill.proficiency >= 4).length;
-  const avgProficiency = totalSkills > 0 
+  const avgProficiency = totalSkills > 0
     ? (allSkills.reduce((sum, skill) => sum + skill.proficiency, 0) / totalSkills).toFixed(1)
     : 0;
 
@@ -220,10 +221,10 @@ const CompactSkills = ({ skillGroups, filterLevel }) => {
             </SkillsContainer>
           </SkillGroupContainer>
         </Box>
-        
+
       ))}
     </Masonry>
   );
-};
+});
 
-export default CompactSkills; 
+export default CompactSkills;

@@ -2,159 +2,137 @@ import { createTheme } from "@mui/material/styles";
 
 const THEME = (mode) => createTheme({
     typography: {
-     "fontFamily": `"Roboto", "Helvetica", "Arial", sans-serif`,
-     "fontSize": 14,
-     "fontWeightLight": 300,
-     "fontWeightRegular": 400,
-     "fontWeightMedium": 500
+        fontFamily: `'Outfit', 'Roboto', sans-serif`,
+        h1: { fontWeight: 700 },
+        h2: { fontWeight: 700 },
+        h3: { fontWeight: 600 },
+        button: { fontWeight: 600, textTransform: 'none' },
+    },
+    shape: {
+        borderRadius: 16,
     },
     palette: {
         mode,
         ...(mode === 'dark'
-        ? {
-            primary: {
-                main: '#64b5f6',
-                dark: '#42a5f5',
-                light: '#bbdefb',
-                contrastText: '#000000',
-            },
-            secondary: {
-                main: '#ff9800',
-                dark: '#f57c00',
-                light: '#ffcc80',
-                contrastText: '#000000',
-            },
-            tertiary: {
-                main: '#b39ddb',
-                dark: '#9575cd',
-                light: '#d1c4e9',
-                contrastText: '#000000',
-            },
-            background: {
-                default: '#000000', // Pure Black
-                paper: '#121212', // Dark Gray for cards
-                header: '#1a1a2e', // Dark navy for header/footer
-                footer: '#1a1a2e', // Same dark navy for footer
-            },
-            text: {
-                primary: '#ffffff',
-                secondary: '#b0bec5',
-                white: '#fff',
-                black: '#000'
-            },
-            divider: 'rgba(255, 255, 255, 0.22)',
-            action: {
-                active: 'rgba(255, 255, 255, 0.7)',
-                hover: 'rgba(255, 255, 255, 0.08)',
-                selected: 'rgba(255, 255, 255, 0.16)',
-                disabled: 'rgba(255, 255, 255, 0.3)',
-                disabledBackground: 'rgba(255, 255, 255, 0.12)',
+            ? {
+                // Deep Cosmos / Cyber Dark
+                primary: {
+                    main: '#00f2ff', // Cyan Neon
+                    light: '#7affff',
+                    dark: '#00becb',
+                    contrastText: '#000',
+                },
+                secondary: {
+                    main: '#7000ff', // Electric Violet
+                    light: '#aa4dff',
+                    dark: '#2800cc',
+                    contrastText: '#fff',
+                },
+                background: {
+                    default: '#050505', // Almost Black
+                    paper: '#0a0a12',   // Very dark blue-grey
+                    header: 'rgba(5, 5, 5, 0.7)', // Transparent for glassmorphism
+                },
+                text: {
+                    primary: '#ffffff',
+                    secondary: '#94a3b8',
+                },
+                action: {
+                    hover: 'rgba(255, 255, 255, 0.05)',
+                }
             }
-            }
-        : {
-            primary: {
-                main: '#2563eb', // Rich blue 
-                dark: '#1d4ed8',
-                light: '#60a5fa',
-                contrastText: '#ffffff',
-            },
-            secondary: {
-                main: '#f59e0b', // Warm amber
-                dark: '#d97706',
-                light: '#fbbf24',
-                contrastText: '#ffffff',
-            },
-            tertiary: {
-                main: '#0ea5e9', // Bright teal/cyan
-                dark: '#0284c7',
-                light: '#38bdf8',
-                contrastText: '#ffffff',
-            },
-            background: {
-                default: '#f8fafc', // Very light blue-gray
-                paper: '#ffffff', // White for cards
-                header: '#0f2a52', // Darker blue for header/footer
-                footer: '#0f2a52', // Same darker blue for footer
-            },
-            text: {
-                primary: '#0f172a', // Very dark blue-gray
-                secondary: '#475569', // Medium blue-gray
-                white: '#fff',
-                black: '#000'
-            },
-            divider: 'rgba(0, 0, 0, 0.18)',
-            action: {
-                active: 'rgba(0, 0, 0, 0.7)',
-                hover: 'rgba(0, 0, 0, 0.04)',
-                selected: 'rgba(0, 0, 0, 0.08)',
-                disabled: 'rgba(0, 0, 0, 0.26)',
-                disabledBackground: 'rgba(0, 0, 0, 0.12)',
-            },
-            success: {
-                main: '#10b981', // Emerald green
-                light: '#34d399',
-                dark: '#059669',
-                contrastText: '#ffffff',
-            },
-            error: {
-                main: '#ef4444', // Red
-                light: '#f87171',
-                dark: '#dc2626',
-                contrastText: '#ffffff',
-            },
-            warning: {
-                main: '#f59e0b', // Amber
-                light: '#fbbf24',
-                dark: '#d97706',
-                contrastText: '#ffffff',
-            },
-            info: {
-                main: '#3b82f6', // Blue
-                light: '#60a5fa',
-                dark: '#2563eb',
-                contrastText: '#ffffff',
-            },
-        }),
+            : {
+                // Modern Clean Light
+                primary: {
+                    main: '#2563eb', // Royal Blue
+                    light: '#60a5fa',
+                    dark: '#1e40af',
+                    contrastText: '#fff',
+                },
+                secondary: {
+                    main: '#8b5cf6', // Violet
+                    light: '#a78bfa',
+                    dark: '#7c3aed',
+                    contrastText: '#fff',
+                },
+                background: {
+                    default: '#f8fafc', // Slate 50
+                    paper: '#ffffff',
+                    header: 'rgba(255, 255, 255, 0.8)',
+                },
+                text: {
+                    primary: '#0f172a', // Slate 900
+                    secondary: '#475569', // Slate 600
+                },
+            }),
     },
     components: {
+        MuiCssBaseline: {
+            styleOverrides: {
+                body: {
+                    scrollbarColor: mode === 'dark' ? "#333 #050505" : "#ccc #f8fafc",
+                    "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
+                        backgroundColor: "transparent",
+                        width: "8px",
+                    },
+                    "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
+                        borderRadius: 8,
+                        backgroundColor: mode === 'dark' ? "#333" : "#ccc",
+                        minHeight: 24,
+                    },
+                },
+            },
+        },
         MuiButton: {
             styleOverrides: {
                 root: {
-                    borderRadius: 8,
-                    textTransform: 'none',
-                    fontWeight: 500,
-                    '&.MuiButton-contained': ({ theme }) => ({
-                        boxShadow: theme.palette.mode === 'dark' ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                    }),
+                    borderRadius: 50, // Pill shape
+                    padding: '8px 24px',
+                    boxShadow: 'none',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    },
+                },
+                containedPrimary: {
+                    background: mode === 'dark'
+                        ? 'linear-gradient(45deg, #00f2ff 30%, #00c2ff 90%)'
+                        : 'linear-gradient(45deg, #2563eb 30%, #3b82f6 90%)',
+                    '&.Mui-disabled': {
+                        background: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
+                        color: mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
+                        boxShadow: 'none',
+                    },
                 },
             },
         },
         MuiCard: {
             styleOverrides: {
-                root: ({ theme }) => ({
-                    borderRadius: 12,
-                    boxShadow: theme.palette.mode === 'dark' 
-                        ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)' 
-                        : '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
-                }),
+                root: {
+                    borderRadius: 20,
+                    backdropFilter: 'blur(10px)',
+                    background: mode === 'dark'
+                        ? 'rgba(255, 255, 255, 0.03)'
+                        : 'rgba(255, 255, 255, 0.7)',
+                    border: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                    boxShadow: mode === 'dark'
+                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                        : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                },
             },
         },
         MuiAppBar: {
             styleOverrides: {
-                root: ({ theme }) => ({
-                    backgroundColor: theme.palette.background.header,
-                    boxShadow: theme.palette.mode === 'dark' 
-                        ? '0 1px 3px rgba(0,0,0,0.2)' 
-                        : '0 1px 3px rgba(0,0,0,0.1)',
-                    zIndex: 1100
-                }),
-            },
-        },
-        MuiDrawer: {
-            styleOverrides: {
-                root: ({ theme }) => ({
-                    zIndex: 1000
-                }),
+                root: {
+                    backdropFilter: 'blur(12px)',
+                    boxShadow: 'none',
+                    borderBottom: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                },
             },
         },
     },
