@@ -1,4 +1,4 @@
-import { styled } from '@mui/material/styles';
+import { styled, alpha } from '@mui/material/styles';
 import { Button } from '@mui/material';
 
 // Common transition for responsive elements
@@ -32,12 +32,16 @@ export const responsiveStyles = {
     transition: responsiveTransition,
   },
   contactForm: {
-    p: 4,
-    borderRadius: 2,
+    p: { xs: 3, md: 5 },
+    borderRadius: 3,
+    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : theme.palette.background.paper,
+    border: (theme) => `1px solid ${theme.palette.divider}`,
+    boxShadow: (theme) => theme.shadows[4],
   },
   formTitle: {
-    mb: 3,
-    fontWeight: 600,
+    mb: 4,
+    fontWeight: 700,
+    fontSize: '1.5rem',
   },
 };
 
@@ -46,11 +50,15 @@ export const ContactButton = styled(Button)(({ theme }) => ({
   borderRadius: 50,
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
-  boxShadow: theme.shadows[2],
+  padding: '12px 32px',
+  textTransform: 'none',
+  fontSize: '1rem',
+  fontWeight: 600,
+  boxShadow: `0 0 20px ${alpha(theme.palette.primary.main, 0.3)}`,
   transition: responsiveTransition,
   '&:hover': {
     backgroundColor: theme.palette.primary.dark,
-    boxShadow: theme.shadows[4],
+    boxShadow: `0 0 30px ${alpha(theme.palette.primary.main, 0.5)}`,
     transform: 'translateY(-2px)',
   },
   '&.Mui-disabled': {
@@ -58,12 +66,11 @@ export const ContactButton = styled(Button)(({ theme }) => ({
     color: theme.palette.action.disabled,
   },
   border: 'none',
-  fontWeight: 500,
   '& .MuiButton-endIcon': {
     marginLeft: 8,
     transition: 'transform 0.2s ease',
   },
   '&:hover .MuiButton-endIcon': {
-    transform: 'translateX(2px)',
+    transform: 'translateX(4px)',
   },
-})); 
+}));

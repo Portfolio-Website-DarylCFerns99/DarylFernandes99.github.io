@@ -18,11 +18,11 @@ const ProjectDetailPage = lazy(() => import('../pages/projectDetail'))
 const ReviewsPage = lazy(() => import('../pages/reviews'))
 
 export const ROUTES = [
-    {path: '/', title: 'Home', component: HomePage, icon: HomeIcon},
-    {path: '/projects', title: 'Projects', component: ProjectsPage, icon: WorkIcon},
-    {path: '/projects/:id', title: 'Project Detail', component: ProjectDetailPage, icon: WorkIcon, hide: true},
-    // {path: '/reviews', title: 'Reviews', component: ReviewsPage, icon: RateReviewIcon},
-    {path: '/contact', title: 'Contact', component: ContactPage, icon: MailIcon},
+  { path: '/', title: 'Home', component: HomePage, icon: HomeIcon },
+  { path: '/projects', title: 'Projects', component: ProjectsPage, icon: WorkIcon },
+  { path: '/projects/:name', title: 'Project Detail', component: ProjectDetailPage, icon: WorkIcon, hide: true },
+  // {path: '/reviews', title: 'Reviews', component: ReviewsPage, icon: RateReviewIcon},
+  { path: '/contact', title: 'Contact', component: ContactPage, icon: MailIcon },
 ]
 
 export const typeMapping = {
@@ -108,13 +108,13 @@ export const generateSvgArray = (loadingSvgs) => {
   return Object.entries(loadingSvgs).map(([path, module]) => {
     // Extract the name from the path
     const name = path.split('/').pop().replace('.svg', '');
-    
+
     // Create a display name from the filename (convert kebab-case to Title Case)
     const displayName = name
       .split('-')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
-      
+
     return {
       path,
       url: module.default,
@@ -127,6 +127,6 @@ export const generateSvgArray = (loadingSvgs) => {
 export const getTopSkillsByProficiency = (data, count = 3) => {
   const allSkills = data.flatMap(category => category.skills);
   const sortedSkills = allSkills.sort((a, b) => b.proficiency - a.proficiency);
-  
+
   return sortedSkills.slice(0, count);
 }

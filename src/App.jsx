@@ -1,7 +1,7 @@
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import { ErrorBoundary } from 'react-error-boundary';
-import { useState, lazy, Suspense, useEffect } from 'react';
+import { useState, lazy, Suspense, useEffect, useCallback } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,28 +39,28 @@ function App() {
   const isGithubDataLoading = useSelector(state => state.user.isGithubDataLoading);
 
   // Handle theme mode changes
-  const handleThemeModeChange = (newMode) => {
+  const handleThemeModeChange = useCallback((newMode) => {
     setThemeMode(newMode);
     setStoredThemeMode(newMode);
     setResolvedTheme(resolveTheme(newMode));
-  };
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         // Only fetch user data if we're not on the admin route
-        if (!window.location.pathname.startsWith('/admin') && import.meta.env.VITE_USER_ID ) {
+        if (!window.location.pathname.startsWith('/admin') && import.meta.env.VITE_USER_ID) {
           dispatch(setGithubDataLoading(true));
-          
+
           // Import and use the userService
           const { getPublicUserData } = await import('./api/services/userService');
-          
+
           // Get user ID from environment variables
           const userId = import.meta.env.VITE_USER_ID;
-          
+
           // Fetch user data from API
           const userData = await getPublicUserData(userId);
-          
+
           // Update Redux store with the user data
           dispatch(updateUserData(userData));
         }
@@ -75,7 +75,7 @@ function App() {
 
     // Fetch user data
     fetchUserData();
-    
+
     // Set up system theme listener for when mode is 'system'
     const cleanupSystemListener = createSystemThemeListener((systemTheme) => {
       if (themeMode === THEME_MODES.SYSTEM) {
@@ -136,10 +136,10 @@ function App() {
                 {ROUTES.map((route) => {
                   const RouteComponent = route.component;
                   return (
-                    <Route 
+                    <Route
                       key={route.path}
-                      path={route.path} 
-                      element={<RouteComponent />} 
+                      path={route.path}
+                      element={<RouteComponent />}
                     />
                   );
                 })}
@@ -147,9 +147,9 @@ function App() {
               </Route>
             </Routes>
             {/* Toast Container for notifications */}
-            <ToastContainer 
-              position="top-right" 
-              autoClose={3000} 
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
               hideProgressBar={false}
               newestOnTop
               closeOnClick
