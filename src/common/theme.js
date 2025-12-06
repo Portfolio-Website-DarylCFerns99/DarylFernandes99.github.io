@@ -135,6 +135,67 @@ const THEME = (mode) => createTheme({
                 },
             },
         },
+        MuiDialog: {
+            styleOverrides: {
+                paper: {
+                    borderRadius: 20,
+                    backdropFilter: 'blur(12px)',
+                    background: mode === 'dark'
+                        ? 'rgba(10, 10, 18, 0.85)'
+                        : 'rgba(255, 255, 255, 0.85)',
+                    border: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                    boxShadow: mode === 'dark'
+                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                        : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                },
+            },
+        },
+        MuiMenu: {
+            styleOverrides: {
+                paper: {
+                    borderRadius: 16,
+                    backdropFilter: 'blur(12px)',
+                    background: mode === 'dark'
+                        ? 'rgba(10, 10, 18, 0.9)'
+                        : 'rgba(255, 255, 255, 0.9)',
+                    border: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                    boxShadow: mode === 'dark'
+                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                        : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                },
+            },
+        },
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    backdropFilter: 'blur(12px)',
+                    background: mode === 'dark'
+                        ? 'rgba(10, 10, 18, 0.9)'
+                        : 'rgba(255, 255, 255, 0.9)',
+                    borderRight: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                },
+            },
+        },
+        MuiPopover: {
+            styleOverrides: {
+                paper: {
+                    borderRadius: 16,
+                    backdropFilter: 'blur(12px)',
+                    background: mode === 'dark'
+                        ? 'rgba(10, 10, 18, 0.9)'
+                        : 'rgba(255, 255, 255, 0.9)',
+                    border: mode === 'dark'
+                        ? '1px solid rgba(255, 255, 255, 0.12)'
+                        : '1px solid rgba(0, 0, 0, 0.12)',
+                },
+            },
+        },
     },
 });
 

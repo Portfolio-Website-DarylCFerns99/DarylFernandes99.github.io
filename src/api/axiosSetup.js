@@ -48,13 +48,12 @@ authApi.interceptors.response.use(
         removeCookie(TOKEN_COOKIE_NAME);
         window.location.href = '/admin'; // Updated path
       }
-      
+
       // Handle 403 Forbidden responses
       if (error.response.status === 403) {
         // Forbidden - user doesn't have permissions
         removeCookie(TOKEN_COOKIE_NAME);
-        // We'll let the component handle the redirect to preserve React Router behavior
-        // The error will still be thrown to the catch block where we can handle it
+        window.location.href = '/admin';
       }
     }
     return Promise.reject(error);
