@@ -81,8 +81,7 @@ portfolio-website/
 ### Public Routes
 - `/` - Home page with introduction and highlights
 - `/projects` - Portfolio showcase with filtering
-- `/projects/:id` - Detailed project view with GitHub integration  
-- `/reviews` - Client testimonials and reviews
+- `/projects/:name` - Detailed project view with GitHub integration  
 - `/contact` - Contact form with validation
 
 ### Protected Admin Routes

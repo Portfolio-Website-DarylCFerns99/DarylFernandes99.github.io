@@ -159,7 +159,7 @@ const ProjectDetail = () => {
         keywords={project?.tags?.join(', ')}
         type="article"
       />
-      <DetailContainer maxWidth="xl" sx={{
+      <DetailContainer maxWidth="lg" sx={{
         pt: { xs: '1rem', md: `calc(${appBarHeight / 2}px + 3rem)` }
       }}>
         <BackButton
