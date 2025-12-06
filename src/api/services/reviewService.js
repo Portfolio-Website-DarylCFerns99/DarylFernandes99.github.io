@@ -5,7 +5,7 @@ export const getAllReviews = (skip = 0, limit = 100) => {
   return new Promise((resolve, reject) => {
     authApi.get(`/reviews?skip=${skip}&limit=${limit}`)
       .then(response => {
-        resolve(response.data);
+        resolve(response.data?.reviews ?? []);
       })
       .catch(error => {
         reject(error);
