@@ -18,6 +18,7 @@ import LoadingLayout from './pages/loading'
 import { GuestRoute } from './authRouter/authGuestRoute.jsx'
 import { AuthProvider } from './authRouter/authContext.jsx'
 import ScrollToTop from './components/ScrollToTop';
+import ChatWidget from './components/Chatbot/ChatWidget';
 import { getCookie, TOKEN_COOKIE_NAME } from './utils/cookieUtils';
 import { updateUserData, setGithubDataLoading, setTestDataFlag } from './redux/reducers/userSlice';
 import { THEME_MODES, getStoredThemeMode, setStoredThemeMode, resolveTheme, createSystemThemeListener } from './utils/themeUtils';
@@ -131,6 +132,7 @@ function App() {
                     <GuestRoute />
                   </Box>
                   <Footer />
+                  <ChatWidget />
                 </>
               }>
                 {ROUTES.map((route) => {
