@@ -241,10 +241,6 @@ const Index = () => {
     .filter(item => visibleTypes[item.type])
     .sort((a, b) => b.year - a.year);
 
-
-
-
-
   // Social media icon mapping
   const getIcon = (platform, tooltip) => {
     const iconSize = isMobile ? 'small' : 'medium';
@@ -263,19 +259,24 @@ const Index = () => {
     // If it's a document type with base64 data, open it in a new tab
     if (social.platform === 'document' && social.url.startsWith('data:')) {
       const newWindow = window.open();
-      newWindow.document.write(`
-        <iframe 
-          src="${social.url}" 
-          style="width:100%; height:100vh; border:none;"
-          title="${social.tooltip || social.fileName || 'Document'}"
-        ></iframe>
-      `);
-      newWindow.document.title = social.tooltip || social.fileName || 'Document';
+      if (newWindow) {
+        newWindow.document.write(`
+            <iframe 
+              src="${social.url}" 
+              style="width:100%; height:100vh; border:none; margin:0; padding:0; display:block;"
+              title="${social.tooltip || social.fileName || 'Document'}"
+            ></iframe>
+            <style>body { margin: 0; overflow: hidden; }</style>
+          `);
+        newWindow.document.title = social.tooltip || social.fileName || 'Document';
+        newWindow.document.close(); // <--- Important for finishing the load
+      }
     } else {
       // For regular links, just open the URL in a new tab
       window.open(social.url, '_blank', 'noopener,noreferrer');
     }
   };
+
   const handleAvatarError = (e) => {
     e.target.src = getRandomSvg();
   };
@@ -299,10 +300,6 @@ const Index = () => {
   //   const scrollToExperience = () => {
   //     experienceSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   //   };
-
-
-
-
 
   // Carousel navigation functions
   const goToSlide = useCallback((index) => {
