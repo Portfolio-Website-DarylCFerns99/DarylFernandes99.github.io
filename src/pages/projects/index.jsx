@@ -106,7 +106,7 @@ import {
 	InputBase
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useSelector } from 'react-redux'
 import NorthEastIcon from '@mui/icons-material/NorthEast'
 import GitHubIcon from '@mui/icons-material/GitHub'
@@ -172,29 +172,50 @@ const Index = () => {
 	const theme = useTheme()
 	const [appBarHeight, setAppBarHeight] = useState(64) // Default height
 
-	// Category filter state
-	const [selectedCategoryId, setSelectedCategoryId] = useState('all') // defaults to all projects
+	const [searchParams, setSearchParams] = useSearchParams()
+
+	// Category filter state - Derived from URL
+	const selectedCategoryId = searchParams.get('category') || 'all'
 
 	// Filter states
-	const [searchText, setSearchText] = useState('')
-	const [debouncedSearchText, setDebouncedSearchText] = useState('')
+	// Initialize search text from URL, but keep local state for input
+	const [searchText, setSearchText] = useState(searchParams.get('search') || '')
+	const [debouncedSearchText, setDebouncedSearchText] = useState(searchParams.get('search') || '')
+
+	// Type filter remains local state for now as requested
 	const [selectedType, setSelectedType] = useState('')
-	const [selectedTags, setSelectedTags] = useState([])
+
 	const [showFilters, setShowFilters] = useState(false)
 
-	// Sort states
-	const [sortBy, setSortBy] = useState('date') // Default to date sorting
-	const [sortOrder, setSortOrder] = useState('desc') // desc for newest first by default
+	// Derived state from URL
+	const selectedTags = useMemo(() => {
+		const tags = searchParams.get('tags')
+		return tags ? tags.split(',') : []
+	}, [searchParams])
+
+	const sortBy = searchParams.get('sort') || 'date'
+	const sortOrder = searchParams.get('order') || 'desc'
 	const [sortMenuAnchor, setSortMenuAnchor] = useState(null)
 
-	// Debounce search text
+	// Debounce search text and update URL
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			setDebouncedSearchText(searchText)
+
+			// Update URL with search text
+			setSearchParams(prev => {
+				const newParams = new URLSearchParams(prev)
+				if (searchText) {
+					newParams.set('search', searchText)
+				} else {
+					newParams.delete('search')
+				}
+				return newParams
+			}, { replace: true })
 		}, 300)
 
 		return () => clearTimeout(timer)
-	}, [searchText])
+	}, [searchText, setSearchParams])
 
 	// Generate SVG array for loading images
 	const loadingSvgArray = useMemo(() => generateSvgArray(loadingSvgs), []);
@@ -333,22 +354,42 @@ const Index = () => {
 
 	// Handle tag selection
 	const handleTagToggle = (tag) => {
-		setSelectedTags(prev =>
-			prev.includes(tag)
-				? prev.filter(t => t !== tag)
-				: [...prev, tag]
-		)
+		setSearchParams(prev => {
+			const newParams = new URLSearchParams(prev)
+			const currentTags = newParams.get('tags') ? newParams.get('tags').split(',') : []
+
+			let newTags
+			if (currentTags.includes(tag)) {
+				newTags = currentTags.filter(t => t !== tag)
+			} else {
+				newTags = [...currentTags, tag]
+			}
+
+			if (newTags.length > 0) {
+				newParams.set('tags', newTags.join(','))
+			} else {
+				newParams.delete('tags')
+			}
+			return newParams
+		})
 	}
 
 	// Clear all filters
 	const clearAllFilters = () => {
 		setSearchText('')
-		setSelectedType('')
-		setSelectedTags([])
-		setSortBy('date') // Reset to default date sorting
-		setSortOrder('desc') // Reset to default descending order
-		// Reset category to all
-		setSelectedCategoryId('all');
+		setSelectedType('') // Local state
+
+		// Reset URL params
+		setSearchParams(prev => {
+			const newParams = new URLSearchParams()
+			// Preserve category if strictly clearing "filters" but keeping context could be debated.
+			// Usually "Clear All" in this context implies clearing search, tags, types.
+			// The original code reset category to 'all' as well.
+			newParams.set('category', 'all')
+			newParams.set('sort', 'date')
+			newParams.set('order', 'desc')
+			return newParams
+		})
 	}
 
 	// Check if any filters are active (excluding category and sort)
@@ -366,11 +407,19 @@ const Index = () => {
 	}
 
 	const handleSortFieldChange = (sortField) => {
-		setSortBy(sortField)
+		setSearchParams(prev => {
+			const newParams = new URLSearchParams(prev)
+			newParams.set('sort', sortField)
+			return newParams
+		})
 	}
 
 	const handleSortOrderChange = (order) => {
-		setSortOrder(order)
+		setSearchParams(prev => {
+			const newParams = new URLSearchParams(prev)
+			newParams.set('order', order)
+			return newParams
+		})
 	}
 
 	// Get the appBar height
@@ -479,7 +528,11 @@ const Index = () => {
 												/>
 											)}
 											<Button
-												onClick={() => setSelectedCategoryId(tab.id)}
+												onClick={() => setSearchParams(prev => {
+													const newParams = new URLSearchParams(prev)
+													newParams.set('category', tab.id)
+													return newParams
+												})}
 												size="small"
 												sx={{
 													position: 'relative',
