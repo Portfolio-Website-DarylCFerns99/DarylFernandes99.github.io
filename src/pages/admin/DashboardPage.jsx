@@ -22,6 +22,7 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import AppsIcon from '@mui/icons-material/Apps';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleIcon from '@mui/icons-material/Article';
+import ChatIcon from '@mui/icons-material/Chat';
 
 import { getNextThemeMode } from '../../utils/themeUtils';
 import { DynamicSEO } from '../../components/SEO/DynamicSEO';
@@ -32,6 +33,7 @@ import SkillsSection from './components/SkillsSection';
 import TimelineSection from './components/TimelineSection';
 import ProjectsSection from './components/ProjectsSection';
 import ReviewsSection from './components/ReviewsSection';
+import ChatHistorySection from './components/ChatHistorySection';
 import Sidebar from './components/Sidebar';
 
 const drawerWidth = 280;
@@ -43,7 +45,8 @@ const sections = [
   { id: 'skills', name: 'Skills', icon: <CodeIcon /> },
   { id: 'timeline', name: 'Timeline', icon: <TimelineIcon /> },
   { id: 'projects', name: 'Projects', icon: <AppsIcon /> },
-  { id: 'reviews', name: 'Reviews', icon: <ArticleIcon /> }
+  { id: 'reviews', name: 'Reviews', icon: <ArticleIcon /> },
+  { id: 'chat', name: 'Chat History', icon: <ChatIcon /> }
 ];
 
 const DashboardPage = ({ themeMode, setThemeMode }) => {
@@ -270,19 +273,27 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
             </Box>
 
             {/* Reviews Section */}
-            <Box ref={el => sectionRefs.current['reviews'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
-              <Card sx={{ p: 3 }}>
-                <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
-                  Reviews
-                </Typography>
-                <ReviewsSection />
-              </Card>
-            </Box>
-
+            <Card sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
+                Reviews
+              </Typography>
+              <ReviewsSection />
+            </Card>
           </Box>
+
+          {/* Chat History Section */}
+          <Box ref={el => sectionRefs.current['chat'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
+            <Card sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
+                Chat History
+              </Typography>
+              <ChatHistorySection />
+            </Card>
+          </Box>
+
         </Box>
       </Box>
-    </Fragment>
+    </Fragment >
   );
 };
 
