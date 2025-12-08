@@ -1,63 +1,51 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Fab } from '@mui/material';
+import { Fab, useTheme, useMediaQuery } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
 import ChatWindow from './ChatWindow';
 import { ChatContainer, StyledFab } from './styles';
-import { generateResponse } from '../../utils/chatUtils';
+import { useChat } from '../../hooks/useChat';
+import useScrollDirection from '../../hooks/useScrollDirection';
 
 const ChatWidget = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+    const { scrollDirection, isScrolled } = useScrollDirection();
 
-    const userData = useSelector((state) => state.user);
+    // Determine if navbar is visible (logic matches Header component)
+    const isNavbarVisible = !isScrolled || scrollDirection === 'up';
 
-    // Load history from localStorage on mount
-    useEffect(() => {
-        const savedHistory = localStorage.getItem('chat_history');
-        if (savedHistory) {
-            try {
-                setMessages(JSON.parse(savedHistory));
-            } catch (e) {
-                console.error("Failed to parse chat history", e);
-            }
-        }
-    }, []);
+    // Calculate bottom position
+    const bottomPosition = isMobile && isNavbarVisible ? theme.spacing(10) : theme.spacing(1);
 
-    // Save history to localStorage whenever it changes
-    useEffect(() => {
-        localStorage.setItem('chat_history', JSON.stringify(messages));
-    }, [messages]);
+    // Use the new WebSocket hook
+    const {
+        messages,
+        sendMessage,
+        isStreaming,
+        setMessages,
+        clearHistory
+    } = useChat();
 
-    const handleSendMessage = async (text) => {
-        const userMessage = { sender: 'user', text };
-        setMessages(prev => [...prev, userMessage]);
-        setIsLoading(true);
 
-        try {
-            // Pass current messages as history context
-            const responseText = await generateResponse(text, userData, messages);
-            const botMessage = { sender: 'bot', text: responseText };
-            setMessages(prev => [...prev, botMessage]);
-        } catch (error) {
-            setMessages(prev => [...prev, { sender: 'bot', text: "Sorry, something went wrong." }]);
-        } finally {
-            setIsLoading(false);
-        }
+    const handleSendMessage = (text) => {
+        sendMessage(text);
     };
 
     const handleClearHistory = () => {
-        if (window.confirm("Are you sure you want to clear the chat history?")) {
-            setMessages([]);
-            localStorage.removeItem('chat_history');
-        }
+        clearHistory();
     };
 
     return (
-        <ChatContainer>
+        <ChatContainer
+            sx={{
+                bottom: bottomPosition,
+                transition: 'bottom 0.3s ease-in-out'
+            }}
+        >
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
@@ -72,7 +60,7 @@ const ChatWidget = () => {
                             onClose={() => setIsOpen(false)}
                             messages={messages}
                             onSendMessage={handleSendMessage}
-                            isLoading={isLoading}
+                            isStreaming={isStreaming}
                             onClearHistory={handleClearHistory}
                         />
                     </motion.div>

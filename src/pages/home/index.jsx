@@ -663,7 +663,7 @@ const Index = () => {
                     <Typography variant="h6" fontWeight="bold" sx={{ fontSize: { xs: '1rem', sm: '1.1rem', md: '1.25rem' } }}>
                       {userData.heroStats.experience}
                     </Typography>
-                    <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                    <Typography variant="caption" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' }, textAlign: 'center' }}>
                       {userData.heroStats.experience === 1 ? 'Year' : 'Years'} of Experience
                     </Typography>
                   </Box>
