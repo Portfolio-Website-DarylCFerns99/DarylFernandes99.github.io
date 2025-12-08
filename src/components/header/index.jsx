@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { ROUTES } from '../../common/common'
 import { THEME_MODES, THEME_MODE_LABELS, getNextThemeMode } from '../../utils/themeUtils'
+import useScrollDirection from '../../hooks/useScrollDirection';
 
 // Get icon and label for current theme mode
 const getThemeIcon = (mode) => {
@@ -49,9 +50,7 @@ const Index = (props) => {
     const appBarRef = useRef(null);
     const location = useLocation();
     const navigate = useNavigate();
-    const [scrollDirection, setScrollDirection] = useState('up');
-    const [isScrolled, setIsScrolled] = useState(false);
-    const lastScrollY = useRef(0);
+    const { scrollDirection, isScrolled } = useScrollDirection();
     const dockRef = useRef(null);
     const navRefs = useRef({});
 
@@ -119,7 +118,7 @@ const Index = (props) => {
                         transition={{ duration: 0.3, ease: "easeInOut" }}
                         sx={{
                             position: 'fixed',
-                            bottom: '24px',
+                            bottom: theme.spacing(1),
                             left: 0,
                             right: 0,
                             display: { xs: 'flex', md: 'none' },

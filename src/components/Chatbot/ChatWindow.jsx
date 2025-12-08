@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Typography, IconButton, TextField, CircularProgress, Tooltip } from '@mui/material';
+import { Typography, IconButton, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
@@ -13,8 +13,9 @@ import {
     InputArea
 } from './styles';
 
-const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onClearHistory }) => {
+const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isStreaming, onClearHistory }) => {
     const [input, setInput] = useState('');
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
     const messagesEndRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -27,7 +28,7 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (input.trim() && !isLoading) {
+        if (input.trim() && !isStreaming) {
             onSendMessage(input);
             setInput('');
         }
@@ -40,6 +41,15 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
         }
     };
 
+    const handleClearClick = () => {
+        setShowClearConfirm(true);
+    };
+
+    const handleConfirmClear = () => {
+        onClearHistory();
+        setShowClearConfirm(false);
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -50,7 +60,7 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
                 </Typography>
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Tooltip title="Clear History">
-                        <IconButton size="small" onClick={onClearHistory} sx={{ color: 'inherit' }}>
+                        <IconButton size="small" onClick={handleClearClick} sx={{ color: 'inherit' }}>
                             <DeleteSweepIcon fontSize="small" />
                         </IconButton>
                     </Tooltip>
@@ -90,14 +100,14 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
                             </MessageBubble>
                         </motion.div>
                     ))}
-                    {isLoading && (
+                    {isStreaming && (
                         <motion.div
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             style={{ width: '100%' }}
                         >
                             <MessageBubble isUser={false}>
-                                <CircularProgress size={20} color="inherit" />
+                                <Typography variant="caption">typing...</Typography>
                             </MessageBubble>
                         </motion.div>
                     )}
@@ -113,7 +123,7 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    disabled={isLoading}
+                    disabled={isStreaming}
                     multiline
                     maxRows={3}
                     variant="outlined"
@@ -127,11 +137,33 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isLoading, onCle
                 <IconButton
                     color="primary"
                     type="submit"
-                    disabled={!input.trim() || isLoading}
+                    disabled={!input.trim() || isStreaming}
                 >
                     <SendIcon />
                 </IconButton>
             </InputArea>
+
+            <Dialog
+                open={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+            >
+                <DialogTitle id="alert-dialog-title">
+                    {"Clear Chat History?"}
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
+                        This will start a new chat session and the current conversation history will be lost from this view.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setShowClearConfirm(false)}>Cancel</Button>
+                    <Button onClick={handleConfirmClear} color="error" autoFocus>
+                        Clear
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </ChatWindowContainer>
     );
 };
