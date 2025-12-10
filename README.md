@@ -20,12 +20,15 @@ A modern, responsive portfolio website built with React 19, Vite, and Material U
 - **🛡️ Error Handling**: Comprehensive error boundaries and fallbacks
 - **🔔 Toast Notifications**: User-friendly feedback system  
 - **🔐 Authentication**: Protected routes for admin access
+- **🤖 AI Chatbot**: Interactive portfolio assistant powered by Gemini
 - **📊 Analytics Ready**: Easy integration with analytics platforms
 
 ## 🏗️ Project Structure
 
 ```
 portfolio-website/
+├── .github/                 # GitHub Actions workflows
+workflows
 ├── public/                 # Static assets and favicon
 ├── src/                    # Source code
 │   ├── api/               # API services and endpoints
@@ -35,6 +38,7 @@ portfolio-website/
 │   ├── common/            # Common utilities and constants
 │   ├── components/        # Reusable UI components
 │   ├── config/            # Configuration files
+│   ├── hooks/             # Custom hooks
 │   ├── pages/             # Page components
 │   │   ├── admin/         # Admin dashboard pages
 │   │   ├── contact/       # Contact form and information
@@ -46,8 +50,7 @@ portfolio-website/
 │   │   └── reviews/       # Client reviews and testimonials
 │   ├── redux/             # Redux store, slices, and middleware
 │   └── utils/             # Helper functions and utilities
-├── .github/               # GitHub Actions workflows
-├── .env.example          # Environment variables template
+├── env.example          # Environment variables template
 ├── .gitignore            # Git ignore patterns
 ├── eslint.config.js      # ESLint configuration
 ├── index.html            # HTML entry point
@@ -65,16 +68,19 @@ portfolio-website/
 - **Material UI 6.4** - React component library
 - **React Router 7.4** - Declarative routing
 - **Redux Toolkit 2.5** - Predictable state container
+- **React Toastify** - Toast notifications
 
 ### Development & Build Tools
 - **ESLint 9.19** - Code linting and formatting
 - **Vite** - Build tool and development server
-- **gh-pages** - GitHub Pages deployment
-- **GCP** - Google Cloud Platform for hosting
+
+### Deployment Tools (Optional)
+- **Vercel** - Deployment platform
+- **GitHub Pages** - GitHub Pages deployment
+- **Google Cloud Platform** - Google Cloud Platform for hosting
 
 ### APIs & Services
 - **Axios** - HTTP client for API requests
-- **React Toastify** - Toast notifications
 
 ## 🌐 Routes
 
@@ -102,6 +108,7 @@ This repository contains:
 - **Authentication System** - JWT-based auth with role management
 - **File Upload Handling** - Image and document management
 - **Email Services** - Contact form and notification system
+- **RAG Chatbot** - AI chatbot integration
 - **API Documentation** - Swagger/OpenAPI specifications
 
 ## 🚀 Getting Started
@@ -110,7 +117,6 @@ This repository contains:
 - Node.js 18+ 
 - npm or yarn
 - Git
-- **Infrastructure setup completed** (see above section)
 
 ### Installation
 
@@ -127,14 +133,10 @@ This repository contains:
 
 3. **Set up environment variables**
    ```bash
-   cp .env.example .env
+   cp env.example .env
    ```
    
-   Update the `.env` file with your configuration:
-   ```env
-   VITE_USER_ID=your_database_user_id
-   VITE_API_URL=your_backend_api_url
-   ```
+   Update the `.env` file with your configuration
 
 4. **Start development server**
    ```bash
@@ -161,12 +163,16 @@ Create environment files for different stages:
 ```env
 VITE_USER_ID=your_user_id
 VITE_API_URL=http://localhost:8000/api
+VITE_WS_URL=ws://localhost:8000/ws
 ```
+
+Note: For WebSocket connections, on Production replace `ws://*` with `wss://*`.
 
 ### `.env.production`
 ```env
 VITE_USER_ID=your_user_id  
 VITE_API_URL=https://your-production-api.com/api
+VITE_WS_URL=wss://your-production-api.com/ws
 ```
 
 ## 🚀 Deployment
@@ -305,6 +311,7 @@ npm run predeploy    # Pre-deployment build
 - Material UI components and styling
 - Redux Toolkit for state management
 - Axios for API communication
+- Framer Motion for animations
 - Additional UI libraries (Swiper, React-Markdown)
 
 ### Development Dependencies  
