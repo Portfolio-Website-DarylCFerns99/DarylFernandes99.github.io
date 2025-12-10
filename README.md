@@ -37,7 +37,6 @@ workflows
 │   ├── axiosSetup/        # Axios configuration and interceptors
 │   ├── common/            # Common utilities and constants
 │   ├── components/        # Reusable UI components
-│   ├── config/            # Configuration files
 │   ├── hooks/             # Custom hooks
 │   ├── pages/             # Page components
 │   │   ├── admin/         # Admin dashboard pages
@@ -179,102 +178,29 @@ VITE_WS_URL=wss://your-production-api.com/ws
 
 > **📋 Prerequisites**: Ensure you have completed the [infrastructure setup](#-infrastructure-setup) before deploying the frontend.
 
-This project supports multiple deployment strategies:
+### Vercel Deployment (Recommended)
 
-### GitHub Pages (Primary)
-The site automatically deploys to GitHub Pages on every push to the `main` branch.
+1. **Login to Vercel**
+   - Go to [Vercel](https://vercel.com) and log in with your GitHub account.
 
-**Setup:**
-1. Enable GitHub Pages in repository settings
-2. Set source to "GitHub Actions"
-3. Push to main branch to trigger deployment
+2. **Import Project**
+   - Click "Add New..." -> "Project".
+   - Select your `portfolio-website` repository from the list.
 
-### Google Cloud Platform
-Deploy to Google Cloud Storage with CDN for production environments.
+3. **Configure Project**
+   - Vercel will automatically detect `Vite` as the framework.
+   - **Environment Variables**: Add your production environment variables here (e.g., `VITE_API_URL`, `VITE_USER_ID`).
 
-**Setup:**
-1. **Complete infrastructure setup** from the [infrastructure repository](https://github.com/Portfolio-Website-DarylCFerns99/portfolio-website-infrastructure)
-2. The infrastructure setup will create:
-   - GCP project and storage bucket
-   - Service account credentials  
-   - All required cloud resources
-3. Add the provided secrets to your GitHub repository (see infrastructure outputs)
+4. **Deploy**
+   - Click "Deploy".
+   - Your site will be live in minutes!
 
-## 🔄 GitHub Actions Workflows
+### Alternative Deployment Methods
 
-### 1. GitHub Pages Deployment
+This project also supports deployment to Google Cloud Platform and GitHub Pages. Please refer to the detailed guides below:
 
-**File:** `.github/workflows/github-pages-deploy.yml`
-
-**Triggers:**
-- Push to `main` branch
-- Manual workflow dispatch
-
-**Process:**
-1. **Build Job:**
-   - Checkout code
-   - Setup Node.js 22
-   - Create production environment file
-   - Install dependencies with `npm ci`
-   - Build project with `npm run build`
-   - Configure GitHub Pages
-   - Upload build artifacts
-
-2. **Deploy Job:**
-   - Deploy artifacts to GitHub Pages
-   - Update live site automatically
-
-**Required Secrets:**
-- `ENV_FILE` - Production environment variables
-
-### 2. Google Cloud Platform Deployment
-
-**File:** `.github/workflows/gcp-deploy.yml`
-
-**Triggers:**
-- Push to `main` branch  
-- Manual workflow dispatch
-
-**Process:**
-1. **Setup:**
-   - Checkout code
-   - Setup Node.js 22 with npm caching
-   - Create production environment file
-
-2. **Build:**
-   - Install dependencies
-   - Run build process
-   - Generate production assets
-
-3. **Deploy:**
-   - Authenticate with Google Cloud
-   - Upload files to Cloud Storage
-   - Set appropriate cache headers
-   - Configure CDN settings
-
-**Required Secrets:**
-- `ENV_FILE` - Production environment variables
-- `GCP_SA_KEY` - Google Cloud service account key
-- `GCP_PROJECT_ID` - Google Cloud project ID (from infrastructure setup)
-- `FRONTEND_BUCKET_NAME` - Storage bucket name (from infrastructure setup)
-
-> 💡 **Tip**: All these values are provided as outputs from the infrastructure repository setup.
-
-### Setting Up GitHub Secrets
-
-1. Go to repository Settings → Secrets and variables → Actions
-2. Add the following secrets:
-
-```
-ENV_FILE=VITE_USER_ID=your_id
-VITE_API_URL=your_api_url
-
-GCP_SA_KEY={"type": "service_account", ...}
-GCP_PROJECT_ID=your-gcp-project-id            # From infrastructure outputs  
-FRONTEND_BUCKET_NAME=your-bucket-name          # From infrastructure outputs
-```
-
-> 📖 **Reference**: See the infrastructure repository's README for detailed secret configuration instructions.
+-   **[Google Cloud Platform Deployment](DEPLOYMENT-GCP.md)**
+-   **[GitHub Pages Deployment](DEPLOYMENT-GITHUB-PAGES.md)**
 
 ## 🔧 Development Workflow
 
@@ -303,21 +229,6 @@ npm run predeploy    # Pre-deployment build
 3. Push branch and create pull request
 4. Merge after review and CI passes
 5. Automatic deployment to staging/production
-
-## 📦 Dependencies
-
-### Production Dependencies
-- React ecosystem (React, React-DOM, React-Router)
-- Material UI components and styling
-- Redux Toolkit for state management
-- Axios for API communication
-- Framer Motion for animations
-- Additional UI libraries (Swiper, React-Markdown)
-
-### Development Dependencies  
-- Vite build tooling
-- ESLint for code quality
-- Type definitions for better development experience
 
 ## 🤝 Contributing
 
