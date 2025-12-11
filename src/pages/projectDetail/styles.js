@@ -39,7 +39,7 @@ export const HeroBackground = styled(Box)(({ theme, image }) => ({
   backgroundImage: image ? `url(${image})` : 'none',
   backgroundSize: 'cover',
   backgroundPosition: 'center',
-  filter: 'blur(8px) brightness(0.6)',
+  filter: theme.palette.mode === 'dark' ? 'blur(4px) brightness(1)' : 'blur(4px) brightness(0.6)',
   transform: 'scale(1.1)', // Prevent blur edges
   zIndex: 0,
   '&::after': {
@@ -103,6 +103,8 @@ export const GlassCard = styled(Paper)(({ theme }) => ({
   border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
   boxShadow: theme.shadows[2],
   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  position: 'relative', // Allow absolute positioning of children
+  overflow: 'visible', // Allow menu to spill out if needed, though MUI menu uses portal
   '&:hover': {
     boxShadow: theme.shadows[6],
   },
@@ -282,3 +284,4 @@ export const SectionTitle = styled(Typography)(({ theme }) => ({
   alignItems: 'center',
   gap: theme.spacing(1),
 }))
+

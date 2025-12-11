@@ -9,9 +9,9 @@ import {
   Tooltip,
   Button,
   Divider,
-  Avatar,
-  Chip,
-  alpha
+  alpha,
+  Menu,
+  MenuItem
 } from '@mui/material'
 import { useSelector } from 'react-redux'
 import { useParams, useNavigate, Link } from 'react-router-dom'
@@ -25,6 +25,7 @@ import CodeIcon from '@mui/icons-material/Code'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import UpdateIcon from '@mui/icons-material/Update'
 import LanguageIcon from '@mui/icons-material/Language'
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -63,6 +64,15 @@ const getLanguageColor = (str) => {
   return '#' + '00000'.substring(0, 6 - c.length) + c;
 };
 
+// Helper to extract text from React children
+const extractText = (children) => {
+  if (typeof children === 'string') return children;
+  if (Array.isArray(children)) return children.map(extractText).join('');
+  if (children?.props?.children) return extractText(children.props.children);
+  if (typeof children === 'number') return String(children);
+  return '';
+};
+
 const ProjectDetail = () => {
   const { name } = useParams()
   const navigate = useNavigate()
@@ -70,6 +80,16 @@ const ProjectDetail = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
   const [appBarHeight, setAppBarHeight] = useState(64) // Default height
   const [loadingImage, setLoadingImage] = useState(false)
+  const [tocAnchorEl, setTocAnchorEl] = useState(null);
+  const tocOpen = Boolean(tocAnchorEl);
+
+  const handleTocClick = (event) => {
+    setTocAnchorEl(event.currentTarget);
+  };
+
+  const handleTocClose = () => {
+    setTocAnchorEl(null);
+  };
 
   // Get all projects
   const projects = useSelector((state) => state.user.projects || [])
@@ -140,6 +160,80 @@ const ProjectDetail = () => {
 
   // Determine if project is GitHub type
   const isGithubProject = project.type === 'github'
+
+  // Extract headers for TOC
+  const headers = React.useMemo(() => {
+    if (!readmeContent) return [];
+    const lines = readmeContent.split('\n');
+    const result = [];
+    let inCodeBlock = false;
+
+    lines.forEach(line => {
+      // Check for code block markers to avoid matching comments in code
+      if (line.trim().startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        return;
+      }
+      if (inCodeBlock) return;
+
+      const match = line.match(/^(#{1,3})\s+(.+)$/);
+      if (match) {
+        const level = match[1].length;
+        const text = match[2].trim();
+        // Clean text for ID generation - remove links, markdown formatting
+        const plainText = text
+          .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Extract link text
+          .replace(/[*_`]/g, '') // Remove simple formatting
+          .trim();
+
+        if (plainText) {
+          result.push({
+            id: slugify(plainText),
+            text: plainText,
+            originalText: text, // Keep original for display if needed
+            level
+          });
+        }
+      }
+    });
+    return result;
+  }, [readmeContent]);
+
+  // Markdown components with IDs
+  const components = React.useMemo(() => ({
+    h1: ({ node, children, ...props }) => {
+      const id = slugify(extractText(children));
+      return <h1 id={id} {...props}>{children}</h1>;
+    },
+    h2: ({ node, children, ...props }) => {
+      const id = slugify(extractText(children));
+      return <h2 id={id} {...props}>{children}</h2>;
+    },
+    h3: ({ node, children, ...props }) => {
+      const id = slugify(extractText(children));
+      return <h3 id={id} {...props}>{children}</h3>;
+    },
+    // Ensure images are responsive
+    img: ({ node, ...props }) => (
+      <img {...props} style={{ maxWidth: '100%', height: 'auto' }} loading="lazy" />
+    )
+  }), []);
+
+  const scrollToHeader = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      // Offset for fixed header/appbar
+      const offset = appBarHeight + 20;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+      handleTocClose();
+    }
+  };
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -242,9 +336,89 @@ const ProjectDetail = () => {
           {/* Main Content Column */}
           <MainColumn component={motion.div} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
             <GlassCard elevation={0}>
+              {/* Floating TOC Button */}
+              {headers.length > 0 && (
+                <>
+                  <Tooltip title="Table of Contents">
+                    <IconButton
+                      onClick={handleTocClick}
+                      sx={{
+                        position: 'absolute',
+                        top: 16,
+                        right: 16,
+                        zIndex: 10,
+                        backgroundColor: alpha(theme.palette.background.paper, 0.8),
+                        backdropFilter: 'blur(4px)',
+                        border: `1px solid ${theme.palette.divider}`,
+                        '&:hover': {
+                          backgroundColor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText
+                        }
+                      }}
+                    >
+                      <FormatListBulletedIcon />
+                    </IconButton>
+                  </Tooltip>
+                  <Menu
+                    anchorEl={tocAnchorEl}
+                    open={tocOpen}
+                    onClose={handleTocClose}
+                    PaperProps={{
+                      elevation: 4,
+                      sx: {
+                        maxHeight: 400,
+                        maxWidth: 300,
+                        overflow: 'auto',
+                        mt: 1.5,
+                        borderRadius: 2,
+                        backgroundColor: alpha(theme.palette.background.paper, 0.9),
+                        backdropFilter: 'blur(10px)'
+                      }
+                    }}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                  >
+                    <Box sx={{ px: 2, py: 1, borderBottom: `1px solid ${theme.palette.divider}` }}>
+                      <Typography variant="subtitle2" fontWeight={700} color="text.secondary">
+                        Table of Contents
+                      </Typography>
+                    </Box>
+                    {headers.map((header, index) => (
+                      <MenuItem
+                        key={`${header.id}-${index}`}
+                        onClick={() => scrollToHeader(header.id)}
+                        sx={{
+                          pl: (header.level - 1) * 2 + 2,
+                          py: 1,
+                          fontSize: '0.875rem',
+                          borderLeft: `2px solid transparent`,
+                          '&:hover': {
+                            borderLeftColor: theme.palette.primary.main,
+                            bgcolor: alpha(theme.palette.primary.main, 0.05)
+                          }
+                        }}
+                      >
+                        <Box component="span" sx={{
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          width: '100%'
+                        }}>
+                          {header.text}
+                        </Box>
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </>
+              )}
+
               {readmeContent ? (
                 <ReadmeContent>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeRaw]}
+                    components={components}
+                  >
                     {readmeContent}
                   </ReactMarkdown>
                 </ReadmeContent>
@@ -260,6 +434,7 @@ const ProjectDetail = () => {
 
           {/* Sidebar Column */}
           <SidebarColumn component={motion.div} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+
             {/* Project Stats */}
             {isGithubProject && (
               <GlassCard sx={{ mb: 3 }}>

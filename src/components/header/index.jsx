@@ -51,7 +51,6 @@ const Index = (props) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { scrollDirection, isScrolled } = useScrollDirection();
-    const dockRef = useRef(null);
     const navRefs = useRef({});
 
     const handleDragEnd = (event, info, currentPath) => {
@@ -81,24 +80,6 @@ const Index = (props) => {
             }
         }
     };
-
-    useEffect(() => {
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-
-            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-                setScrollDirection('down');
-            } else {
-                setScrollDirection('up');
-            }
-
-            setIsScrolled(currentScrollY > 50);
-            lastScrollY.current = currentScrollY;
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
 
     const handleThemeModeToggle = () => {
         const nextMode = getNextThemeMode(props.themeMode);
@@ -173,6 +154,10 @@ const Index = (props) => {
                                             textDecoration: 'none',
                                             zIndex: 1,
                                             transition: 'color 0.3s ease',
+                                            // Enforce color overrides against global CSS to prevent purple visited links
+                                            '&:link, &:visited, &:hover, &:active': {
+                                                color: isActive ? theme.palette.primary.contrastText : theme.palette.text.secondary,
+                                            }
                                         }}
                                     >
                                         {isActive && (

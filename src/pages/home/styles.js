@@ -446,7 +446,7 @@ export const ProjectImageWrapper = styled('div')({
   '& img': {
     width: '100%',
     height: '100%',
-    objectFit: 'contain',
+    objectFit: 'fill',
     transition: 'transform 0.5s ease',
   },
 });

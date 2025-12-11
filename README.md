@@ -23,42 +23,6 @@ A modern, responsive portfolio website built with React 19, Vite, and Material U
 - **🤖 AI Chatbot**: Interactive portfolio assistant powered by Gemini
 - **📊 Analytics Ready**: Easy integration with analytics platforms
 
-## 🏗️ Project Structure
-
-```
-portfolio-website/
-├── .github/                 # GitHub Actions workflows
-workflows
-├── public/                 # Static assets and favicon
-├── src/                    # Source code
-│   ├── api/               # API services and endpoints
-│   ├── assets/            # Images, fonts, and static resources
-│   ├── authRouter/        # Authentication routing logic
-│   ├── axiosSetup/        # Axios configuration and interceptors
-│   ├── common/            # Common utilities and constants
-│   ├── components/        # Reusable UI components
-│   ├── hooks/             # Custom hooks
-│   ├── pages/             # Page components
-│   │   ├── admin/         # Admin dashboard pages
-│   │   ├── contact/       # Contact form and information
-│   │   ├── errorPage/     # 404 and error pages
-│   │   ├── home/          # Landing page
-│   │   ├── loading/       # Loading states
-│   │   ├── projectDetail/ # Individual project showcase
-│   │   ├── projects/      # Projects gallery
-│   │   └── reviews/       # Client reviews and testimonials
-│   ├── redux/             # Redux store, slices, and middleware
-│   └── utils/             # Helper functions and utilities
-├── env.example          # Environment variables template
-├── .gitignore            # Git ignore patterns
-├── eslint.config.js      # ESLint configuration
-├── index.html            # HTML entry point
-├── package.json          # Dependencies and scripts
-├── README.md             # Project documentation
-├── vercel.json           # Vercel deployment configuration
-└── vite.config.js        # Vite configuration
-```
-
 ## 🛠️ Tech Stack
 
 ### Frontend
