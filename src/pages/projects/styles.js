@@ -42,7 +42,8 @@ export const ProjectImageContainer = styled(Box)(({ theme }) => ({
 export const ProjectImage = styled('img')(({ theme }) => ({
     width: '100%',
     height: '100%',
-    objectFit: 'contain',
+    // objectFit: 'contain',
+    objectFit: 'fill',
     transition: 'transform 0.5s ease',
 }))
 
