@@ -10,7 +10,8 @@ import {
   IconButton,
   useTheme,
   useMediaQuery,
-  Typography
+  Typography,
+  Button
 } from '@mui/material';
 
 // Icons
@@ -23,6 +24,9 @@ import AppsIcon from '@mui/icons-material/Apps';
 import MenuIcon from '@mui/icons-material/Menu';
 import ArticleIcon from '@mui/icons-material/Article';
 import ChatIcon from '@mui/icons-material/Chat';
+import StorageIcon from '@mui/icons-material/Storage';
+
+import { syncVectorStore } from '../../api/services/chatService';
 
 import { getNextThemeMode } from '../../utils/themeUtils';
 import { DynamicSEO } from '../../components/SEO/DynamicSEO';
@@ -59,6 +63,20 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
 
   // Mock user data for sidebar until BasicInfo fetches it or we move it to context
   const [user, setUser] = useState({ name: 'Admin', surname: 'User', avatar: '' });
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncVectorStore = async () => {
+    setIsSyncing(true);
+    try {
+      await syncVectorStore();
+      toast.success('Vector store synced successfully!');
+    } catch (error) {
+      toast.error('Failed to sync vector store');
+      console.error(error);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -273,22 +291,36 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
             </Box>
 
             {/* Reviews Section */}
-            <Card sx={{ p: 3 }}>
-              <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
-                Reviews
-              </Typography>
-              <ReviewsSection />
-            </Card>
-          </Box>
+            <Box ref={el => sectionRefs.current['reviews'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
+                  Reviews
+                </Typography>
+                <ReviewsSection />
+              </Card>
+            </Box>
 
-          {/* Chat History Section */}
-          <Box ref={el => sectionRefs.current['chat'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
-            <Card sx={{ p: 3 }}>
-              <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
-                Chat History
-              </Typography>
-              <ChatHistorySection />
-            </Card>
+            {/* Chat History Section */}
+            <Box ref={el => sectionRefs.current['chat'] = el} sx={{ scrollMarginTop: '100px' }}>
+              <Card sx={{ p: 3 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                  <Typography variant="h5" fontWeight="bold" color="primary" sx={{ mb: 0 }}>
+                    Chat History
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    startIcon={<StorageIcon />}
+                    onClick={handleSyncVectorStore}
+                    disabled={isSyncing}
+                    color="secondary"
+                  >
+                    {isSyncing ? 'Syncing...' : 'Sync Vector Store'}
+                  </Button>
+                </Box>
+                <ChatHistorySection />
+              </Card>
+            </Box>
+
           </Box>
 
         </Box>

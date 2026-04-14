@@ -26,4 +26,6 @@ export const updateProjectCategory = async (categoryId, categoryData) => {
   return authApi.put(`/project-categories/${categoryId}`, categoryData);
 };
 
-
+export const deleteProjectCategory = async (categoryId) => {
+  return authApi.delete(`/project-categories/${categoryId}`);
+};

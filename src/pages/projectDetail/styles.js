@@ -239,16 +239,18 @@ export const ReadmeContent = styled(Box)(({ theme }) => ({
     fontStyle: 'italic',
     color: theme.palette.text.primary,
   },
-  '& table': {
-    width: '100%',
-    maxWidth: '100%',
+  '& .table-wrapper': {
     overflowX: 'auto',
-    borderCollapse: 'separate',
-    borderSpacing: 0,
     marginBottom: theme.spacing(3),
     borderRadius: theme.shape.borderRadius,
-    overflow: 'hidden',
     border: `1px solid ${theme.palette.divider}`,
+    WebkitOverflowScrolling: 'touch',
+  },
+  '& table': {
+    width: '100%',
+    minWidth: '500px',
+    borderCollapse: 'separate',
+    borderSpacing: 0,
     '& th, & td': {
       padding: theme.spacing(1.5),
       textAlign: 'left',

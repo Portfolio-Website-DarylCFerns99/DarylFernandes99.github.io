@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-export function useChat() {
+export function useChat(userId) {
     const [messages, setMessages] = useState([]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
@@ -10,6 +10,10 @@ export function useChat() {
     const shouldReconnect = useRef(true);
 
     const connect = useCallback(() => {
+        if (!userId) {
+            console.log("useChat: Waiting for userId to connect...");
+            return;
+        }
         if (socketRef.current?.readyState === WebSocket.OPEN) return;
 
         // Get or Create Session ID
@@ -26,7 +30,7 @@ export function useChat() {
 
         // Use specific IP or localhost depending on environment
         // Ideally this URL should come from an env var, e.g. import.meta.env.VITE_WS_URL
-        const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1') + '/chatbot/ws/chat?session_id=' + sessionId;
+        const wsUrl = (import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api/v1') + '/chatbot/ws/chat?session_id=' + sessionId + '&user_id=' + userId;
 
         console.log("Connecting to WebSocket:", wsUrl);
         socketRef.current = new WebSocket(wsUrl);
@@ -84,16 +88,18 @@ export function useChat() {
         socketRef.current.onerror = (error) => {
             console.error("WebSocket Error:", error);
         };
-    }, []);
+    }, [userId]);
 
-    // Connect on mount
+    // Connect on mount or when userId changes
     useEffect(() => {
-        connect();
+        if (userId) {
+            connect();
+        }
         return () => {
             shouldReconnect.current = false;
             socketRef.current?.close();
         };
-    }, [connect]);
+    }, [connect, userId]);
 
     // Send Message Function
     const sendMessage = useCallback((text) => {
