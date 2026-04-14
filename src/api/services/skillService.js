@@ -33,6 +33,39 @@ export const deleteSkillGroup = async (skillGroupId) => {
   return authApi.delete(`/skills/groups/${skillGroupId}`);
 };
 
+// Skills routes
+export const getAllSkills = (skip = 0, limit = 100) => {
+  return new Promise((resolve, reject) => {
+    authApi.get(`/skills?skip=${skip}&limit=${limit}`)
+      .then(response => {
+        resolve(response.data?.skills ?? []);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};
+
+export const createSkill = async (skillData) => {
+  return authApi.post('/skills', skillData);
+};
+
+export const getSkillById = async (skillId) => {
+  return authApi.get(`/skills/${skillId}`);
+};
+
+export const updateSkill = async (skillId, skillData) => {
+  return authApi.put(`/skills/${skillId}`, skillData);
+};
+
+export const updateSkillVisibility = async (skillId, isVisible) => {
+  return authApi.patch(`/skills/${skillId}/visibility`, { is_visible: isVisible });
+};
+
+export const deleteSkill = async (skillId) => {
+  return authApi.delete(`/skills/${skillId}`);
+};
+
 // Public routes
 export const getPublicSkillGroups = async (skip = 0, limit = 100) => {
   return publicApi.get(`/skills/groups/public?skip=${skip}&limit=${limit}`);

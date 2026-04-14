@@ -37,7 +37,8 @@ import {
 import {
     getAllProjectCategories,
     createProjectCategory,
-    updateProjectCategory
+    updateProjectCategory,
+    deleteProjectCategory
 } from '../../../api/services/projectCategoryService';
 import { fileToBase64 } from '../../../common/common';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
@@ -60,7 +61,8 @@ const ProjectsSection = () => {
     });
     const [deleteDialog, setDeleteDialog] = useState({
         open: false,
-        item: null
+        item: null,
+        type: 'project'
     });
     const [refreshing, setRefreshing] = useState({});
     const [searchText, setSearchText] = useState('');
@@ -340,36 +342,40 @@ const ProjectsSection = () => {
         setShowForm(true);
     };
 
-    const handleDeleteClick = (project) => {
+    const handleDeleteClick = (item, type = 'project') => {
         setDeleteDialog({
             open: true,
-            item: project
+            item,
+            type
         });
     };
 
     const handleDeleteConfirm = async () => {
-        const { item } = deleteDialog;
+        const { item, type } = deleteDialog;
         if (!item) return;
 
         setSaving(true);
         try {
-            // Call API to delete the project
-            await deleteProject(item.id);
-
-            // Update local state
-            setProjects(prev => prev.filter(project => project.id !== item.id));
-            toast.success('Project deleted successfully');
+            if (type === 'category') {
+                await deleteProjectCategory(item.id);
+                setCategories(prev => prev.filter(c => c.id !== item.id));
+                toast.success('Category deleted successfully');
+            } else {
+                await deleteProject(item.id);
+                setProjects(prev => prev.filter(project => project.id !== item.id));
+                toast.success('Project deleted successfully');
+            }
         } catch (error) {
-            console.error('Error deleting project:', error);
-            toast.error('Failed to delete project');
+            console.error(`Error deleting ${type}:`, error);
+            toast.error(`Failed to delete ${type}`);
         } finally {
             setSaving(false);
-            setDeleteDialog({ open: false, item: null });
+            setDeleteDialog({ open: false, item: null, type: 'project' });
         }
     };
 
     const handleCloseDeleteDialog = () => {
-        setDeleteDialog({ open: false, item: null });
+        setDeleteDialog({ open: false, item: null, type: 'project' });
     };
 
     const handleToggleVisibility = async (index) => {
@@ -716,13 +722,22 @@ const ProjectsSection = () => {
                                                         transition={{ duration: 0.2 }}
                                                     >
                                                         <TableCell>
-                                                            <IconButton
-                                                                size="small"
-                                                                color="primary"
-                                                                onClick={() => handleEditCategory(category)}
-                                                            >
-                                                                <EditIcon />
-                                                            </IconButton>
+                                                            <Box sx={{ display: 'flex', gap: '2px' }}>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="error"
+                                                                    onClick={() => handleDeleteClick(category, 'category')}
+                                                                >
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    color="primary"
+                                                                    onClick={() => handleEditCategory(category)}
+                                                                >
+                                                                    <EditIcon />
+                                                                </IconButton>
+                                                            </Box>
                                                         </TableCell>
                                                         <TableCell>{category.name}</TableCell>
                                                         <TableCell>{categoryIdToProjectCount[category.id] || 0}</TableCell>
@@ -1277,7 +1292,7 @@ const ProjectsSection = () => {
             {/* Delete Confirmation Dialog */}
             <DeleteConfirmationDialog
                 open={deleteDialog.open}
-                title={deleteDialog.item ? `the project "${deleteDialog.item.title}"` : 'this project'}
+                title={deleteDialog.item ? `the ${deleteDialog.type} "${deleteDialog.item.title || deleteDialog.item.name}"` : 'this item'}
                 onClose={handleCloseDeleteDialog}
                 onConfirm={handleDeleteConfirm}
                 isLoading={saving}

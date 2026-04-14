@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+
 import { Fab, useTheme, useMediaQuery } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import ChatIcon from '@mui/icons-material/Chat';
@@ -14,12 +14,13 @@ const ChatWidget = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const { scrollDirection, isScrolled } = useScrollDirection();
-
     // Determine if navbar is visible (logic matches Header component)
     const isNavbarVisible = !isScrolled || scrollDirection === 'up';
 
     // Calculate bottom position
     const bottomPosition = isMobile && isNavbarVisible ? theme.spacing(10) : theme.spacing(1);
+
+    const userId = import.meta.env.VITE_USER_ID;
 
     // Use the new WebSocket hook
     const {
@@ -28,7 +29,7 @@ const ChatWidget = () => {
         isStreaming,
         setMessages,
         clearHistory
-    } = useChat();
+    } = useChat(userId);
 
 
     const handleSendMessage = (text) => {

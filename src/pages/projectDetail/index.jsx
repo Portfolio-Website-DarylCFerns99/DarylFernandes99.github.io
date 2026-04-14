@@ -60,8 +60,11 @@ const getLanguageColor = (str) => {
   for (let i = 0; i < str.length; i++) {
     hash = str.charCodeAt(i) + ((hash << 5) - hash);
   }
-  const c = (hash & 0x00ffffff).toString(16).toUpperCase();
-  return '#' + '00000'.substring(0, 6 - c.length) + c;
+  // Use HSL to guarantee vibrant, non-white, non-black colors
+  const hue = Math.abs(hash) % 360;
+  const saturation = 55 + (Math.abs(hash >> 8) % 25); // 55–80%
+  const lightness = 42 + (Math.abs(hash >> 16) % 18);  // 42–60%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 };
 
 // Helper to extract text from React children
@@ -216,6 +219,12 @@ const ProjectDetail = () => {
     // Ensure images are responsive
     img: ({ node, ...props }) => (
       <img {...props} style={{ maxWidth: '100%', height: 'auto' }} loading="lazy" />
+    ),
+    // Wrap tables in a scrollable container
+    table: ({ node, children, ...props }) => (
+      <div className="table-wrapper">
+        <table {...props}>{children}</table>
+      </div>
     )
   }), []);
 

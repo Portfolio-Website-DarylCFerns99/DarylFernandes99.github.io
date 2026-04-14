@@ -16,6 +16,7 @@ import {
     Chip,
     Switch,
     Autocomplete,
+    MenuItem,
     useTheme,
     alpha,
     CircularProgress
@@ -31,17 +32,51 @@ import {
     createSkillGroup,
     updateSkillGroup,
     deleteSkillGroup,
-    updateSkillGroupVisibility
+    updateSkillGroupVisibility,
+    getAllSkills,
+    createSkill,
+    updateSkill,
+    updateSkillVisibility,
+    deleteSkill
 } from '../../../api/services/skillService';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 const SkillsSection = () => {
     const theme = useTheme();
+    // Core data
     const [skillGroups, setSkillGroups] = useState([]);
+    const [skillsData, setSkillsData] = useState([]);
+
+    // Featured skills state
     const [selectedSkills, setSelectedSkills] = useState([]);
     const [featuredSkillIds, setFeaturedSkillIds] = useState([]);
+
+    // General state
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [tab, setTab] = useState('groups'); // 'groups' or 'skills'
+
+    // Group form state
+    const [showGroupForm, setShowGroupForm] = useState(false);
+    const [editingGroupId, setEditingGroupId] = useState(null);
+    const [groupForm, setGroupForm] = useState({ name: '', is_visible: true });
+
+    // Skill form state
+    const [showSkillForm, setShowSkillForm] = useState(false);
+    const [editingSkillId, setEditingSkillId] = useState(null);
+    const [skillForm, setSkillForm] = useState({
+        name: '',
+        skill_group_id: '',
+        proficiency: 1,
+        is_visible: true
+    });
+
+    // Delete dialog
+    const [deleteDialog, setDeleteDialog] = useState({
+        open: false,
+        item: null,
+        type: 'group' // 'group' or 'skill'
+    });
 
     useEffect(() => {
         fetchData();
@@ -50,12 +85,15 @@ const SkillsSection = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [profileData, groupsData] = await Promise.all([
+            const [profileData, groupsRes, skillsRes] = await Promise.all([
                 getProfile(),
-                getAllSkillGroups()
+                getAllSkillGroups(),
+                getAllSkills()
             ]);
 
-            setSkillGroups(groupsData);
+            setSkillGroups(groupsRes);
+            setSkillsData(skillsRes);
+
             if (profileData.featured_skill_ids && Array.isArray(profileData.featured_skill_ids)) {
                 setFeaturedSkillIds(profileData.featured_skill_ids);
             }
@@ -67,23 +105,30 @@ const SkillsSection = () => {
         }
     };
 
-    // Get all skills from all skill groups
-    const allSkills = useMemo(() => {
-        const skills = [];
-        skillGroups.forEach(group => {
-            if (group.skills && Array.isArray(group.skills)) {
-                group.skills.forEach(skill => {
-                    skills.push({
-                        ...skill,
-                        groupName: group.name
-                    });
-                });
-            }
+    // Map of groupId to list of skills belonging to that group
+    const groupToSkillsMap = useMemo(() => {
+        const map = {};
+        skillGroups.forEach(g => {
+            map[g.id] = [];
         });
-        return skills;
-    }, [skillGroups]);
+        skillsData.forEach(s => {
+            const cid = s.skill_group_id;
+            if (!cid || !map[cid]) return;
+            map[cid].push(s);
+        });
+        return map;
+    }, [skillGroups, skillsData]);
 
-    // Update selected skills when featuredSkillIds or skillGroups change
+    const allSkills = useMemo(() => {
+        const groupDict = {};
+        skillGroups.forEach(g => groupDict[g.id] = g.name);
+
+        return skillsData.map(skill => ({
+            ...skill,
+            groupName: groupDict[skill.skill_group_id] || 'Unknown Group'
+        }));
+    }, [skillGroups, skillsData]);
+
     useEffect(() => {
         if (featuredSkillIds.length > 0 && allSkills.length > 0) {
             const matchedSkills = allSkills.filter(skill => featuredSkillIds.includes(skill.id));
@@ -91,53 +136,6 @@ const SkillsSection = () => {
         }
     }, [featuredSkillIds, allSkills]);
 
-    // Handle submit function for the skills selection
-    const handleSubmitSelectedSkills = async () => {
-        try {
-            setSaving(true);
-            // Get just the IDs from the selected skills
-            const selectedSkillIds = selectedSkills.map(skill => skill.id);
-
-            // Create the payload with only the featured_skill_ids
-            const payload = {
-                featured_skill_ids: selectedSkillIds
-            };
-
-            // Make the PUT request to update the user profile
-            await updateProfile(payload);
-            setFeaturedSkillIds(selectedSkillIds);
-
-            // Show success message
-            toast.success('Featured skills updated successfully!');
-            setSaving(false);
-        } catch (error) {
-            console.error('Error updating featured skills:', error);
-            toast.error('Failed to update featured skills');
-            setSaving(false);
-        }
-    };
-
-    // State for the form to add/edit a skill group
-    const [newSkillGroup, setNewSkillGroup] = useState({
-        name: "",
-        skills: [],
-        is_visible: false // Default to false as requested
-    });
-    const [editIndex, setEditIndex] = useState(-1);
-    const [showForm, setShowForm] = useState(false);
-    const [deleteDialog, setDeleteDialog] = useState({
-        open: false,
-        item: null,
-        index: -1
-    });
-
-    // State for the skill being added
-    const [currentSkill, setCurrentSkill] = useState({
-        name: "",
-        proficiency: 1
-    });
-
-    // Helper function to get color based on proficiency level
     const getProficiencyColor = (proficiency) => {
         switch (parseInt(proficiency, 10)) {
             case 1: return 'default';
@@ -149,182 +147,212 @@ const SkillsSection = () => {
         }
     };
 
-    const handleAddSkillGroup = () => {
-        setNewSkillGroup({
-            name: "",
-            skills: [],
-            is_visible: false
-        });
-        setEditIndex(-1);
-        setShowForm(true);
-    };
-
-    const handleEditSkillGroup = (index) => {
-        setNewSkillGroup({ ...skillGroups[index] });
-        setEditIndex(index);
-        setShowForm(true);
-    };
-
-    const handleDeleteSkillGroup = async (index) => {
-        const groupToDelete = skillGroups[index];
-        setDeleteDialog({
-            open: true,
-            item: groupToDelete,
-            index: index
-        });
-    };
-
-    const handleDeleteConfirm = async () => {
-        const { item, index } = deleteDialog;
-        if (!item) return;
-
+    const handleSubmitSelectedSkills = async () => {
         try {
             setSaving(true);
-
-            if (item.id) {
-                // Item is saved in the database - use the DELETE endpoint
-                await deleteSkillGroup(item.id);
-
-                // Update local state
-                const updatedGroups = [...skillGroups];
-                updatedGroups.splice(index, 1);
-                setSkillGroups(updatedGroups);
-
-                toast.success('Skill group deleted successfully');
-            } else {
-                // Item is not yet saved in the database
-                // Just remove it from local state
-                const updatedGroups = [...skillGroups];
-                updatedGroups.splice(index, 1);
-                setSkillGroups(updatedGroups);
-
-                toast.success('Skill group removed');
-            }
+            const selectedSkillIds = selectedSkills.map(skill => skill.id);
+            await updateProfile({ featured_skill_ids: selectedSkillIds });
+            setFeaturedSkillIds(selectedSkillIds);
+            toast.success('Featured skills updated successfully!');
         } catch (error) {
-            console.error('Error deleting skill group:', error);
-            toast.error('Failed to delete skill group');
+            console.error('Error updating featured skills:', error);
+            toast.error('Failed to update featured skills');
         } finally {
             setSaving(false);
-            setDeleteDialog({ open: false, item: null, index: -1 });
         }
+    };
+
+    const handleTabChange = (newTab) => {
+        const leavingWithUnsavedGroups = showGroupForm && newTab !== 'groups';
+        const leavingWithUnsavedSkills = showSkillForm && newTab !== 'skills';
+
+        if (leavingWithUnsavedGroups || leavingWithUnsavedSkills) {
+            if (window.confirm('Changing tabs will discard unsaved changes. Continue?')) {
+                setTab(newTab);
+                if (showGroupForm) { setShowGroupForm(false); setEditingGroupId(null); }
+                if (showSkillForm) { setShowSkillForm(false); setEditingSkillId(null); }
+            }
+        } else {
+            setTab(newTab);
+        }
+    };
+
+    // --- Groups Logic ---
+
+    const handleAddGroup = () => {
+        setGroupForm({ name: '', is_visible: true });
+        setEditingGroupId(null);
+        setShowGroupForm(true);
+    };
+
+    const handleEditGroup = (group) => {
+        setGroupForm({ name: group.name || '', is_visible: !!group.is_visible });
+        setEditingGroupId(group.id);
+        setShowGroupForm(true);
+    };
+
+    const handleGroupInputChange = (e) => {
+        const { name, value, checked, type } = e.target;
+        setGroupForm(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSaveGroup = async () => {
+        if (!groupForm.name?.trim()) {
+            toast.error('Please enter a group name');
+            return;
+        }
+        setSaving(true);
+        try {
+            if (editingGroupId) {
+                const response = await updateSkillGroup(editingGroupId, groupForm);
+                const saved = response.data;
+                setSkillGroups(prev => prev.map(g => g.id === saved.id ? saved : g));
+                toast.success('Skill group updated');
+            } else {
+                const response = await createSkillGroup(groupForm);
+                const saved = response.data;
+                setSkillGroups(prev => [...prev, saved]);
+                toast.success('Skill group created');
+            }
+            setShowGroupForm(false);
+            setEditingGroupId(null);
+        } catch (error) {
+            console.error('Error saving skill group:', error);
+            toast.error('Failed to save skill group');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleGroupVisibility = async (group) => {
+        const newVisibility = !group.is_visible;
+        setSkillGroups(prev => prev.map(g => g.id === group.id ? { ...g, is_visible: newVisibility } : g));
+        try {
+            await updateSkillGroupVisibility(group.id, newVisibility);
+        } catch (error) {
+            console.error('Error updating group visibility:', error);
+            toast.error('Failed to update group visibility');
+            setSkillGroups(prev => prev.map(g => g.id === group.id ? { ...g, is_visible: group.is_visible } : g));
+        }
+    };
+
+    // --- Skills Logic ---
+
+    const handleAddSkill = () => {
+        if (skillGroups.length === 0) {
+            toast.warning('Please create a skill group first');
+            return;
+        }
+        setSkillForm({ name: '', skill_group_id: skillGroups[0].id, proficiency: 1, is_visible: true });
+        setEditingSkillId(null);
+        setShowSkillForm(true);
+    };
+
+    const handleEditSkill = (skill) => {
+        setSkillForm({
+            name: skill.name || '',
+            skill_group_id: skill.skill_group_id || '',
+            proficiency: skill.proficiency || 1,
+            is_visible: !!skill.is_visible
+        });
+        setEditingSkillId(skill.id);
+        setShowSkillForm(true);
+    };
+
+    const handleSkillInputChange = (e) => {
+        const { name, value, checked, type } = e.target;
+        setSkillForm(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
+    };
+
+    const handleSaveSkill = async () => {
+        if (!skillForm.name?.trim()) {
+            toast.error('Please enter a skill name');
+            return;
+        }
+        if (!skillForm.skill_group_id) {
+            toast.error('Please select a skill group');
+            return;
+        }
+        setSaving(true);
+        try {
+            if (editingSkillId) {
+                const response = await updateSkill(editingSkillId, skillForm);
+                const saved = response.data;
+                setSkillsData(prev => prev.map(s => s.id === saved.id ? saved : s));
+                toast.success('Skill updated');
+            } else {
+                const response = await createSkill(skillForm);
+                const saved = response.data;
+                setSkillsData(prev => [...prev, saved]);
+                toast.success('Skill created');
+            }
+            setShowSkillForm(false);
+            setEditingSkillId(null);
+        } catch (error) {
+            console.error('Error saving skill:', error);
+            toast.error('Failed to save skill');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleToggleSkillVisibility = async (skill) => {
+        const newVisibility = !skill.is_visible;
+        setSkillsData(prev => prev.map(s => s.id === skill.id ? { ...s, is_visible: newVisibility } : s));
+        try {
+            await updateSkillVisibility(skill.id, newVisibility);
+        } catch (error) {
+            console.error('Error updating skill visibility:', error);
+            toast.error('Failed to update skill visibility');
+            setSkillsData(prev => prev.map(s => s.id === skill.id ? { ...s, is_visible: skill.is_visible } : s));
+        }
+    };
+
+    // --- Delete Logic ---
+
+    const handleDeleteClick = (item, type) => {
+        setDeleteDialog({
+            open: true,
+            item,
+            type
+        });
     };
 
     const handleCloseDeleteDialog = () => {
-        setDeleteDialog({ open: false, item: null, index: -1 });
+        setDeleteDialog({ open: false, item: null, type: 'group' });
     };
 
-    const handleToggleVisibility = async (index, isVisible) => {
-        const groupToUpdate = skillGroups[index];
+    const handleDeleteConfirm = async () => {
+        const { item, type } = deleteDialog;
+        if (!item) return;
 
-        // Update local state first for immediate UI feedback
-        const updatedGroups = [...skillGroups];
-        updatedGroups[index] = {
-            ...updatedGroups[index],
-            is_visible: isVisible
-        };
-        setSkillGroups(updatedGroups);
-
-        if (!groupToUpdate.id) return; // Not saved to backend yet
-
+        setSaving(true);
         try {
-            await updateSkillGroupVisibility(groupToUpdate.id, isVisible);
-        } catch (error) {
-            console.error('Error updating skill group visibility:', error);
-            toast.error('Failed to update visibility');
-
-            // Revert local state on error
-            updatedGroups[index] = {
-                ...updatedGroups[index],
-                is_visible: !isVisible
-            };
-            setSkillGroups(updatedGroups);
-        }
-    };
-
-    const handleSkillGroupChange = (e) => {
-        const { name, value, checked } = e.target;
-        setNewSkillGroup(prev => ({
-            ...prev,
-            [name]: name === 'is_visible' ? checked : value
-        }));
-    };
-
-    const handleSkillChange = (e) => {
-        const { name, value } = e.target;
-        setCurrentSkill(prev => ({
-            ...prev,
-            [name]: name === 'proficiency' ? parseInt(value, 10) : value
-        }));
-    };
-
-    // Adding skills to the group
-    const handleAddSkill = () => {
-        if (currentSkill.name.trim() === '') return;
-
-        // Add the skill if it's not already in the array
-        const skillExists = newSkillGroup.skills.some(skill =>
-            skill.name.toLowerCase() === currentSkill.name.trim().toLowerCase()
-        );
-
-        if (!skillExists) {
-            setNewSkillGroup(prev => ({
-                ...prev,
-                skills: [...prev.skills, { ...currentSkill }]
-            }));
-        } else {
-            toast.warning('This skill already exists in this group');
-        }
-
-        // Reset current skill form
-        setCurrentSkill({
-            name: "",
-            proficiency: 1
-        });
-    };
-
-    const handleRemoveSkill = (index) => {
-        setNewSkillGroup(prev => ({
-            ...prev,
-            skills: prev.skills.filter((_, i) => i !== index)
-        }));
-    };
-
-    const handleSaveSkillGroup = async () => {
-        if (newSkillGroup.name.trim() === '') return;
-
-        try {
-            setSaving(true);
-            let savedGroup;
-
-            if (editIndex >= 0 && skillGroups[editIndex].id) {
-                // Update existing group
-                const response = await updateSkillGroup(skillGroups[editIndex].id, newSkillGroup);
-                savedGroup = response.data;
+            if (type === 'group') {
+                await deleteSkillGroup(item.id);
+                setSkillGroups(prev => prev.filter(g => g.id !== item.id));
+                toast.success('Skill group deleted');
             } else {
-                // Create new group
-                const response = await createSkillGroup(newSkillGroup);
-                savedGroup = response.data;
+                await deleteSkill(item.id);
+                setSkillsData(prev => prev.filter(s => s.id !== item.id));
+                toast.success('Skill deleted');
             }
-
-            const updatedGroups = [...skillGroups];
-            if (editIndex >= 0) {
-                updatedGroups[editIndex] = savedGroup;
-            } else {
-                updatedGroups.push(savedGroup);
-            }
-
-            setSkillGroups(updatedGroups);
-            setShowForm(false);
-            toast.success(`Skill group ${editIndex >= 0 ? 'updated' : 'created'} successfully`);
-            setSaving(false);
         } catch (error) {
-            console.error('Error saving skill group:', error);
-            toast.error(`Failed to ${editIndex >= 0 ? 'update' : 'create'} skill group`);
+            console.error(`Error deleting ${type}:`, error);
+            toast.error(`Failed to delete ${type}`);
+        } finally {
             setSaving(false);
+            handleCloseDeleteDialog();
         }
     };
 
-    if (loading && skillGroups.length === 0) {
+    if (loading && skillGroups.length === 0 && skillsData.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />
@@ -338,234 +366,13 @@ const SkillsSection = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3 }}
         >
-            <TableContainer sx={{ width: '100%', overflowX: 'auto', maxHeight: 520, overflowY: 'auto' }}>
-                <Table stickyHeader>
-                    <TableHead>
-                        <TableRow sx={{ bgcolor: 'action.hover' }}>
-                            <TableCell width="120px">Actions</TableCell>
-                            <TableCell width="240px">Group Name</TableCell>
-                            <TableCell>Skills</TableCell>
-                            <TableCell width="60px">Visible</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {skillGroups.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={4} align="center">
-                                    No skill groups found
-                                </TableCell>
-                            </TableRow>
-                        ) : skillGroups.map((group, index) => (
-                            <TableRow
-                                key={group.id || `group_${index}`}
-                                component={motion.tr}
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <TableCell>
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: '2px' }}>
-                                        <IconButton
-                                            size="small"
-                                            color="error"
-                                            onClick={() => handleDeleteSkillGroup(index)}
-                                        >
-                                            <DeleteIcon />
-                                        </IconButton>
-                                        <IconButton
-                                            size="small"
-                                            color="primary"
-                                            onClick={() => handleEditSkillGroup(index)}
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    </Box>
-                                </TableCell>
-                                <TableCell>{group.name}</TableCell>
-                                <TableCell>
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {group.skills && group.skills.length > 0 ? group.skills.map((skill, idx) => (
-                                            <Chip
-                                                key={idx}
-                                                label={`${skill.name} (${skill.proficiency}/5)`}
-                                                size="small"
-                                                color={getProficiencyColor(skill.proficiency)}
-                                                sx={{ my: 0.25 }}
-                                            />
-                                        )) : (
-                                            <Typography color="text.secondary">No skills</Typography>
-                                        )}
-                                    </Box>
-                                </TableCell>
-                                <TableCell>
-                                    <Switch
-                                        checked={group.is_visible}
-                                        color="success"
-                                        onChange={(e) => handleToggleVisibility(index, e.target.checked)}
-                                    />
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-
-            <AnimatePresence>
-                {showForm && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <Card sx={{ mt: 2, p: 2, bgcolor: 'background.default' }}>
-                            <Grid container spacing={2}>
-                                <Grid item xs={12} sm={8}>
-                                    <TextField
-                                        fullWidth
-                                        label="Group Name"
-                                        name="name"
-                                        value={newSkillGroup.name}
-                                        onChange={handleSkillGroupChange}
-                                        margin="normal"
-                                        variant="outlined"
-                                        required
-                                    />
-                                </Grid>
-                                <Grid item xs={12} sm={4}>
-                                    <Box sx={{ mt: 2.5, display: 'flex', alignItems: 'center' }}>
-                                        <Typography sx={{ mr: 1 }}>Visible</Typography>
-                                        <Switch
-                                            name="is_visible"
-                                            checked={newSkillGroup.is_visible}
-                                            onChange={handleSkillGroupChange}
-                                            color="success"
-                                        />
-                                    </Box>
-                                </Grid>
-
-                                <Grid item xs={12}>
-                                    <Typography variant="h6" gutterBottom>
-                                        Skills
-                                    </Typography>
-                                    {newSkillGroup.skills.length > 0 ? (
-                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
-                                            {newSkillGroup.skills.map((skill, idx) => (
-                                                <Chip
-                                                    key={idx}
-                                                    label={`${skill.name} (${skill.proficiency}/5)`}
-                                                    size="small"
-                                                    color={getProficiencyColor(skill.proficiency)}
-                                                    onDelete={() => handleRemoveSkill(idx)}
-                                                    sx={{ my: 0.5 }}
-                                                />
-                                            ))}
-                                        </Box>
-                                    ) : (
-                                        <Typography color="text.secondary" sx={{ mb: 2 }}>
-                                            No skills added yet
-                                        </Typography>
-                                    )}
-
-                                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'flex-end' }, gap: 1, mb: 2 }}>
-                                        <TextField
-                                            label="Skill Name"
-                                            name="name"
-                                            value={currentSkill.name}
-                                            onChange={handleSkillChange}
-                                            onKeyPress={(e) => e.key === 'Enter' && handleAddSkill()}
-                                            sx={{ flexGrow: 1, width: { xs: '100%', sm: 'auto' } }}
-                                        />
-                                        <Box sx={{ display: 'flex', width: { xs: '100%', sm: 'auto' }, alignItems: 'center', gap: 1 }}>
-                                            <Typography variant="body2" sx={{ mr: 1 }}>Proficiency:</Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {[1, 2, 3, 4, 5].map(level => (
-                                                    <Chip
-                                                        key={level}
-                                                        label={level}
-                                                        size="small"
-                                                        color={level === currentSkill.proficiency ? getProficiencyColor(level) : 'default'}
-                                                        onClick={() => setCurrentSkill(prev => ({ ...prev, proficiency: level }))}
-                                                        sx={{
-                                                            cursor: 'pointer',
-                                                            fontWeight: level === currentSkill.proficiency ? 'bold' : 'normal',
-                                                            opacity: level === currentSkill.proficiency ? 1 : 0.7
-                                                        }}
-                                                    />
-                                                ))}
-                                            </Box>
-                                        </Box>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleAddSkill}
-                                            disabled={!currentSkill.name.trim()}
-                                            sx={{ width: { xs: '100%', sm: 'auto' } }}
-                                        >
-                                            Add Skill
-                                        </Button>
-                                    </Box>
-                                </Grid>
-
-                                <Grid item xs={12}>
-                                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'flex-end', gap: 1 }}>
-                                        <Button
-                                            variant="outlined"
-                                            color="inherit"
-                                            onClick={() => setShowForm(false)}
-                                            disabled={saving}
-                                            sx={{ width: { xs: '100%', sm: 'auto' } }}
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={handleSaveSkillGroup}
-                                            disabled={saving || !newSkillGroup.name.trim() || newSkillGroup.skills.length === 0}
-                                            sx={{ width: { xs: '100%', sm: 'auto' } }}
-                                        >
-                                            {saving ? 'Saving...' : (editIndex >= 0 ? 'Update' : 'Add') + ' Skill Group'}
-                                        </Button>
-                                    </Box>
-                                </Grid>
-                            </Grid>
-                        </Card>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            {!showForm && (
-                <Box
-                    component={motion.div}
-                    whileHover={{ scale: 1.01, backgroundColor: alpha(theme.palette.primary.main, 0.05) }}
-                    whileTap={{ scale: 0.99 }}
-                    sx={{
-                        mt: 2,
-                        p: 2,
-                        border: '1px dashed',
-                        borderColor: 'primary.main',
-                        borderRadius: 2,
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease'
-                    }}
-                    onClick={handleAddSkillGroup}
-                >
-                    <AddIcon color="primary" />
-                    <Typography color="primary" sx={{ ml: 1, fontWeight: 600 }}>
-                        Add Skill Group
-                    </Typography>
-                </Box>
-            )}
-
-
-            {/* Skills Selection Card */}
-            <Card sx={{ p: 2, my: 3, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
+            {/* Featured Skills Card moved to the top */}
+            <Card sx={{ p: 2, mb: 4, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="h6" gutterBottom>
-                    Select Featured Skills (Max 4)
+                    Featured Skills (Max 4)
+                </Typography>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Select up to 4 featured skills to highlight on your portfolio.
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
@@ -575,7 +382,6 @@ const SkillsSection = () => {
                             options={allSkills}
                             value={selectedSkills}
                             onChange={(event, newValue) => {
-                                // Limit to maximum 4 skills
                                 if (newValue.length <= 4) {
                                     setSelectedSkills(newValue);
                                 } else {
@@ -613,16 +419,348 @@ const SkillsSection = () => {
                             onClick={handleSubmitSelectedSkills}
                             disabled={selectedSkills.length === 0 || saving}
                         >
-                            {saving ? 'Saving...' : 'Submit Selected Skills'}
+                            {saving ? 'Saving...' : 'Submit Featured Skills'}
                         </Button>
                     </Grid>
                 </Grid>
             </Card>
 
-            {/* Delete Confirmation Dialog */}
+            {/* Tabs Header */}
+            <Box sx={{ bgcolor: 'action.hover', borderRadius: 1, mb: 2, p: 0.5, display: 'inline-flex', position: 'relative' }}>
+                {['groups', 'skills'].map((t) => (
+                    <Box
+                        key={t}
+                        onClick={() => handleTabChange(t)}
+                        sx={{
+                            position: 'relative',
+                            zIndex: 1,
+                            px: 2,
+                            py: 0.75,
+                            cursor: 'pointer',
+                            textTransform: 'capitalize',
+                            fontWeight: tab === t ? 600 : 400,
+                            color: tab === t ? 'primary.contrastText' : 'text.primary',
+                            transition: 'color 0.2s',
+                            userSelect: 'none',
+                            borderRadius: 1
+                        }}
+                    >
+                        {tab === t && (
+                            <Box
+                                component={motion.div}
+                                layoutId="activeSkillTab"
+                                sx={{
+                                    position: 'absolute',
+                                    inset: 0,
+                                    bgcolor: 'primary.main',
+                                    borderRadius: 1,
+                                    zIndex: -1,
+                                    boxShadow: 2
+                                }}
+                                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                        )}
+                        {t === 'groups' ? 'Skill Groups' : 'Skills'}
+                    </Box>
+                ))}
+            </Box>
+
+            <AnimatePresence mode="wait">
+                {/* --- Groups Tab --- */}
+                {tab === 'groups' && (
+                    <motion.div
+                        key="groups"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 20 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {showGroupForm ? (
+                            <Card sx={{ mt: 2, p: 2, bgcolor: 'background.default' }}>
+                                <Typography variant="h6" gutterBottom>
+                                    {editingGroupId ? 'Edit Skill Group' : 'Add Skill Group'}
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            fullWidth
+                                            required
+                                            label="Group Name"
+                                            name="name"
+                                            value={groupForm.name}
+                                            onChange={handleGroupInputChange}
+                                            margin="normal"
+                                            variant="outlined"
+                                        />
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 2 }}>
+                                            <Switch
+                                                checked={groupForm.is_visible}
+                                                onChange={handleGroupInputChange}
+                                                name="is_visible"
+                                                color="success"
+                                            />
+                                            <Typography sx={{ ml: 1 }}>Visible</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Button
+                                                variant="outlined"
+                                                color="inherit"
+                                                onClick={() => setShowGroupForm(false)}
+                                                disabled={saving}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleSaveGroup}
+                                                disabled={saving || !groupForm.name?.trim()}
+                                            >
+                                                {saving ? 'Saving...' : (editingGroupId ? 'Update' : 'Create')}
+                                            </Button>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Card>
+                        ) : (
+                            <>
+                                <TableContainer sx={{ maxHeight: 520, overflowY: 'auto' }}>
+                                    <Table stickyHeader>
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'action.hover' }}>
+                                                <TableCell width="120px">Actions</TableCell>
+                                                <TableCell>Group Name</TableCell>
+                                                <TableCell width="120px">Skills</TableCell>
+                                                <TableCell width="100px">Visible</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {skillGroups.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} align="center">No skill groups found</TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                skillGroups.map((group) => (
+                                                    <TableRow key={group.id}>
+                                                        <TableCell>
+                                                            <Box sx={{ display: 'flex', gap: '2px' }}>
+                                                                <IconButton size="small" color="error" onClick={() => handleDeleteClick(group, 'group')}>
+                                                                    <DeleteIcon />
+                                                                </IconButton>
+                                                                <IconButton size="small" color="primary" onClick={() => handleEditGroup(group)}>
+                                                                    <EditIcon />
+                                                                </IconButton>
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell>{group.name}</TableCell>
+                                                        <TableCell>{groupToSkillsMap[group.id]?.length || 0}</TableCell>
+                                                        <TableCell>
+                                                            <Switch
+                                                                checked={!!group.is_visible}
+                                                                onChange={() => handleToggleGroupVisibility(group)}
+                                                                color="success"
+                                                                size="small"
+                                                            />
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <Box
+                                    component={motion.div}
+                                    whileHover={{ scale: 1.01, backgroundColor: alpha(theme.palette.primary.main, 0.05) }}
+                                    whileTap={{ scale: 0.99 }}
+                                    sx={{
+                                        mt: 2, p: 2, border: '1px dashed', borderColor: 'primary.main',
+                                        borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center',
+                                        cursor: 'pointer', transition: 'all 0.2s ease'
+                                    }}
+                                    onClick={handleAddGroup}
+                                >
+                                    <AddIcon color="primary" />
+                                    <Typography color="primary" sx={{ ml: 1, fontWeight: 600 }}>Add Skill Group</Typography>
+                                </Box>
+                            </>
+                        )}
+                    </motion.div>
+                )}
+
+                {/* --- Skills Tab --- */}
+                {tab === 'skills' && (
+                    <motion.div
+                        key="skills"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        {showSkillForm ? (
+                            <Card sx={{ mt: 2, p: 2, bgcolor: 'background.default' }}>
+                                <Typography variant="h6" gutterBottom>
+                                    {editingSkillId ? 'Edit Skill' : 'Add Skill'}
+                                </Typography>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} md={6}>
+                                        <TextField
+                                            fullWidth
+                                            required
+                                            label="Skill Name"
+                                            name="name"
+                                            value={skillForm.name}
+                                            onChange={handleSkillInputChange}
+                                            margin="normal"
+                                            variant="outlined"
+                                        />
+                                        <TextField
+                                            select
+                                            fullWidth
+                                            required
+                                            label="Skill Group"
+                                            name="skill_group_id"
+                                            value={skillForm.skill_group_id}
+                                            onChange={handleSkillInputChange}
+                                            margin="normal"
+                                            variant="outlined"
+                                        >
+                                            {skillGroups.map((group) => (
+                                                <MenuItem key={group.id} value={group.id}>
+                                                    {group.name}
+                                                </MenuItem>
+                                            ))}
+                                        </TextField>
+                                        
+                                        <Box sx={{ mt: 2, mb: 1 }}>
+                                            <Typography variant="body2" gutterBottom>Proficiency Level</Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {[1, 2, 3, 4, 5].map(level => (
+                                                    <Chip
+                                                        key={level}
+                                                        label={level}
+                                                        size="small"
+                                                        color={level === skillForm.proficiency ? getProficiencyColor(level) : 'default'}
+                                                        onClick={() => setSkillForm(prev => ({ ...prev, proficiency: level }))}
+                                                        sx={{
+                                                            cursor: 'pointer',
+                                                            fontWeight: level === skillForm.proficiency ? 'bold' : 'normal',
+                                                            opacity: level === skillForm.proficiency ? 1 : 0.7
+                                                        }}
+                                                    />
+                                                ))}
+                                            </Box>
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 2 }}>
+                                            <Switch
+                                                checked={skillForm.is_visible}
+                                                onChange={handleSkillInputChange}
+                                                name="is_visible"
+                                                color="success"
+                                            />
+                                            <Typography sx={{ ml: 1 }}>Visible</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', gap: 1 }}>
+                                            <Button
+                                                variant="outlined"
+                                                color="inherit"
+                                                onClick={() => setShowSkillForm(false)}
+                                                disabled={saving}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleSaveSkill}
+                                                disabled={saving || !skillForm.name?.trim() || !skillForm.skill_group_id}
+                                            >
+                                                {saving ? 'Saving...' : (editingSkillId ? 'Update' : 'Create')}
+                                            </Button>
+                                        </Box>
+                                    </Grid>
+                                </Grid>
+                            </Card>
+                        ) : (
+                            <>
+                                <TableContainer sx={{ maxHeight: 520, overflowY: 'auto' }}>
+                                    <Table stickyHeader>
+                                        <TableHead>
+                                            <TableRow sx={{ bgcolor: 'action.hover' }}>
+                                                <TableCell width="120px">Actions</TableCell>
+                                                <TableCell>Name</TableCell>
+                                                <TableCell>Group</TableCell>
+                                                <TableCell>Proficiency</TableCell>
+                                                <TableCell width="100px">Visible</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {skillsData.length === 0 ? (
+                                                <TableRow>
+                                                    <TableCell colSpan={5} align="center">No skills found</TableCell>
+                                                </TableRow>
+                                            ) : (
+                                                skillsData.map((skill) => {
+                                                    const groupName = skillGroups.find(g => g.id === skill.skill_group_id)?.name || 'Unknown';
+                                                    return (
+                                                        <TableRow key={skill.id}>
+                                                            <TableCell>
+                                                                <Box sx={{ display: 'flex', gap: '2px' }}>
+                                                                    <IconButton size="small" color="error" onClick={() => handleDeleteClick(skill, 'skill')}>
+                                                                        <DeleteIcon />
+                                                                    </IconButton>
+                                                                    <IconButton size="small" color="primary" onClick={() => handleEditSkill(skill)}>
+                                                                        <EditIcon />
+                                                                    </IconButton>
+                                                                </Box>
+                                                            </TableCell>
+                                                            <TableCell>{skill.name}</TableCell>
+                                                            <TableCell>{groupName}</TableCell>
+                                                            <TableCell>
+                                                                <Chip
+                                                                    label={`${skill.proficiency}/5`}
+                                                                    size="small"
+                                                                    color={getProficiencyColor(skill.proficiency)}
+                                                                />
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Switch
+                                                                    checked={!!skill.is_visible}
+                                                                    onChange={() => handleToggleSkillVisibility(skill)}
+                                                                    color="success"
+                                                                    size="small"
+                                                                />
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    );
+                                                })
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <Box
+                                    component={motion.div}
+                                    whileHover={{ scale: 1.01, backgroundColor: alpha(theme.palette.primary.main, 0.05) }}
+                                    whileTap={{ scale: 0.99 }}
+                                    sx={{
+                                        mt: 2, p: 2, border: '1px dashed', borderColor: 'primary.main',
+                                        borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center',
+                                        cursor: 'pointer', transition: 'all 0.2s ease'
+                                    }}
+                                    onClick={handleAddSkill}
+                                >
+                                    <AddIcon color="primary" />
+                                    <Typography color="primary" sx={{ ml: 1, fontWeight: 600 }}>Add Skill</Typography>
+                                </Box>
+                            </>
+                        )}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <DeleteConfirmationDialog
                 open={deleteDialog.open}
-                title={deleteDialog.item ? `the skill group "${deleteDialog.item.name}"` : 'this skill group'}
+                title={deleteDialog.item ? `this ${deleteDialog.type}` : 'this item'}
                 onClose={handleCloseDeleteDialog}
                 onConfirm={handleDeleteConfirm}
                 isLoading={saving}
