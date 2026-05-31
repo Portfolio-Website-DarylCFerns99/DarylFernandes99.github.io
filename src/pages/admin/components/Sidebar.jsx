@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     Box,
     List,
@@ -29,6 +29,13 @@ const Sidebar = ({
     onClose
 }) => {
     const theme = useTheme();
+
+    // Set window title
+    useEffect(() => {
+        if (user?.name && user?.surname) {
+            window.document.title = `Admin | ${user.name} ${user.surname}`;
+        }
+    }, [user?.name, user?.surname]);
 
     const sidebarContent = (
         <Box sx={{

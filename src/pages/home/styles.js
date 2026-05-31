@@ -1046,3 +1046,138 @@ export const ReviewAvatar = styled('img')(({ theme }) => ({
   border: `2px solid ${theme.palette.primary.main}`,
   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
 }));
+
+// Hero section scroll vertical line indicator
+export const HeroScrollIndicator = styled(Box)(({ theme }) => ({
+  position: 'absolute',
+  left: theme.spacing(4),
+  bottom: theme.spacing(12),
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: theme.spacing(1.5),
+  zIndex: 2,
+  [theme.breakpoints.down('md')]: {
+    display: 'none',
+  },
+  '& .scroll-text': {
+    writingMode: 'vertical-rl',
+    textTransform: 'uppercase',
+    letterSpacing: '0.25em',
+    fontSize: '0.7rem',
+    fontWeight: 600,
+    color: theme.palette.text.secondary,
+    fontFamily: `'JetBrains Mono', monospace`,
+  },
+  '& .scroll-line': {
+    width: '1px',
+    height: '50px',
+    backgroundColor: theme.palette.primary.main,
+    position: 'relative',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      bottom: 0,
+      left: '50%',
+      transform: 'translateX(-50%) rotate(45deg)',
+      width: '6px',
+      height: '6px',
+      borderRight: `1px solid ${theme.palette.primary.main}`,
+      borderBottom: `1px solid ${theme.palette.primary.main}`,
+    }
+  }
+}));
+
+// What I Do cards styling
+export const ServiceCard = styled(Card)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.background.paper, 0.4),
+  backdropFilter: 'blur(10px)',
+  border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : '#E2E8F0'}`,
+  borderRadius: theme.shape.borderRadius * 2,
+  padding: theme.spacing(4),
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  textAlign: 'left',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  boxShadow: 'none',
+  '&:hover': {
+    transform: 'translateY(-6px)',
+    borderColor: theme.palette.primary.main,
+    boxShadow: theme.palette.mode === 'dark'
+      ? '0 12px 30px rgba(0,0,0,0.4), 0 0 15px rgba(245, 158, 11, 0.1)'
+      : '0 12px 30px rgba(0,0,0,0.05), 0 0 15px rgba(180, 137, 70, 0.05)',
+  },
+  '& .icon-wrapper': {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: '12px',
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+    color: theme.palette.primary.main,
+    marginBottom: theme.spacing(3),
+    transition: 'all 0.3s ease',
+  },
+  '&:hover .icon-wrapper': {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    transform: 'scale(1.1)',
+  }
+}));
+
+// Tech Logos section
+export const TechGridContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexWrap: 'wrap',
+  justifyContent: 'center',
+  alignItems: 'center',
+  gap: theme.spacing(5),
+  padding: theme.spacing(4, 2),
+  width: '100%',
+  maxWidth: 1200,
+  margin: '0 auto',
+  [theme.breakpoints.down('sm')]: {
+    gap: theme.spacing(3),
+  }
+}));
+
+export const TechItem = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: theme.spacing(1),
+  width: 90,
+  transition: 'all 0.2s ease',
+  cursor: 'default',
+  '& img': {
+    width: 40,
+    height: 40,
+    objectFit: 'contain',
+    filter: theme.palette.mode === 'dark' ? 'grayscale(0.3) brightness(0.9)' : 'grayscale(0.1)',
+    transition: 'all 0.3s ease',
+  },
+  '&:hover img': {
+    transform: 'scale(1.15) translateY(-2px)',
+    filter: 'none',
+  },
+  '& .tech-label': {
+    fontSize: '0.8rem',
+    fontWeight: 500,
+    color: theme.palette.text.secondary,
+    fontFamily: `'JetBrains Mono', monospace`,
+  }
+}));
+
+// Modern Integrated Footer Section
+export const FooterSection = styled('footer')(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#0b0f10' : '#f8f9ff',
+  borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : '#E2E8F0'}`,
+  padding: theme.spacing(10, 0, 4),
+  width: '100%',
+  position: 'relative',
+  zIndex: 1,
+}));
+

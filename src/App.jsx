@@ -135,7 +135,7 @@ function App() {
                   <ChatWidget />
                 </>
               }>
-                {ROUTES.map((route) => {
+                {ROUTES.filter(route => route.component).map((route) => {
                   const RouteComponent = route.component;
                   return (
                     <Route
