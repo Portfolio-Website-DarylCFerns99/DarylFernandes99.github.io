@@ -99,11 +99,11 @@ const Index = () => {
           pb: { xs: 8, md: 8 },
           backgroundImage: {
             xs: theme.palette.mode === 'dark'
-              ? `linear-gradient(rgba(11, 15, 16, 0.88), rgba(11, 15, 16, 0.88)), url(${userData.avatar || '/assets/Hero.png'})`
-              : `linear-gradient(rgba(248, 249, 255, 0.9), rgba(248, 249, 255, 0.9)), url(${userData.avatar || '/assets/Hero.png'})`,
+              ? `linear-gradient(rgba(11, 15, 16, 0.88), rgba(11, 15, 16, 0.88)), url(${userData.avatar || ''})`
+              : `linear-gradient(rgba(248, 249, 255, 0.9), rgba(248, 249, 255, 0.9)), url(${userData.avatar || ''})`,
             md: theme.palette.mode === 'dark'
-              ? `linear-gradient(to right, rgba(11, 15, 16, 0.96) 25%, rgba(11, 15, 16, 0.75) 55%, rgba(11, 15, 16, 0.2) 100%), url(${userData.avatar || '/assets/Hero.png'})`
-              : `linear-gradient(to right, rgba(248, 249, 255, 0.95) 25%, rgba(248, 249, 255, 0.3) 55%, rgba(248, 249, 255, 0) 100%), url(${userData.avatar || '/assets/Hero.png'})`
+              ? `linear-gradient(to right, rgba(11, 15, 16, 0.96) 25%, rgba(11, 15, 16, 0.75) 55%, rgba(11, 15, 16, 0.2) 100%), url(${userData.avatar || ''})`
+              : `linear-gradient(to right, rgba(248, 249, 255, 0.95) 25%, rgba(248, 249, 255, 0.3) 55%, rgba(248, 249, 255, 0) 100%), url(${userData.avatar || ''})`
           },
           backgroundSize: 'cover',
           backgroundPosition: { xs: '35% center', md: 'right center' },
