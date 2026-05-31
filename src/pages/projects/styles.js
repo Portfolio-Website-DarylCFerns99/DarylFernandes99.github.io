@@ -20,6 +20,7 @@ export const ProjectCard = styled(Card)(({ theme }) => ({
     transition: 'all 0.3s ease',
     backgroundColor: theme.palette.background.paper,
     boxShadow: theme.shadows[2],
+    padding: theme.spacing(1),
     // '&:hover': {
     //   transform: 'translateY(-8px)',
     //   boxShadow: theme.shadows[6],

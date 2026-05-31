@@ -40,7 +40,7 @@ import ReviewsSection from './components/ReviewsSection';
 import ChatHistorySection from './components/ChatHistorySection';
 import Sidebar from './components/Sidebar';
 
-const drawerWidth = 280;
+const drawerWidth = 320;
 
 const sections = [
   { id: 'basic', name: 'Basic Info', icon: <PersonIcon /> },
@@ -173,6 +173,7 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
             sx={{
               display: { xs: 'block', md: 'none' },
               '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+              p: 1
             }}
           >
             <Sidebar
@@ -196,13 +197,13 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
                 boxSizing: 'border-box',
                 width: drawerWidth,
                 border: 'none',
-                bgcolor: 'transparent'
+                bgcolor: 'transparent',
               },
             }}
             open
           >
-            <Box sx={{ p: 2, height: '100%', position: 'fixed', width: drawerWidth }}>
-              <Card sx={{ height: '100%', overflow: 'hidden' }}>
+            <Box sx={{ p: 3, height: '100%', position: 'fixed', width: drawerWidth }}>
+              <Card sx={{ height: '100%', overflow: 'hidden', p: 0 }}>
                 <Sidebar
                   sections={sections}
                   activeSection={activeSection}

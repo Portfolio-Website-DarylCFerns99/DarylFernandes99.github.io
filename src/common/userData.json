@@ -213,7 +213,13 @@
       "title": "E-commerce Platform",
       "description": "A full-featured e-commerce platform built with React, Node.js, and MongoDB. Features include product catalog, shopping cart, user authentication, payment processing, and admin dashboard. Implemented responsive design for optimal viewing on all devices.",
       "image": "",
-      "tags": ["React", "Node.js", "MongoDB", "Express", "Redux"],
+      "tags": [
+        "React",
+        "Node.js",
+        "MongoDB",
+        "Express",
+        "Redux"
+      ],
       "url": "https://github.com/johndoe/ecommerce-platform"
     },
     {
@@ -222,7 +228,12 @@
       "title": "Task Management System",
       "description": "A collaborative task management application designed for remote teams. Built with TypeScript, React, and Firebase. Features include real-time updates, task assignment, progress tracking, and team chat functionality.",
       "image": "",
-      "tags": ["TypeScript", "React", "Firebase", "Material UI"],
+      "tags": [
+        "TypeScript",
+        "React",
+        "Firebase",
+        "Material UI"
+      ],
       "url": "https://github.com/johndoe/task-manager"
     },
     {
@@ -231,7 +242,13 @@
       "title": "Weather Application",
       "description": "A weather forecast application that provides real-time weather data from multiple locations. Built with Python (FastAPI) backend and React frontend. Integrates with OpenWeatherMap API and features interactive maps using Leaflet.js.",
       "image": "",
-      "tags": ["Python", "FastAPI", "React", "API Integration", "Leaflet.js"],
+      "tags": [
+        "Python",
+        "FastAPI",
+        "React",
+        "API Integration",
+        "Leaflet.js"
+      ],
       "url": "https://github.com/johndoe/weather-app"
     }
   ],
@@ -285,6 +302,32 @@
       "rating": 1,
       "is_visible": true,
       "updated_at": "2025-03-02T14:27:49.653921+00:00"
+    }
+  ],
+  "services": [
+    {
+      "id": 1,
+      "title": "AI SYSTEMS",
+      "description": "Building intelligent systems with machine learning, deep learning & NLP.",
+      "iconName": "Psychology"
+    },
+    {
+      "id": 2,
+      "title": "CLOUD INFRASTRUCTURE",
+      "description": "Designing scalable, secure and cost-efficient cloud architectures.",
+      "iconName": "CloudUpload"
+    },
+    {
+      "id": 3,
+      "title": "FULL-STACK ENGINEERING",
+      "description": "Creating responsive, performant and intuitive web applications end-to-end.",
+      "iconName": "Code"
+    },
+    {
+      "id": 4,
+      "title": "DISTRIBUTED SYSTEMS",
+      "description": "Building reliable, high-performance systems that scale and handle real-world load.",
+      "iconName": "Hub"
     }
   ]
 }

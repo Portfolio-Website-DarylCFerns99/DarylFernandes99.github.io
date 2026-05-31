@@ -2,103 +2,153 @@ import { createTheme } from "@mui/material/styles";
 
 const THEME = (mode) => createTheme({
     typography: {
-        fontFamily: `'Outfit', 'Roboto', sans-serif`,
-        h1: { fontWeight: 700 },
-        h2: { fontWeight: 700 },
-        h3: { fontWeight: 600 },
-        button: { fontWeight: 600, textTransform: 'none' },
+        fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Inter', 'Roboto', sans-serif`,
+        h1: {
+            fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Hanken Grotesk', sans-serif`,
+            fontSize: mode === 'dark' ? '4.5rem' : '4rem', // 72px / 64px
+            fontWeight: 800,
+            lineHeight: mode === 'dark' ? 1.1 : 1.1,
+            letterSpacing: mode === 'dark' ? '-0.04em' : '-0.02em',
+        },
+        h2: {
+            fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Hanken Grotesk', sans-serif`,
+            fontSize: mode === 'dark' ? '2.5rem' : '2rem', // 40px / 32px
+            fontWeight: 700,
+            lineHeight: mode === 'dark' ? 1.2 : 1.3,
+            letterSpacing: mode === 'dark' ? '-0.02em' : 'normal',
+        },
+        h3: {
+            fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Hanken Grotesk', sans-serif`,
+            fontSize: '2rem', // 32px
+            fontWeight: mode === 'dark' ? 600 : 700,
+            lineHeight: mode === 'dark' ? 1.25 : 1.3,
+        },
+        h4: {
+            fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Hanken Grotesk', sans-serif`,
+            fontSize: '1.5rem', // 24px
+            fontWeight: 600,
+            lineHeight: 1.4,
+        },
+        body1: {
+            fontFamily: `'Inter', sans-serif`,
+            fontSize: '1.125rem', // 18px
+            lineHeight: mode === 'dark' ? 1.75 : 1.6,
+            fontWeight: 400,
+        },
+        body2: {
+            fontFamily: `'Inter', sans-serif`,
+            fontSize: '1rem', // 16px
+            lineHeight: mode === 'dark' ? 1.5 : 1.6,
+            fontWeight: 400,
+        },
+        button: {
+            fontFamily: mode === 'dark' ? `'Inter', sans-serif` : `'Hanken Grotesk', sans-serif`,
+            fontWeight: 600,
+            textTransform: 'none',
+        },
     },
     shape: {
-        borderRadius: 16,
+        borderRadius: 4, // 4px base border radius
     },
     palette: {
         mode,
         ...(mode === 'dark'
             ? {
-                // Deep Cosmos / Cyber Dark
+                // Premium Dark Portfolio
                 primary: {
-                    main: '#00f2ff', // Cyan Neon
-                    light: '#7affff',
-                    dark: '#00becb',
-                    contrastText: '#000',
+                    main: '#f59e0b', // Amber/Gold primary accent
+                    light: '#ffc174',
+                    dark: '#855300',
+                    contrastText: '#0f172a',
                 },
                 secondary: {
-                    main: '#7000ff', // Electric Violet
-                    light: '#aa4dff',
-                    dark: '#2800cc',
-                    contrastText: '#fff',
+                    main: '#bec6e0',
+                    light: '#dae2fd',
+                    dark: '#3f465c',
+                    contrastText: '#ffffff',
                 },
                 background: {
-                    default: '#050505', // Almost Black
-                    paper: '#0a0a12',   // Very dark blue-grey
-                    header: 'rgba(5, 5, 5, 0.7)', // Transparent for glassmorphism
+                    default: '#0f172a', // Midnight page background
+                    paper: '#1e293b',   // Slate card/container background
+                    header: 'rgba(15, 23, 42, 0.8)', // Sticky glassmorphism header
                 },
                 text: {
-                    primary: '#ffffff',
-                    secondary: '#94a3b8',
+                    primary: '#f8fafc', // Neutral white
+                    secondary: '#bec6e0', // Slate gray
                 },
                 action: {
                     hover: 'rgba(255, 255, 255, 0.05)',
                 }
             }
             : {
-                // Modern Clean Light
+                // Aura Portfolio
                 primary: {
-                    main: '#2563eb', // Royal Blue
-                    light: '#60a5fa',
-                    dark: '#1e40af',
-                    contrastText: '#fff',
+                    main: '#b48946', // Gold/Amber accent
+                    light: '#efbe76',
+                    dark: '#795516',
+                    contrastText: '#ffffff',
                 },
                 secondary: {
-                    main: '#8b5cf6', // Violet
-                    light: '#a78bfa',
-                    dark: '#7c3aed',
-                    contrastText: '#fff',
+                    main: '#5c5e65', // Charcoal secondary
+                    light: '#c4c6ce',
+                    dark: '#44474d',
+                    contrastText: '#ffffff',
                 },
                 background: {
-                    default: '#f8fafc', // Slate 50
-                    paper: '#ffffff',
-                    header: 'rgba(255, 255, 255, 0.8)',
+                    default: '#f8f9ff', // Off-white
+                    paper: '#ffffff',   // Pure white for containers
+                    header: 'rgba(248, 249, 255, 0.8)', // Backdrop blur header
                 },
                 text: {
-                    primary: '#0f172a', // Slate 900
-                    secondary: '#475569', // Slate 600
+                    primary: '#0b1c30', // Deep charcoal headings
+                    secondary: '#4f4539', // Subtle charcoal/neutral body
                 },
             }),
     },
     components: {
         MuiCssBaseline: {
             styleOverrides: {
-                body: {
-                    scrollbarColor: mode === 'dark' ? "#333 #050505" : "#ccc #f8fafc",
-                    "&::-webkit-scrollbar, & *::-webkit-scrollbar": {
-                        backgroundColor: "transparent",
-                        width: "8px",
-                    },
-                    "&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb": {
-                        borderRadius: 8,
-                        backgroundColor: mode === 'dark' ? "#333" : "#ccc",
-                        minHeight: 24,
-                    },
+                html: {
+                    scrollbarColor: mode === 'dark' ? "#3f465c #0f172a" : "#c4c6ce #f8f9ff",
+                    scrollbarWidth: "thin",
+                },
+                "::-webkit-scrollbar": {
+                    width: "10px",
+                    height: "10px",
+                },
+                "::-webkit-scrollbar-track": {
+                    background: mode === 'dark' ? "#0f172a" : "#f8f9ff",
+                },
+                "::-webkit-scrollbar-thumb": {
+                    borderRadius: 10,
+                    backgroundColor: mode === 'dark' ? "#3f465c" : "#c4c6ce",
+                    border: mode === 'dark' ? "3px solid #0f172a" : "3px solid #f8f9ff",
+                    '&:hover': {
+                        backgroundColor: mode === 'dark' ? "#f59e0b" : "#b48946",
+                    }
                 },
             },
         },
         MuiButton: {
             styleOverrides: {
                 root: {
-                    borderRadius: 50, // Pill shape
+                    borderRadius: 4, // 4px shape
                     padding: '8px 24px',
                     boxShadow: 'none',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                         transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        boxShadow: mode === 'dark'
+                            ? '0 4px 12px rgba(245, 158, 11, 0.15)'
+                            : '0 4px 12px rgba(180, 137, 70, 0.1)',
                     },
                 },
                 containedPrimary: {
-                    background: mode === 'dark'
-                        ? 'linear-gradient(45deg, #00f2ff 30%, #00c2ff 90%)'
-                        : 'linear-gradient(45deg, #2563eb 30%, #3b82f6 90%)',
+                    background: mode === 'dark' ? '#f59e0b' : '#b48946',
+                    color: mode === 'dark' ? '#0f172a' : '#ffffff',
+                    '&:hover': {
+                        background: mode === 'dark' ? '#e08f00' : '#a17a3e',
+                    },
                     '&.Mui-disabled': {
                         background: mode === 'dark' ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)',
                         color: mode === 'dark' ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.26)',
@@ -110,17 +160,23 @@ const THEME = (mode) => createTheme({
         MuiCard: {
             styleOverrides: {
                 root: {
-                    borderRadius: 20,
+                    borderRadius: 8, // 8px corner radius
                     backdropFilter: 'blur(10px)',
-                    background: mode === 'dark'
-                        ? 'rgba(255, 255, 255, 0.03)'
-                        : 'rgba(255, 255, 255, 0.7)',
+                    background: mode === 'dark' ? '#1e293b' : '#ffffff',
                     border: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
-                    boxShadow: mode === 'dark'
-                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-                        : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
+                    boxShadow: 'none',
+                    padding: '32px', // Minimum 32px padding
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                        boxShadow: mode === 'dark'
+                            ? '0px 4px 20px rgba(245, 158, 11, 0.15)'
+                            : '0px 4px 12px rgba(180, 137, 70, 0.08)',
+                        borderColor: mode === 'dark'
+                            ? 'rgba(255, 255, 255, 0.2)'
+                            : '#b48946',
+                    },
                 },
             },
         },
@@ -130,39 +186,42 @@ const THEME = (mode) => createTheme({
                     backdropFilter: 'blur(12px)',
                     boxShadow: 'none',
                     borderBottom: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
+                    background: mode === 'dark'
+                        ? 'rgba(15, 23, 42, 0.8)'
+                        : 'rgba(248, 249, 255, 0.8)',
                 },
             },
         },
         MuiDialog: {
             styleOverrides: {
                 paper: {
-                    borderRadius: 20,
+                    borderRadius: 8,
                     backdropFilter: 'blur(12px)',
                     background: mode === 'dark'
-                        ? 'rgba(10, 10, 18, 0.85)'
-                        : 'rgba(255, 255, 255, 0.85)',
+                        ? 'rgba(30, 41, 59, 0.95)'
+                        : 'rgba(255, 255, 255, 0.95)',
                     border: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
                     boxShadow: mode === 'dark'
-                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
-                        : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
+                        ? '0 8px 32px 0 rgba(0, 0, 0, 0.5)'
+                        : '0 8px 32px 0 rgba(0, 0, 0, 0.05)',
                 },
             },
         },
         MuiMenu: {
             styleOverrides: {
                 paper: {
-                    borderRadius: 16,
+                    borderRadius: 8,
                     backdropFilter: 'blur(12px)',
                     background: mode === 'dark'
-                        ? 'rgba(10, 10, 18, 0.9)'
+                        ? 'rgba(30, 41, 59, 0.9)'
                         : 'rgba(255, 255, 255, 0.9)',
                     border: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
                     boxShadow: mode === 'dark'
                         ? '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
                         : '0 8px 32px 0 rgba(31, 38, 135, 0.07)',
@@ -174,25 +233,25 @@ const THEME = (mode) => createTheme({
                 paper: {
                     backdropFilter: 'blur(12px)',
                     background: mode === 'dark'
-                        ? 'rgba(10, 10, 18, 0.9)'
-                        : 'rgba(255, 255, 255, 0.9)',
+                        ? 'rgba(15, 23, 42, 0.9)'
+                        : 'rgba(248, 249, 255, 0.9)',
                     borderRight: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
                 },
             },
         },
         MuiPopover: {
             styleOverrides: {
                 paper: {
-                    borderRadius: 16,
+                    borderRadius: 8,
                     backdropFilter: 'blur(12px)',
                     background: mode === 'dark'
-                        ? 'rgba(10, 10, 18, 0.9)'
+                        ? 'rgba(30, 41, 59, 0.9)'
                         : 'rgba(255, 255, 255, 0.9)',
                     border: mode === 'dark'
-                        ? '1px solid rgba(255, 255, 255, 0.12)'
-                        : '1px solid rgba(0, 0, 0, 0.12)',
+                        ? '1px solid rgba(255, 255, 255, 0.1)'
+                        : '1px solid #E2E8F0',
                 },
             },
         },

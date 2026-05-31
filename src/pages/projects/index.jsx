@@ -260,6 +260,36 @@ const Index = () => {
 		}
 	}, [categoryFilteredProjects]);
 
+	const skillGroups = useSelector((state) => state.user.skillGroups || []);
+
+	const categorizedTags = useMemo(() => {
+		const categories = [];
+		const assignedTags = new Set();
+
+		skillGroups.forEach(group => {
+			const groupTags = uniqueTags.filter(tag =>
+				group.skills.some(skill => skill.name.toLowerCase() === tag.toLowerCase())
+			);
+			if (groupTags.length > 0) {
+				categories.push({
+					name: group.name,
+					tags: groupTags
+				});
+				groupTags.forEach(tag => assignedTags.add(tag));
+			}
+		});
+
+		const otherTags = uniqueTags.filter(tag => !assignedTags.has(tag));
+		if (otherTags.length > 0) {
+			categories.push({
+				name: "Other Skills & Tags",
+				tags: otherTags
+			});
+		}
+
+		return categories;
+	}, [uniqueTags, skillGroups]);
+
 	// Then apply filter panel filters on top of category-filtered projects
 	const filteredProjects = useMemo(() => {
 		let filtered = categoryFilteredProjects.filter(project => {
@@ -286,9 +316,9 @@ const Index = () => {
 			return matchesSearch && matchesType && matchesTags
 		})
 
-		// Apply relevance sorting if there is search text
-		if (debouncedSearchText) {
-			const searchKeywords = debouncedSearchText.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+		// Apply relevance sorting if there is search text or selected tags
+		if (debouncedSearchText || selectedTags.length > 0) {
+			const searchKeywords = debouncedSearchText ? debouncedSearchText.toLowerCase().split(/\s+/).filter(w => w.length > 0) : [];
 
 			filtered = filtered.map(project => {
 				let score = 0;
@@ -297,6 +327,17 @@ const Index = () => {
 				const tags = (project.tags || []).map(t => t.toLowerCase());
 				const languages = Object.keys(project.additional_data?.languages || {}).map(l => l.toLowerCase());
 
+				// Calculate score from selected tags (skills)
+				if (selectedTags.length > 0) {
+					selectedTags.forEach(selectedTag => {
+						const lowerSelectedTag = selectedTag.toLowerCase();
+						if (tags.includes(lowerSelectedTag)) {
+							score += 20; // 20 points per matching tag
+						}
+					});
+				}
+
+				// Calculate score from search keywords
 				searchKeywords.forEach(keyword => {
 					// Title matches (highest weight)
 					if (title === keyword) score += 10;
@@ -325,11 +366,11 @@ const Index = () => {
 			});
 		}
 
-		// Apply sorting if sortBy is selected (and no search or equal scores)
+		// Apply sorting if sortBy is selected (and no search/tags or equal scores)
 		if (sortBy) {
 			filtered = [...filtered].sort((a, b) => {
-				// If we have search scores and they differ, preserve that order
-				if (debouncedSearchText && a.relevanceScore !== b.relevanceScore) {
+				// If we have search/tags scores and they differ, preserve that order
+				if ((debouncedSearchText || selectedTags.length > 0) && a.relevanceScore !== b.relevanceScore) {
 					return 0; // Already sorted by score
 				}
 
@@ -701,7 +742,7 @@ const Index = () => {
 							<Grid container spacing={3}>
 								{/* Type Filter */}
 								{uniqueTypes.length > 1 && (
-									<Grid item xs={12} md={6}>
+									<Grid item xs={12}>
 										<FormControl fullWidth size="small">
 											<InputLabel>Project Type</InputLabel>
 											<Select
@@ -723,22 +764,31 @@ const Index = () => {
 									</Grid>
 								)}
 
-								{/* Tags Filter */}
-								<Grid item xs={12} md={uniqueTypes.length > 1 ? 6 : 12}>
-									<Typography variant="subtitle2" gutterBottom color="text.secondary">
-										Technologies & Tags
+								{/* Categorized Skills & Tags Filter */}
+								<Grid item xs={12}>
+									<Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ fontWeight: 600, mb: 2 }}>
+										Technologies & Skills (Grouped)
 									</Typography>
-									<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, maxHeight: 120, overflowY: 'auto' }}>
-										{uniqueTags.map(tag => (
-											<Chip
-												key={tag}
-												label={tag}
-												onClick={() => handleTagToggle(tag)}
-												color={selectedTags.includes(tag) ? "primary" : "default"}
-												variant={selectedTags.includes(tag) ? "filled" : "outlined"}
-												size="small"
-												sx={{ cursor: 'pointer' }}
-											/>
+									<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, maxHeight: 300, overflowY: 'auto', pr: 1 }}>
+										{categorizedTags.map((category, cIdx) => (
+											<Box key={cIdx} sx={{ textAlign: 'left' }}>
+												<Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'primary.main', mb: 1, display: 'block', letterSpacing: '0.05em' }}>
+													{category.name}
+												</Typography>
+												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
+													{category.tags.map(tag => (
+														<Chip
+															key={tag}
+															label={tag}
+															onClick={() => handleTagToggle(tag)}
+															color={selectedTags.includes(tag) ? "primary" : "default"}
+															variant={selectedTags.includes(tag) ? "filled" : "outlined"}
+															size="small"
+															sx={{ cursor: 'pointer', borderRadius: '4px' }}
+														/>
+													))}
+												</Box>
+											</Box>
 										))}
 									</Box>
 								</Grid>

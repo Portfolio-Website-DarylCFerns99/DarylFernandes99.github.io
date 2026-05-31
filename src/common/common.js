@@ -10,19 +10,25 @@ import HomeIcon from '@mui/icons-material/Home'
 import WorkIcon from '@mui/icons-material/Work'
 import MailIcon from '@mui/icons-material/Mail'
 import RateReviewIcon from '@mui/icons-material/RateReview'
+import InfoIcon from '@mui/icons-material/Info'
+import CodeIcon from '@mui/icons-material/Code'
+import EventNoteIcon from '@mui/icons-material/EventNote'
 
 const HomePage = lazy(() => import('../pages/home'))
 const ProjectsPage = lazy(() => import('../pages/projects'))
-const ContactPage = lazy(() => import('../pages/contact'))
 const ProjectDetailPage = lazy(() => import('../pages/projectDetail'))
 const ReviewsPage = lazy(() => import('../pages/reviews'))
 
 export const ROUTES = [
-  { path: '/', title: 'Home', component: HomePage, icon: HomeIcon },
-  { path: '/projects', title: 'Projects', component: ProjectsPage, icon: WorkIcon },
+  { path: '/', title: 'Home Page', component: HomePage, icon: HomeIcon, hide: true },
+  { path: '/projects', title: 'Projects Page', component: ProjectsPage, icon: WorkIcon, hide: true },
   { path: '/projects/:name', title: 'Project Detail', component: ProjectDetailPage, icon: WorkIcon, hide: true },
   // {path: '/reviews', title: 'Reviews', component: ReviewsPage, icon: RateReviewIcon},
-  { path: '/contact', title: 'Contact', component: ContactPage, icon: MailIcon },
+  { path: '/#about', title: 'About', icon: InfoIcon },
+  { path: '/#projects', title: 'Projects', icon: WorkIcon },
+  { path: '/#skills', title: 'Skills', icon: CodeIcon },
+  { path: '/#experience', title: 'Experience', icon: EventNoteIcon },
+  { path: '/#contact', title: 'Contact', icon: MailIcon },
 ]
 
 export const typeMapping = {
