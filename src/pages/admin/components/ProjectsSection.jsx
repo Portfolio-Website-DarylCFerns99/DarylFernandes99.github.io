@@ -300,6 +300,7 @@ const ProjectsSection = () => {
         url: '',
         detail_page: '', // Add this new field
         is_visible: true,
+        is_featured: false,
         project_category_id: null
     };
 
@@ -400,6 +401,34 @@ const ProjectsSection = () => {
             setProjects(prevProjects =>
                 prevProjects.map((p, i) =>
                     i === index ? { ...p, is_visible: !newVisibility } : p
+                )
+            );
+        }
+    };
+
+    const handleToggleFeatured = async (index) => {
+        const project = projects[index];
+        const newFeatured = !project.is_featured;
+
+        // Update local state immediately for better UX
+        setProjects(prevProjects =>
+            prevProjects.map((p, i) =>
+                i === index ? { ...p, is_featured: newFeatured } : p
+            )
+        );
+
+        try {
+            // Call API to update featured status
+            await updateProject(project.id, { is_featured: newFeatured });
+            toast.success(`Project ${newFeatured ? 'marked as featured' : 'unfeatured'}`);
+        } catch (error) {
+            console.error('Error updating project featured status:', error);
+            toast.error('Failed to update project featured status');
+
+            // Revert local state on error
+            setProjects(prevProjects =>
+                prevProjects.map((p, i) =>
+                    i === index ? { ...p, is_featured: !newFeatured } : p
                 )
             );
         }
@@ -997,6 +1026,18 @@ const ProjectsSection = () => {
                                         </Grid>
 
                                         <Grid item xs={12}>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                                <Switch
+                                                    checked={!!newProject.is_featured}
+                                                    onChange={handleProjectChange}
+                                                    name="is_featured"
+                                                    color="warning"
+                                                />
+                                                <Typography sx={{ ml: 1 }}>Featured Project (displays on home page)</Typography>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', mt: 2, mb: 1 }}>
                                                 <Switch
                                                     checked={showDetailPage}
@@ -1164,12 +1205,13 @@ const ProjectsSection = () => {
                                                     {sortConfig.key === 'created_at' && (sortConfig.direction === 'asc' ? ' ↑' : ' ↓')}
                                                 </TableCell>
                                                 <TableCell width="80px">Visible</TableCell>
+                                                <TableCell width="80px">Featured</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
                                             {filteredProjects.length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={6} align="center">
+                                                    <TableCell colSpan={7} align="center">
                                                         No projects found
                                                     </TableCell>
                                                 </TableRow>
@@ -1253,6 +1295,14 @@ const ProjectsSection = () => {
                                                             checked={project.is_visible}
                                                             onChange={() => handleToggleVisibility(projects.indexOf(project))}
                                                             color="success"
+                                                            size="small"
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Switch
+                                                            checked={!!project.is_featured}
+                                                            onChange={() => handleToggleFeatured(projects.indexOf(project))}
+                                                            color="warning"
                                                             size="small"
                                                         />
                                                     </TableCell>

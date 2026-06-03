@@ -40,6 +40,8 @@ import {
     deleteSkill
 } from '../../../api/services/skillService';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import DevIconPicker from './DevIconPicker';
+import { getDeviconUrl } from '../../../utils/deviconUtils';
 
 const SkillsSection = () => {
     const theme = useTheme();
@@ -68,7 +70,8 @@ const SkillsSection = () => {
         name: '',
         skill_group_id: '',
         proficiency: 1,
-        is_visible: true
+        is_visible: true,
+        icon: ''
     });
 
     // Delete dialog
@@ -246,7 +249,7 @@ const SkillsSection = () => {
             toast.warning('Please create a skill group first');
             return;
         }
-        setSkillForm({ name: '', skill_group_id: skillGroups[0].id, proficiency: 1, is_visible: true });
+        setSkillForm({ name: '', skill_group_id: skillGroups[0].id, proficiency: 1, is_visible: true, icon: '' });
         setEditingSkillId(null);
         setShowSkillForm(true);
     };
@@ -256,7 +259,8 @@ const SkillsSection = () => {
             name: skill.name || '',
             skill_group_id: skill.skill_group_id || '',
             proficiency: skill.proficiency || 1,
-            is_visible: !!skill.is_visible
+            is_visible: !!skill.is_visible,
+            icon: skill.icon || ''
         });
         setEditingSkillId(skill.id);
         setShowSkillForm(true);
@@ -369,10 +373,10 @@ const SkillsSection = () => {
             {/* Featured Skills Card moved to the top */}
             <Card sx={{ p: 2, mb: 4, bgcolor: 'background.default', border: '1px solid', borderColor: 'divider' }}>
                 <Typography variant="h6" gutterBottom>
-                    Featured Skills (Max 4)
+                    Featured Skills
                 </Typography>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Select up to 4 featured skills to highlight on your portfolio.
+                    Select featured skills to highlight on your portfolio.
                 </Typography>
                 <Grid container spacing={2}>
                     <Grid item xs={12}>
@@ -382,11 +386,7 @@ const SkillsSection = () => {
                             options={allSkills}
                             value={selectedSkills}
                             onChange={(event, newValue) => {
-                                if (newValue.length <= 4) {
-                                    setSelectedSkills(newValue);
-                                } else {
-                                    toast.warning('Maximum 4 skills can be selected');
-                                }
+                                setSelectedSkills(newValue);
                             }}
                             getOptionLabel={(option) => option.name}
                             groupBy={(option) => option.groupName}
@@ -395,8 +395,8 @@ const SkillsSection = () => {
                                     {...params}
                                     variant="outlined"
                                     label="Skills"
-                                    placeholder={selectedSkills.length >= 4 ? '' : 'Select a skill'}
-                                    helperText={`${selectedSkills.length}/4 skills selected`}
+                                    placeholder="Select a skill"
+                                    helperText={`${selectedSkills.length} skill(s) selected`}
                                 />
                             )}
                             renderTags={(value, getTagProps) =>
@@ -417,7 +417,7 @@ const SkillsSection = () => {
                             variant="contained"
                             color="primary"
                             onClick={handleSubmitSelectedSkills}
-                            disabled={selectedSkills.length === 0 || saving}
+                            disabled={saving}
                         >
                             {saving ? 'Saving...' : 'Submit Featured Skills'}
                         </Button>
@@ -631,6 +631,12 @@ const SkillsSection = () => {
                                             ))}
                                         </TextField>
                                         
+                                        <DevIconPicker
+                                            label="Icon"
+                                            value={skillForm.icon}
+                                            onChange={(val) => setSkillForm(prev => ({ ...prev, icon: val }))}
+                                        />
+
                                         <Box sx={{ mt: 2, mb: 1 }}>
                                             <Typography variant="body2" gutterBottom>Proficiency Level</Typography>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -688,6 +694,7 @@ const SkillsSection = () => {
                                         <TableHead>
                                             <TableRow sx={{ bgcolor: 'action.hover' }}>
                                                 <TableCell width="120px">Actions</TableCell>
+                                                <TableCell width="60px">Icon</TableCell>
                                                 <TableCell>Name</TableCell>
                                                 <TableCell>Group</TableCell>
                                                 <TableCell>Proficiency</TableCell>
@@ -697,7 +704,7 @@ const SkillsSection = () => {
                                         <TableBody>
                                             {skillsData.length === 0 ? (
                                                 <TableRow>
-                                                    <TableCell colSpan={5} align="center">No skills found</TableCell>
+                                                    <TableCell colSpan={6} align="center">No skills found</TableCell>
                                                 </TableRow>
                                             ) : (
                                                 skillsData.map((skill) => {
@@ -713,6 +720,23 @@ const SkillsSection = () => {
                                                                         <EditIcon />
                                                                     </IconButton>
                                                                 </Box>
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {skill.icon ? (() => {
+                                                                    const logoUrl = getDeviconUrl(skill.icon);
+                                                                    if (!logoUrl) return null;
+                                                                    return (
+                                                                        <Box
+                                                                            component="img"
+                                                                            src={logoUrl}
+                                                                            alt={skill.name}
+                                                                            sx={{ width: 28, height: 28, objectFit: 'contain', display: 'block' }}
+                                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                                        />
+                                                                    );
+                                                                })() : (
+                                                                    <Typography variant="caption" color="text.disabled">—</Typography>
+                                                                )}
                                                             </TableCell>
                                                             <TableCell>{skill.name}</TableCell>
                                                             <TableCell>{groupName}</TableCell>
