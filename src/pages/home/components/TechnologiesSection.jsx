@@ -3,13 +3,7 @@ import { useSelector } from 'react-redux';
 import { Box, Typography, Container, useTheme } from '@mui/material';
 import CodeIcon from '@mui/icons-material/Code';
 import { TechGridContainer, TechItem } from '../styles';
-
-const getSkillLogo = (icon) => {
-  if (icon) {
-    return icon;
-  }
-  return null;
-};
+import { getDeviconUrl } from '../../../utils/deviconUtils';
 
 const TechnologiesSection = React.forwardRef((props, ref) => {
   const theme = useTheme();
@@ -60,7 +54,7 @@ const TechnologiesSection = React.forwardRef((props, ref) => {
 
         <TechGridContainer>
           {featuredSkills.map((skill, index) => {
-            const logo = getSkillLogo(skill.icon);
+            const logo = getDeviconUrl(skill.icon);
             return (
               <TechItem key={skill.id || index}>
                 {logo ? (

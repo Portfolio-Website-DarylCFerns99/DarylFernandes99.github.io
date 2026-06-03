@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 
-export function useChat(userId) {
+export function useChat(userId, enabled = true) {
     const [messages, setMessages] = useState([]);
     const [isStreaming, setIsStreaming] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
@@ -90,16 +90,16 @@ export function useChat(userId) {
         };
     }, [userId]);
 
-    // Connect on mount or when userId changes
+    // Connect on mount or when userId/enabled changes
     useEffect(() => {
-        if (userId) {
+        if (userId && enabled) {
             connect();
         }
         return () => {
             shouldReconnect.current = false;
             socketRef.current?.close();
         };
-    }, [connect, userId]);
+    }, [connect, userId, enabled]);
 
     // Send Message Function
     const sendMessage = useCallback((text) => {

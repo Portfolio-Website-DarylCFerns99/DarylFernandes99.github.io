@@ -1134,7 +1134,7 @@ export const TechGridContainer = styled(Box)(({ theme }) => ({
   flexWrap: 'wrap',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: theme.spacing(5),
+  gap: theme.spacing(3),
   padding: theme.spacing(4, 2),
   width: '100%',
   maxWidth: 1200,
@@ -1166,6 +1166,7 @@ export const TechItem = styled(Box)(({ theme }) => ({
   '& .tech-label': {
     fontSize: '0.8rem',
     fontWeight: 500,
+    textAlign: 'center',
     color: theme.palette.text.secondary,
     fontFamily: `'JetBrains Mono', monospace`,
   }

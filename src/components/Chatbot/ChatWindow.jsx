@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import { Typography, IconButton, TextField, Tooltip, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import SendIcon from '@mui/icons-material/Send';
@@ -14,6 +15,7 @@ import {
 } from './styles';
 
 const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isStreaming, onClearHistory }) => {
+    const userName = useSelector((state) => state.user.name || "Daryl");
     const [input, setInput] = useState('');
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const messagesEndRef = useRef(null);
@@ -73,7 +75,7 @@ const ChatWindow = ({ isOpen, onClose, messages, onSendMessage, isStreaming, onC
             <MessagesArea>
                 {messages.length === 0 && (
                     <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
-                        Hi! Ask me anything about Daryl's projects, skills, or experience.
+                        Hi! Ask me anything about {userName}'s projects, skills, or experience.
                     </Typography>
                 )}
                 <AnimatePresence>

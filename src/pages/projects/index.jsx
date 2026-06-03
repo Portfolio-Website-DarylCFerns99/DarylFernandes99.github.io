@@ -134,6 +134,7 @@ import {
 } from './styles'
 import { DynamicSEO } from '../../components/SEO/DynamicSEO'
 import { slugify } from '../../utils/stringUtils'
+import { getDeviconUrl } from '../../utils/deviconUtils'
 
 // Dynamic import of all SVG files from the loading folder
 const loadingSvgs = import.meta.glob('../../assets/loading/*.svg', { eager: true });
@@ -262,6 +263,21 @@ const Index = () => {
 
 	const skillGroups = useSelector((state) => state.user.skillGroups || []);
 
+	// Create a mapping of lowercase skill names to their icons
+	const tagIconsMap = useMemo(() => {
+		const mapping = {};
+		skillGroups.forEach(group => {
+			if (group.skills) {
+				group.skills.forEach(skill => {
+					if (skill.name && skill.icon) {
+						mapping[skill.name.toLowerCase()] = skill.icon;
+					}
+				});
+			}
+		});
+		return mapping;
+	}, [skillGroups]);
+
 	const categorizedTags = useMemo(() => {
 		const categories = [];
 		const assignedTags = new Set();
@@ -273,7 +289,10 @@ const Index = () => {
 			if (groupTags.length > 0) {
 				categories.push({
 					name: group.name,
-					tags: groupTags
+					tags: groupTags.map(tag => ({
+						name: tag,
+						icon: tagIconsMap[tag.toLowerCase()] || null
+					}))
 				});
 				groupTags.forEach(tag => assignedTags.add(tag));
 			}
@@ -283,12 +302,15 @@ const Index = () => {
 		if (otherTags.length > 0) {
 			categories.push({
 				name: "Other Skills & Tags",
-				tags: otherTags
+				tags: otherTags.map(tag => ({
+					name: tag,
+					icon: tagIconsMap[tag.toLowerCase()] || null
+				}))
 			});
 		}
 
 		return categories;
-	}, [uniqueTags, skillGroups]);
+	}, [uniqueTags, skillGroups, tagIconsMap]);
 
 	// Then apply filter panel filters on top of category-filtered projects
 	const filteredProjects = useMemo(() => {
@@ -776,17 +798,35 @@ const Index = () => {
 													{category.name}
 												</Typography>
 												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-													{category.tags.map(tag => (
-														<Chip
-															key={tag}
-															label={tag}
-															onClick={() => handleTagToggle(tag)}
-															color={selectedTags.includes(tag) ? "primary" : "default"}
-															variant={selectedTags.includes(tag) ? "filled" : "outlined"}
-															size="small"
-															sx={{ cursor: 'pointer', borderRadius: '4px' }}
-														/>
-													))}
+													{category.tags.map(tag => {
+														const logoUrl = tag.icon ? getDeviconUrl(tag.icon) : null;
+														return (
+															<Chip
+																key={tag.name}
+																label={tag.name}
+																onClick={() => handleTagToggle(tag.name)}
+																color={selectedTags.includes(tag.name) ? "primary" : "default"}
+																variant={selectedTags.includes(tag.name) ? "filled" : "outlined"}
+																size="small"
+																avatar={logoUrl ? (
+																	<Box
+																		component="img"
+																		src={logoUrl}
+																		alt={tag.name}
+																		sx={{
+																			width: '16px !important',
+																			height: '16px !important',
+																			objectFit: 'contain',
+																			borderRadius: '0 !important',
+																			marginLeft: '4px !important',
+																			marginRight: '-4px !important'
+																		}}
+																	/>
+																) : null}
+																sx={{ cursor: 'pointer', borderRadius: '4px' }}
+															/>
+														);
+													})}
 												</Box>
 											</Box>
 										))}
@@ -832,16 +872,33 @@ const Index = () => {
 											variant="soft"
 										/>
 									)}
-									{selectedTags.map(tag => (
-										<Chip
-											key={tag}
-											label={tag}
-											size="small"
-											onDelete={() => handleTagToggle(tag)}
-											color="primary"
-											variant="soft"
-										/>
-									))}
+									{selectedTags.map(tag => {
+										const iconVal = tagIconsMap[tag.toLowerCase()];
+										const logoUrl = iconVal ? getDeviconUrl(iconVal) : null;
+										return (
+											<Chip
+												key={tag}
+												label={tag}
+												size="small"
+												onDelete={() => handleTagToggle(tag)}
+												color="primary"
+												variant="soft"
+												avatar={logoUrl ? (
+													<Box
+														component="img"
+														src={logoUrl}
+														alt={tag}
+														sx={{
+															width: '16px !important',
+															height: '16px !important',
+															objectFit: 'contain',
+															borderRadius: '0 !important'
+														}}
+													/>
+												) : null}
+											/>
+										);
+									})}
 									<Button
 										size="small"
 										onClick={clearAllFilters}

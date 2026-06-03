@@ -29,7 +29,7 @@ const ChatWidget = () => {
         isStreaming,
         setMessages,
         clearHistory
-    } = useChat(userId);
+    } = useChat(userId, isOpen);
 
 
     const handleSendMessage = (text) => {

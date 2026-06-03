@@ -40,7 +40,7 @@ const AboutSection = ({ userData }) => {
                 objectFit: 'cover'
               }
             }}>
-              <img src={userData.about?.image || userData.avatar} alt="About Daryl" />
+              <img src={userData.about?.image || userData.avatar} alt="About Me" />
             </Box>
           </Grid>
 

@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';
+import HomeIcon from '@mui/icons-material/Home';
+import WorkIcon from '@mui/icons-material/Work';
 import {
     AppBar,
     Box,
@@ -58,6 +60,14 @@ const Index = (props) => {
     const resumeLink = userData.socialLinks?.find(
         link => link.platform === 'document' || link.url?.includes('resume') || link.tooltip?.toLowerCase().includes('resume')
     );
+
+    const isProjectsPage = location.pathname.startsWith('/projects');
+    const navItems = isProjectsPage
+        ? [
+            { path: '/', title: 'Home', icon: HomeIcon },
+            { path: '/projects', title: 'Projects', icon: WorkIcon }
+        ]
+        : ROUTES.filter(item => !item.hide);
 
     const handleDragEnd = (event, info, currentPath) => {
         const dropPoint = {
@@ -149,7 +159,7 @@ const Index = (props) => {
                                 gap: 1
                             }}
                         >
-                            {ROUTES.filter(item => !item.hide).map((item) => {
+                            {navItems.map((item) => {
                                 const isActive = isActiveRoute(item.path);
                                 return (
                                     <Box
@@ -319,8 +329,7 @@ const Index = (props) => {
                                 alignItems: 'center',
                                 gap: 1
                             }}>
-                                {ROUTES.map((item) => {
-                                    if (item.hide) return null;
+                                {navItems.map((item) => {
                                     const isActive = isActiveRoute(item.path);
 
                                     return (

@@ -41,7 +41,11 @@ const Index = () => {
 
   // Featured Projects list
   const featuredProjects = useMemo(() => {
-    return userData.projects?.slice(0, 4) || [];
+    const featured = userData.projects?.filter(p => p.is_featured) || [];
+    if (featured.length === 0) {
+      return userData.projects?.slice(0, 4) || [];
+    }
+    return featured;
   }, [userData.projects]);
 
   // Combined timeline data (experience & education)

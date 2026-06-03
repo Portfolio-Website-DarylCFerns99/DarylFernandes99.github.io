@@ -38,13 +38,16 @@ import TimelineSection from './components/TimelineSection';
 import ProjectsSection from './components/ProjectsSection';
 import ReviewsSection from './components/ReviewsSection';
 import ChatHistorySection from './components/ChatHistorySection';
+import ServicesSection from './components/ServicesSection';
 import Sidebar from './components/Sidebar';
+import WorkIcon from '@mui/icons-material/Work';
 
 const drawerWidth = 320;
 
 const sections = [
   { id: 'basic', name: 'Basic Info', icon: <PersonIcon /> },
   { id: 'about', name: 'About', icon: <InfoIcon /> },
+  { id: 'services', name: 'What I do', icon: <WorkIcon /> },
   { id: 'social', name: 'Social Links', icon: <LinkIcon /> },
   { id: 'skills', name: 'Skills', icon: <CodeIcon /> },
   { id: 'timeline', name: 'Timeline', icon: <TimelineIcon /> },
@@ -248,6 +251,16 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
                   About
                 </Typography>
                 <AboutSection />
+              </Card>
+            </Box>
+
+            {/* What I do (Services) Section */}
+            <Box ref={el => sectionRefs.current['services'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
+                  What I do
+                </Typography>
+                <ServicesSection />
               </Card>
             </Box>
 
