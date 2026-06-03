@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+  <style>
+    @keyframes rotateRing {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes replicationBeam {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -30; }
+    }
+    @keyframes pulseNode {
+      0% { filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.4)); }
+      50% { filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8)); }
+      100% { filter: drop-shadow(0 0 2px rgba(59, 130, 246, 0.4)); }
+    }
+    .spinning-ring {
+      transform-origin: 200px 90px;
+      animation: rotateRing 8s infinite linear;
+    }
+    .replication-line {
+      stroke-dasharray: 6 4;
+      animation: replicationBeam 1.5s infinite linear;
+    }
+    .db-node-primary {
+      fill: #3b82f6;
+      animation: pulseNode 3s infinite ease-in-out;
+    }
+    .db-node-replica {
+      fill: #10b981;
+    }
+    .text {
+      font-family: 'JetBrains Mono', monospace, Courier;
+      font-size: 13px;
+      fill: #3b82f6;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- Replication Paths from Primary to Replica Nodes -->
+  <line x1="200" y1="90" x2="110" y2="50" class="replication-line" stroke="#93c5fd" stroke-width="2" />
+  <line x1="200" y1="90" x2="290" y2="50" class="replication-line" stroke="#93c5fd" stroke-width="2" />
+  <line x1="200" y1="90" x2="200" y2="150" class="replication-line" stroke="#93c5fd" stroke-width="2" />
+
+  <!-- Orbit Rings -->
+  <circle cx="200" cy="90" r="70" stroke="rgba(203, 213, 225, 0.2)" stroke-width="1.5" fill="none" />
+  <circle cx="200" cy="90" r="100" stroke="rgba(203, 213, 225, 0.15)" stroke-width="1.5" stroke-dasharray="8 6" fill="none" class="spinning-ring" />
+
+  <!-- Center Primary DB Node -->
+  <!-- Cylinder shapes for database representation -->
+  <g transform="translate(185, 75)">
+    <ellipse cx="15" cy="5" rx="15" ry="5" class="db-node-primary" />
+    <path d="M0,5 A15,5 0 0,0 30,5 L30,17 A15,5 0 0,1 0,17 Z" class="db-node-primary" style="opacity: 0.9;" />
+    <path d="M0,17 A15,5 0 0,0 30,17 L30,29 A15,5 0 0,1 0,29 Z" class="db-node-primary" style="opacity: 0.8;" />
+  </g>
+  <text x="200" y="117" font-family="sans-serif" font-size="8" fill="#1e3a8a" font-weight="bold" text-anchor="middle">PRIMARY</text>
+
+  <!-- Top-Left Replica Node -->
+  <g transform="translate(95, 38)">
+    <ellipse cx="15" cy="5" rx="15" ry="5" class="db-node-replica" />
+    <path d="M0,5 A15,5 0 0,0 30,5 L30,15 A15,5 0 0,1 0,15 Z" class="db-node-replica" style="opacity: 0.9;" />
+  </g>
+  <text x="110" y="68" font-family="sans-serif" font-size="8" fill="#065f46" font-weight="bold" text-anchor="middle">REPLICA 1</text>
+
+  <!-- Top-Right Replica Node -->
+  <g transform="translate(275, 38)">
+    <ellipse cx="15" cy="5" rx="15" ry="5" class="db-node-replica" />
+    <path d="M0,5 A15,5 0 0,0 30,5 L30,15 A15,5 0 0,1 0,15 Z" class="db-node-replica" style="opacity: 0.9;" />
+  </g>
+  <text x="290" y="68" font-family="sans-serif" font-size="8" fill="#065f46" font-weight="bold" text-anchor="middle">REPLICA 2</text>
+
+  <!-- Bottom Replica Node -->
+  <g transform="translate(185, 138)">
+    <ellipse cx="15" cy="5" rx="15" ry="5" class="db-node-replica" />
+    <path d="M0,5 A15,5 0 0,0 30,5 L30,15 A15,5 0 0,1 0,15 Z" class="db-node-replica" style="opacity: 0.9;" />
+  </g>
+  <text x="200" y="168" font-family="sans-serif" font-size="8" fill="#065f46" font-weight="bold" text-anchor="middle">REPLICA 3</text>
+
+  <!-- Loading text -->
+  <text x="200" y="192" class="text" text-anchor="middle">SYNCHRONIZING DATABASE CLUSTER...</text>
+</svg>

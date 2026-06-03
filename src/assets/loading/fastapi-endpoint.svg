@@ -1,73 +1,61 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
   <style>
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
     }
-    @keyframes pulse {
-      0% { opacity: 0.4; transform: scale(0.95); }
-      50% { opacity: 1; transform: scale(1.05); }
-      100% { opacity: 0.4; transform: scale(0.95); }
+    @keyframes requestBeam {
+      0% { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -20; }
     }
-    @keyframes flow {
-      0% { stroke-dashoffset: 100; }
-      100% { stroke-dashoffset: 0; }
+    .cursor {
+      animation: blinkCursor 1s infinite steps(2);
+      fill: #059669;
     }
-    @keyframes typewriter {
-      0% { width: 0; }
-      100% { width: 100px; }
+    .beam {
+      stroke-dasharray: 6 4;
+      animation: requestBeam 2s infinite linear;
     }
-    .fastapi-logo {
-      animation: pulse 3s infinite ease-in-out;
+    .text-code {
+      font-family: 'JetBrains Mono', monospace, Courier;
+      font-size: 11px;
+      fill: #f1f5f9;
     }
-    .endpoint {
-      animation: pulse 3s infinite ease-in-out;
-      animation-delay: 0.5s;
-    }
-    .spinning-gear {
-      transform-origin: center;
-      animation: spin 5s infinite linear;
-    }
-    .data-flow {
-      stroke-dasharray: 10;
-      animation: flow 2s infinite linear;
-    }
-    .code-text {
-      width: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      animation: typewriter 3s steps(20) infinite alternate;
-    }
-    .text {
-      font-family: monospace;
-      font-size: 14px;
-      fill: #333;
+    .text-loading {
+      font-family: 'JetBrains Mono', monospace, Courier;
+      font-size: 13px;
+      fill: #059669;
+      font-weight: bold;
     }
   </style>
+
+  <!-- IDE Window Body -->
+  <rect x="40" y="30" width="320" height="120" rx="8" fill="#0f172a" stroke="#1e293b" stroke-width="2" />
   
-  <!-- FastAPI Logo -->
-  <g class="fastapi-logo">
-    <rect x="80" y="70" width="70" height="70" rx="5" fill="#05998b"/>
-    <text x="115" y="112" text-anchor="middle" font-family="monospace" font-size="14" fill="white">FastAPI</text>
-  </g>
-  
-  <!-- Endpoint -->
-  <g class="endpoint">
-    <rect x="250" y="70" width="70" height="70" rx="5" fill="#3b88c3"/>
-    <text x="285" y="112" text-anchor="middle" font-family="monospace" font-size="14" fill="white">Endpoint</text>
-  </g>
-  
-  <!-- JSON Data Flow -->
-  <path d="M150 105 H250" stroke="#666" stroke-width="3" class="data-flow" fill="none"/>
-  
-  <!-- Gear -->
-  <path d="M190 55 L195 45 L205 45 L210 55 L205 65 L195 65 Z" class="spinning-gear" fill="#ff9900"/>
-  <circle cx="200" cy="55" r="5" fill="#fff"/>
-  
-  <!-- Code/JSON -->
-  <rect x="150" y="130" width="100" height="20" rx="3" fill="#f5f5f5" stroke="#ccc"/>
-  <text x="155" y="145" font-family="monospace" font-size="12" fill="#666" class="code-text">{"data": 200}</text>
-  
-  <!-- Loading Text -->
-  <text x="200" y="180" class="text" text-anchor="middle">INITIALIZING ENDPOINTS...</text>
+  <!-- Header Bar -->
+  <path d="M 40 38 A 8 8 0 0 1 48 30 H 352 A 8 8 0 0 1 360 38 V 50 H 40 Z" fill="#1e293b" />
+  <circle cx="56" cy="40" r="3.5" fill="#ef4444" />
+  <circle cx="68" cy="40" r="3.5" fill="#f59e0b" />
+  <circle cx="80" cy="40" r="3.5" fill="#10b981" />
+  <text x="200" y="44" font-family="sans-serif" font-size="10" fill="#64748b" text-anchor="middle">main.py</text>
+
+  <!-- Code editor mockups -->
+  <text x="60" y="70" class="text-code">
+    <tspan fill="#f43f5e">@app</tspan>.<tspan fill="#3b82f6">get</tspan>(<tspan fill="#10b981">"/api/v1/projects"</tspan>)
+  </text>
+  <text x="60" y="90" class="text-code">
+    <tspan fill="#f43f5e">async def</tspan> <tspan fill="#8b5cf6">read_projects</tspan>():
+  </text>
+  <text x="80" y="110" class="text-code">
+    <tspan fill="#f43f5e">return</tspan> await db.<tspan fill="#eab308">fetch_all</tspan>()
+  </text>
+
+  <!-- Pulsing cursor at the end of code -->
+  <rect x="252" y="98" width="6" height="13" class="cursor" />
+
+  <!-- Code compiler status beam -->
+  <path d="M 40 148 L 360 148" class="beam" stroke="#059669" stroke-width="3" />
+
+  <!-- Loading text -->
+  <text x="200" y="180" class="text-loading" text-anchor="middle">INITIALIZING FASTAPI ROUTER...</text>
 </svg>

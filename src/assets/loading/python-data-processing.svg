@@ -1,91 +1,77 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
   <style>
-    @keyframes wiggle {
-      0% { transform: rotate(-5deg); }
-      50% { transform: rotate(5deg); }
-      100% { transform: rotate(-5deg); }
+    @keyframes parseData {
+      0% { transform: scaleY(0.3); opacity: 0.5; }
+      50% { transform: scaleY(1); opacity: 1; }
+      100% { transform: scaleY(0.3); opacity: 0.5; }
     }
-    @keyframes flow {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-80px); }
+    @keyframes slideArray {
+      0% { transform: translateX(-15px); }
+      100% { transform: translateX(15px); }
     }
-    @keyframes expand {
-      0% { transform: scale(0.9); }
-      50% { transform: scale(1.1); }
-      100% { transform: scale(0.9); }
+    .bar {
+      transform-origin: bottom;
+      animation: parseData 2.5s infinite ease-in-out;
+      fill: #ffd43b;
     }
-    @keyframes bounce {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes fade {
-      0% { opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
-    }
-    .python-logo {
-      animation: wiggle 4s infinite ease-in-out;
-    }
-    .data-bit {
-      animation: flow 3s infinite linear;
-    }
-    .data-bit-1 { animation-delay: 0s; }
-    .data-bit-2 { animation-delay: 0.3s; }
-    .data-bit-3 { animation-delay: 0.6s; }
-    .data-bit-4 { animation-delay: 0.9s; }
-    .data-bit-5 { animation-delay: 1.2s; }
-    .data-bit-6 { animation-delay: 1.5s; }
-    .output-database {
-      animation: expand 3s infinite ease-in-out;
-    }
-    .graph-bar {
-      animation: bounce 2s infinite ease-in-out;
-    }
-    .graph-bar-1 { animation-delay: 0.1s; }
-    .graph-bar-2 { animation-delay: 0.3s; }
-    .graph-bar-3 { animation-delay: 0.5s; }
-    .graph-bar-4 { animation-delay: 0.7s; }
-    .processing {
-      animation: fade 1.5s infinite;
+    .bar-delay-1 { animation-delay: 0.3s; fill: #3572a5; }
+    .bar-delay-2 { animation-delay: 0.6s; fill: #ffd43b; }
+    .bar-delay-3 { animation-delay: 0.9s; fill: #3572a5; }
+    
+    .sliding-stream {
+      animation: slideArray 2s infinite alternate ease-in-out;
     }
     .text {
-      font-family: monospace;
-      font-size: 14px;
-      fill: #333;
+      font-family: 'JetBrains Mono', monospace, Courier;
+      font-size: 13px;
+      fill: #3572a5;
+      font-weight: bold;
     }
   </style>
-  
-  <!-- Python Logo -->
-  <g class="python-logo">
-    <path d="M110,80 C105,70 115,60 125,65 C135,70 145,60 140,50 C135,40 145,30 155,35 C165,40 175,30 170,20" stroke="#4584b6" stroke-width="8" fill="none"/>
-    <path d="M110,80 C105,90 115,100 125,95 C135,90 145,100 140,110 C135,120 145,130 155,125 C165,120 175,130 170,140" stroke="#ffde57" stroke-width="8" fill="none"/>
+
+  <!-- Python logo background (abstract) -->
+  <g transform="translate(180, 45)" style="opacity: 0.15;">
+    <!-- Blue snake -->
+    <path d="M 20 0 L 20 15 A 15 15 0 0 0 35 30 L 50 30 A 5 5 0 0 1 55 35 L 55 50 A 15 15 0 0 1 40 65 L 20 65" fill="none" stroke="#3572a5" stroke-width="12" stroke-linecap="round" />
+    <!-- Yellow snake -->
+    <path d="M 20 65 L 20 50 A 15 15 0 0 0 5 35 L -10 35 A 5 5 0 0 1 -15 30 L -15 15 A 15 15 0 0 1 0 0 L 20 0" fill="none" stroke="#ffd43b" stroke-width="12" stroke-linecap="round" />
   </g>
-  
-  <!-- Data Stream -->
-  <rect x="150" y="200" width="15" height="15" rx="2" class="data-bit data-bit-1" fill="#4584b6"/>
-  <rect x="170" y="200" width="15" height="15" rx="2" class="data-bit data-bit-2" fill="#ffde57"/>
-  <rect x="190" y="200" width="15" height="15" rx="2" class="data-bit data-bit-3" fill="#4584b6"/>
-  <rect x="210" y="200" width="15" height="15" rx="2" class="data-bit data-bit-4" fill="#ffde57"/>
-  <rect x="230" y="200" width="15" height="15" rx="2" class="data-bit data-bit-5" fill="#4584b6"/>
-  <rect x="250" y="200" width="15" height="15" rx="2" class="data-bit data-bit-6" fill="#ffde57"/>
-  
-  <!-- Processing Circle -->
-  <circle cx="200" cy="80" r="25" class="processing" fill="#f5f5f5" stroke="#ccc" stroke-width="2"/>
-  <text x="200" y="85" text-anchor="middle" font-family="monospace" font-size="12" fill="#666">def</text>
-  
-  <!-- Output Database -->
-  <g class="output-database">
-    <path d="M280,80 C280,70 320,70 320,80 L320,120 C320,130 280,130 280,120 Z" fill="#d0e0e3" stroke="#999"/>
-    <path d="M280,80 C280,90 320,90 320,80" fill="none" stroke="#999"/>
+
+  <!-- Data Matrix / Array grids (Left side) -->
+  <g transform="translate(70, 60)">
+    <rect x="0" y="0" width="80" height="60" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+    <g class="sliding-stream">
+      <circle cx="15" cy="15" r="4" fill="#3572a5" />
+      <circle cx="30" cy="15" r="4" fill="#ffd43b" />
+      <circle cx="45" cy="15" r="4" fill="#3572a5" />
+      <circle cx="60" cy="15" r="4" fill="#ffd43b" />
+      
+      <circle cx="15" cy="30" r="4" fill="#ffd43b" />
+      <circle cx="30" cy="30" r="4" fill="#3572a5" />
+      <circle cx="45" cy="30" r="4" fill="#ffd43b" />
+      <circle cx="60" cy="30" r="4" fill="#3572a5" />
+
+      <circle cx="15" cy="45" r="4" fill="#3572a5" />
+      <circle cx="30" cy="45" r="4" fill="#ffd43b" />
+      <circle cx="45" cy="45" r="4" fill="#3572a5" />
+      <circle cx="60" cy="45" r="4" fill="#ffd43b" />
+    </g>
   </g>
-  
-  <!-- Results Graph -->
-  <rect x="250" y="150" width="10" height="20" class="graph-bar graph-bar-1" fill="#6aa84f"/>
-  <rect x="265" y="150" width="10" height="30" class="graph-bar graph-bar-2" fill="#6aa84f"/>
-  <rect x="280" y="150" width="10" height="15" class="graph-bar graph-bar-3" fill="#6aa84f"/>
-  <rect x="295" y="150" width="10" height="25" class="graph-bar graph-bar-4" fill="#6aa84f"/>
-  
-  <!-- Loading Text -->
-  <text x="200" y="180" class="text" text-anchor="middle">PROCESSING DATA...</text>
+
+  <!-- Data Transformation arrow -->
+  <path d="M 175 90 L 210 90 M 200 83 L 210 90 L 200 97" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+  <!-- Processed Output Graph (Right side) -->
+  <g transform="translate(240, 60)">
+    <rect x="0" y="0" width="90" height="60" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1.5" />
+    
+    <!-- Plot Bars -->
+    <rect x="15" y="15" width="10" height="35" class="bar" />
+    <rect x="32" y="15" width="10" height="35" class="bar bar-delay-1" />
+    <rect x="49" y="15" width="10" height="35" class="bar bar-delay-2" />
+    <rect x="66" y="15" width="10" height="35" class="bar bar-delay-3" />
+  </g>
+
+  <!-- Loading text -->
+  <text x="200" y="175" class="text" text-anchor="middle">PROCESSING NUMPY ARRAYS...</text>
 </svg>
