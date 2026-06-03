@@ -3,11 +3,26 @@ import { motion } from 'framer-motion';
 import { Box, Typography, alpha, useTheme } from '@mui/material';
 import { Link } from 'react-router-dom';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
+import { useSelector } from 'react-redux';
 import { ProjectCard, ProjectImageWrapper, ProjectTags, ProjectTag, responsiveStyles } from './styles';
 import { slugify } from '../../utils/stringUtils';
 
 const ProjectCardItem = memo(({ project, fallbackImage, getRandomSvg }) => {
     const theme = useTheme();
+    const skillGroups = useSelector((state) => state.user.skillGroups || []);
+
+    const getSkillName = (tag) => {
+        let name = tag;
+        skillGroups.forEach(group => {
+            if (group.skills) {
+                const found = group.skills.find(s => s.id === tag || s.name === tag);
+                if (found) {
+                    name = found.name;
+                }
+            }
+        });
+        return name;
+    };
 
     return (
         <Box
@@ -35,7 +50,7 @@ const ProjectCardItem = memo(({ project, fallbackImage, getRandomSvg }) => {
                     />
                     <ProjectTags>
                         {project.tags && project.tags.map((tag, idx) => (
-                            <ProjectTag key={idx}>{tag}</ProjectTag>
+                            <ProjectTag key={idx}>{getSkillName(tag)}</ProjectTag>
                         ))}
                     </ProjectTags>
                 </ProjectImageWrapper>

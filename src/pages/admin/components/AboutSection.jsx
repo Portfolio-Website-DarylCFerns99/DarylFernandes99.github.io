@@ -13,10 +13,12 @@ import AddIcon from '@mui/icons-material/Add';
 import { toast } from 'react-toastify';
 import { fileToBase64 } from '../../../common/common';
 import { motion } from 'framer-motion';
-import { getProfile, updateProfile } from '../../../api/services/userService';
+import { updateProfile } from '../../../api/services/userService';
+import { useAdmin } from '../context/AdminContext';
 
 const AboutSection = () => {
     const theme = useTheme();
+    const { profile, setProfile, loading: contextLoading } = useAdmin();
     const [loading, setLoading] = useState(true);
     const [aboutInfo, setAboutInfo] = useState({
         description: "",
@@ -25,19 +27,17 @@ const AboutSection = () => {
     });
 
     useEffect(() => {
-        fetchAboutInfo();
-    }, []);
+        if (profile) {
+            setAboutInfo(profile.about || { description: "", shortdescription: "", image: "" });
+            setLoading(false);
+        } else if (!contextLoading) {
+            setLoading(false);
+        }
+    }, [profile, contextLoading]);
 
-    const fetchAboutInfo = async () => {
-        try {
-            setLoading(true);
-            const data = await getProfile();
-            setAboutInfo(data.about || { description: "", shortdescription: "", image: "" });
-            setLoading(false);
-        } catch (error) {
-            console.error('Error fetching about info:', error);
-            toast.error('Failed to load about information');
-            setLoading(false);
+    const handleCancel = () => {
+        if (profile) {
+            setAboutInfo(profile.about || { description: "", shortdescription: "", image: "" });
         }
     };
 
@@ -46,9 +46,7 @@ const AboutSection = () => {
             setLoading(true);
             const payload = { about: aboutInfo };
             const updatedProfile = await updateProfile(payload);
-            if (updatedProfile.about) {
-                setAboutInfo(updatedProfile.about);
-            }
+            setProfile(updatedProfile);
             setLoading(false);
             toast.success('About information saved successfully!');
         } catch (error) {
@@ -101,7 +99,7 @@ const AboutSection = () => {
         fileInputRef.current.click();
     };
 
-    if (loading && !aboutInfo.description && !aboutInfo.shortdescription) {
+    if (contextLoading && !aboutInfo.description && !aboutInfo.shortdescription) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />
@@ -234,7 +232,7 @@ const AboutSection = () => {
                     variant="outlined"
                     color="inherit"
                     sx={{ width: { xs: '100%', sm: 'auto' } }}
-                    onClick={() => fetchAboutInfo()}
+                    onClick={handleCancel}
                 >
                     Cancel
                 </Button>

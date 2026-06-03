@@ -42,6 +42,8 @@ import ServicesSection from './components/ServicesSection';
 import Sidebar from './components/Sidebar';
 import WorkIcon from '@mui/icons-material/Work';
 
+import { AdminProvider } from './context/AdminContext';
+
 const drawerWidth = 320;
 
 const sections = [
@@ -133,9 +135,10 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
   }, [activeSection]);
 
   return (
-    <Fragment>
-      <DynamicSEO title="Admin" noIndex={true} />
-      <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
+    <AdminProvider>
+      <Fragment>
+        <DynamicSEO title="Admin" noIndex={true} />
+        <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default' }}>
 
         {/* Mobile Header */}
         <Box sx={{
@@ -340,6 +343,7 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
         </Box>
       </Box>
     </Fragment >
+    </AdminProvider>
   );
 };
 

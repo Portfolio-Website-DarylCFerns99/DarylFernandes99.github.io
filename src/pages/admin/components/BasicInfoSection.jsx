@@ -13,10 +13,12 @@ import PersonIcon from '@mui/icons-material/Person';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { fileToBase64 } from '../../../common/common';
-import { getProfile, updateProfile } from '../../../api/services/userService';
+import { updateProfile } from '../../../api/services/userService';
+import { useAdmin } from '../context/AdminContext';
 
 const BasicInfoSection = ({ setUserForSidebar }) => {
     const theme = useTheme();
+    const { profile, setProfile, loading: contextLoading } = useAdmin();
     const [loading, setLoading] = useState(true);
     const [basicInfo, setBasicInfo] = useState({
         id: "",
@@ -38,14 +40,8 @@ const BasicInfoSection = ({ setUserForSidebar }) => {
     const [countryCode, setCountryCode] = useState('+1');
 
     useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    const fetchProfile = async () => {
-        try {
-            setLoading(true);
-            const data = await getProfile();
-            const { social_links, about, featured_skill_ids, ...basicInfoData } = data;
+        if (profile) {
+            const { social_links, about, featured_skill_ids, ...basicInfoData } = profile;
             setBasicInfo(basicInfoData);
 
             // Update sidebar user info if provided
@@ -65,10 +61,15 @@ const BasicInfoSection = ({ setUserForSidebar }) => {
                 }
             }
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            toast.error('Failed to load profile data');
+        } else if (!contextLoading) {
             setLoading(false);
+        }
+    }, [profile, contextLoading, setUserForSidebar]);
+
+    const handleCancel = () => {
+        if (profile) {
+            const { social_links, about, featured_skill_ids, ...basicInfoData } = profile;
+            setBasicInfo(basicInfoData);
         }
     };
 
@@ -76,16 +77,7 @@ const BasicInfoSection = ({ setUserForSidebar }) => {
         try {
             setLoading(true);
             const updatedProfile = await updateProfile(basicInfo);
-            const { social_links, about, ...basicInfoData } = updatedProfile;
-            setBasicInfo(basicInfoData);
-
-            if (setUserForSidebar) {
-                setUserForSidebar({
-                    name: basicInfoData.name,
-                    surname: basicInfoData.surname,
-                    avatar: basicInfoData.avatar
-                });
-            }
+            setProfile(updatedProfile);
 
             setLoading(false);
             toast.success('Basic information saved successfully!');
@@ -215,7 +207,7 @@ const BasicInfoSection = ({ setUserForSidebar }) => {
         fileInputRef.current.click();
     };
 
-    if (loading && !basicInfo.id) {
+    if (contextLoading && !basicInfo.id) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />
@@ -426,7 +418,7 @@ const BasicInfoSection = ({ setUserForSidebar }) => {
                     variant="outlined"
                     color="inherit"
                     sx={{ width: { xs: '100%', sm: 'auto' } }}
-                    onClick={() => fetchProfile()}
+                    onClick={handleCancel}
                 >
                     Cancel
                 </Button>
