@@ -118,14 +118,17 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward'
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'
 import StarIcon from '@mui/icons-material/Star'
 import CallSplitIcon from '@mui/icons-material/CallSplit'
+import PsychologyIcon from '@mui/icons-material/Psychology'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import CodeIcon from '@mui/icons-material/Code'
+import HubIcon from '@mui/icons-material/Hub'
 import { generateSvgArray } from '../../common/common'
 
 // Import styled components from styles file
 import {
 	ProjectsContainer,
 	ProjectCard,
-	ProjectImageContainer,
-	ProjectImage,
+	ProjectIconContainer,
 	ProjectTags,
 	ProjectTag,
 	ProjectType,
@@ -165,6 +168,20 @@ const LANGUAGE_COLORS = {
 
 const getLanguageColor = (lang) => {
 	return LANGUAGE_COLORS[lang] || '#cccccc'; // Default gray for unknown languages
+};
+
+const getProjectIcon = (title, description) => {
+	const text = `${title} ${description}`.toLowerCase();
+	if (text.includes("ai") || text.includes("gpt") || text.includes("ml") || text.includes("model") || text.includes("segmentation") || text.includes("nlp") || text.includes("deep learning")) {
+		return <PsychologyIcon sx={{ fontSize: 22 }} />;
+	}
+	if (text.includes("cloud") || text.includes("terraform") || text.includes("infrastructure") || text.includes("devops") || text.includes("gcp") || text.includes("aws") || text.includes("docker")) {
+		return <CloudUploadIcon sx={{ fontSize: 22 }} />;
+	}
+	if (text.includes("backend") || text.includes("transaction") || text.includes("go") || text.includes("grpc") || text.includes("redis") || text.includes("database")) {
+		return <HubIcon sx={{ fontSize: 22 }} />;
+	}
+	return <CodeIcon sx={{ fontSize: 22 }} />;
 };
 
 const Index = () => {
@@ -1001,23 +1018,14 @@ const Index = () => {
 									<ProjectCard
 										sx={{ minHeight: 380, display: 'flex', flexDirection: 'column' }}
 									>
-										<Box sx={{ position: 'relative' }}>
-											<ProjectImageContainer>
-												<ProjectImage
-													src={project.image || getRandomSvg()}
-													alt={project.title}
-													onError={(e) => {
-														e.target.src = getRandomSvg();
-													}}
-												/>
-											</ProjectImageContainer>
+										<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+											<ProjectIconContainer>
+												{getProjectIcon(project.title, project.description)}
+											</ProjectIconContainer>
 
 											{/* GitHub Stats Overlay */}
 											<Box
 												sx={{
-													position: 'absolute',
-													top: 12,
-													left: 12,
 													display: 'flex',
 													gap: 1,
 													zIndex: 2
@@ -1029,10 +1037,9 @@ const Index = () => {
 														label={project.additional_data.stargazers_count}
 														size="small"
 														sx={{
-															bgcolor: 'rgba(0,0,0,0.7)',
-															color: 'white',
-															backdropFilter: 'blur(4px)',
-															border: 'none',
+															bgcolor: 'rgba(0,0,0,0.05)',
+															color: 'text.secondary',
+															border: `1px solid ${theme.palette.divider}`,
 															height: 24,
 															'& .MuiChip-icon': { fontSize: 16 }
 														}}
@@ -1040,45 +1047,66 @@ const Index = () => {
 												)}
 												{project.additional_data?.forks_count !== undefined && (
 													<Chip
-														icon={<CallSplitIcon style={{ color: '#fff' }} />}
+														icon={<CallSplitIcon />}
 														label={project.additional_data.forks_count}
 														size="small"
 														sx={{
-															bgcolor: 'rgba(0,0,0,0.7)',
-															color: 'white',
-															backdropFilter: 'blur(4px)',
-															border: 'none',
+															bgcolor: 'rgba(0,0,0,0.05)',
+															color: 'text.secondary',
+															border: `1px solid ${theme.palette.divider}`,
 															height: 24,
 															'& .MuiChip-icon': { fontSize: 16 }
 														}}
 													/>
 												)}
 											</Box>
-
-											{project.type && (
-												<ProjectType type={project.type}>
-													{project.type === 'github' ? (
-														<><GitHubIcon fontSize="small" sx={{ fontSize: 16 }} /> GitHub</>
-													) : project.type}
-												</ProjectType>
-											)}
 										</Box>
 
 										<ProjectContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
 											<CardContent sx={{ padding: 0, paddingBottom: '0 !important', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
 												<Typography
-													gutterBottom
 													variant="h6"
-													component="h2"
-													sx={{ fontWeight: 600 }}
+													component="h3"
+													sx={{
+														fontWeight: 700,
+														fontSize: '1.25rem',
+														textAlign: 'left',
+														mb: 0.5,
+													}}
 												>
 													<HighlightText text={project.title} highlight={debouncedSearchText} />
+												</Typography>
+
+												{/* Subtitle / Category */}
+												<Typography
+													variant="subtitle2"
+													sx={{
+														color: 'primary.main',
+														fontFamily: `'JetBrains Mono', monospace`,
+														fontSize: '0.75rem',
+														fontWeight: 600,
+														textAlign: 'left',
+														mb: 2,
+														textTransform: 'uppercase',
+														letterSpacing: '0.05em',
+													}}
+												>
+													{project.category || project.project_category_name || "Engineering Project"}
 												</Typography>
 
 												<Typography
 													variant="body2"
 													color="text.secondary"
-													sx={{ mb: 1.5, flexGrow: 1 }}
+													sx={{
+														lineHeight: 1.6,
+														mb: 3,
+														textAlign: 'left',
+														display: '-webkit-box',
+														WebkitLineClamp: 3,
+														WebkitBoxOrient: 'vertical',
+														overflow: 'hidden',
+														flexGrow: 1,
+													}}
 												>
 													<HighlightText text={project.description} highlight={debouncedSearchText} />
 												</Typography>
@@ -1095,13 +1123,9 @@ const Index = () => {
 															}
 														});
 														return (
-															<ProjectTag
-																key={i}
-																label={skillName}
-																size="small"
-																color="primary"
-																variant={theme.palette.mode === 'dark' ? 'outlined' : 'filled'}
-															/>
+															<ProjectTag key={i}>
+																{skillName}
+															</ProjectTag>
 														);
 													})}
 												</ProjectFooter>

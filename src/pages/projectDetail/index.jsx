@@ -26,6 +26,9 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import UpdateIcon from '@mui/icons-material/Update'
 import LanguageIcon from '@mui/icons-material/Language'
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted'
+import PsychologyIcon from '@mui/icons-material/Psychology'
+import CloudUploadIcon from '@mui/icons-material/CloudUpload'
+import HubIcon from '@mui/icons-material/Hub'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -35,7 +38,7 @@ import { generateSvgArray } from '../../common/common'
 import {
   DetailContainer,
   HeroSection,
-  HeroBackground,
+  ProjectIconContainer,
   HeroContent,
   PageLayout,
   MainColumn,
@@ -74,6 +77,20 @@ const extractText = (children) => {
   if (children?.props?.children) return extractText(children.props.children);
   if (typeof children === 'number') return String(children);
   return '';
+};
+
+const getProjectIcon = (title, description) => {
+  const text = `${title} ${description}`.toLowerCase();
+  if (text.includes("ai") || text.includes("gpt") || text.includes("ml") || text.includes("model") || text.includes("segmentation") || text.includes("nlp") || text.includes("deep learning")) {
+    return <PsychologyIcon sx={{ fontSize: 24 }} />;
+  }
+  if (text.includes("cloud") || text.includes("terraform") || text.includes("infrastructure") || text.includes("devops") || text.includes("gcp") || text.includes("aws") || text.includes("docker")) {
+    return <CloudUploadIcon sx={{ fontSize: 24 }} />;
+  }
+  if (text.includes("backend") || text.includes("transaction") || text.includes("go") || text.includes("grpc") || text.includes("redis") || text.includes("database")) {
+    return <HubIcon sx={{ fontSize: 24 }} />;
+  }
+  return <CodeIcon sx={{ fontSize: 24 }} />;
 };
 
 const ProjectDetail = () => {
@@ -277,18 +294,36 @@ const ProjectDetail = () => {
 
         {/* Hero Section */}
         <HeroSection component={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <HeroBackground image={project.image || getRandomSvg()} />
           <HeroContent>
+            <ProjectIconContainer>
+              {getProjectIcon(project.title, project.description)}
+            </ProjectIconContainer>
+
+            {/* Subtitle / Category */}
             <Typography
-              variant="h2"
+              variant="subtitle2"
+              sx={{
+                color: 'primary.main',
+                fontFamily: `'JetBrains Mono', monospace`,
+                fontSize: '0.85rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.1em',
+                mb: 2,
+              }}
+            >
+              {project.category || project.project_category_name || "Engineering Project"}
+            </Typography>
+
+            <Typography
+              variant="h3"
               component="h1"
               gutterBottom
               sx={{
                 fontWeight: 800,
-                color: '#fff',
-                textShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                color: 'text.primary',
                 [theme.breakpoints.down('sm')]: {
-                  fontSize: '2.5rem',
+                  fontSize: '2rem',
                 }
               }}
             >
@@ -296,14 +331,13 @@ const ProjectDetail = () => {
             </Typography>
 
             <Typography
-              variant="h6"
+              variant="body1"
               sx={{
-                color: 'rgba(255,255,255,0.9)',
+                color: 'text.secondary',
                 mb: 4,
                 maxWidth: '600px',
                 mx: 'auto',
                 lineHeight: 1.6,
-                textShadow: '0 2px 4px rgba(0,0,0,0.5)'
               }}
             >
               {project.description}
