@@ -192,6 +192,8 @@ export const ReadmeContent = styled(Box)(({ theme }) => ({
     borderRadius: 6,
     fontFamily: '"Fira Code", monospace',
     fontSize: '0.9em',
+    wordBreak: 'break-word',
+    whiteSpace: 'pre-wrap',
   },
   '& pre': {
     backgroundColor: theme.palette.mode === 'dark' ? '#1a1b26' : '#f6f8fa',
@@ -206,6 +208,8 @@ export const ReadmeContent = styled(Box)(({ theme }) => ({
       color: 'inherit',
       padding: 0,
       fontSize: '0.9rem',
+      wordBreak: 'normal',
+      whiteSpace: 'pre',
     },
   },
   '& ul, & ol': {
@@ -215,6 +219,7 @@ export const ReadmeContent = styled(Box)(({ theme }) => ({
       marginBottom: theme.spacing(1),
       paddingLeft: theme.spacing(0.5),
       color: theme.palette.text.secondary,
+      wordBreak: 'break-word',
       '&::marker': {
         color: theme.palette.primary.main,
       },
