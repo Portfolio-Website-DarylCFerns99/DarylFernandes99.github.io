@@ -123,4 +123,36 @@ export const ProjectFooter = styled(Box)(({ theme }) => ({
     color: theme.palette.primary.main,
     fontSize: '0.8rem',
     fontWeight: 500,
+}))
+
+export const LayoutWrapper = styled(Box)(({ theme }) => ({
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: theme.spacing(4),
+    marginTop: theme.spacing(4),
+    [theme.breakpoints.up('md')]: {
+        gridTemplateColumns: '300px 1fr',
+    },
+}))
+
+export const SidebarWrapper = styled(Box)(({ theme }) => ({
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
+        display: 'block',
+        position: 'sticky',
+        top: 100,
+        height: 'fit-content',
+    },
+}))
+
+export const ProjectsColumn = styled(Box)(() => ({
+    minWidth: 0,
+}))
+
+export const FilterCard = styled(Box)(({ theme }) => ({
+    padding: theme.spacing(3),
+    borderRadius: theme.shape.borderRadius * 2,
+    backgroundColor: alpha(theme.palette.background.paper, 0.4),
+    backdropFilter: 'blur(10px)',
+    border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0',
 })) 

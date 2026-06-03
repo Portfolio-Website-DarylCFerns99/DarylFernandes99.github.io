@@ -25,7 +25,8 @@ const TiltCard = ({ children }) => {
 				rotateY,
 				perspective: 1000,
 				transformStyle: "preserve-3d",
-				height: '100%'
+				height: '100%',
+				width: '100%'
 			}}
 			onMouseMove={handleMouse}
 			onMouseLeave={() => {
@@ -103,7 +104,8 @@ import {
 	Collapse,
 	Menu,
 	Divider,
-	InputBase
+	InputBase,
+	Drawer
 } from '@mui/material'
 import { alpha } from '@mui/material/styles'
 import { Link, useSearchParams } from 'react-router-dom'
@@ -122,6 +124,7 @@ import PsychologyIcon from '@mui/icons-material/Psychology'
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 import CodeIcon from '@mui/icons-material/Code'
 import HubIcon from '@mui/icons-material/Hub'
+import CloseIcon from '@mui/icons-material/Close'
 import { generateSvgArray } from '../../common/common'
 
 // Import styled components from styles file
@@ -133,7 +136,11 @@ import {
 	ProjectTag,
 	ProjectType,
 	ProjectContent,
-	ProjectFooter
+	ProjectFooter,
+	LayoutWrapper,
+	SidebarWrapper,
+	ProjectsColumn,
+	FilterCard
 } from './styles'
 import { DynamicSEO } from '../../components/SEO/DynamicSEO'
 import { slugify } from '../../utils/stringUtils'
@@ -204,6 +211,7 @@ const Index = () => {
 	const [selectedType, setSelectedType] = useState('')
 
 	const [showFilters, setShowFilters] = useState(false)
+	const [drawerOpen, setDrawerOpen] = useState(false)
 
 	// Derived state from URL
 	const selectedTags = useMemo(() => {
@@ -581,6 +589,89 @@ const Index = () => {
 		}
 	}, [])
 
+	const renderFilters = () => (
+		<Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+			{/* Type Filter */}
+			{uniqueTypes.length > 1 && (
+				<Box>
+					<Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ fontWeight: 600, mb: 1.5 }}>
+						Project Type
+					</Typography>
+					<FormControl fullWidth size="small">
+						<InputLabel>Project Type</InputLabel>
+						<Select
+							value={selectedType}
+							label="Project Type"
+							onChange={(e) => setSelectedType(e.target.value)}
+							sx={{
+								borderRadius: '8px',
+								backgroundColor: alpha(theme.palette.background.paper, 0.4),
+							}}
+						>
+							<MenuItem value="">All Types</MenuItem>
+							{uniqueTypes.map(type => (
+								<MenuItem key={type} value={type}>
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+										{type === 'github' && <GitHubIcon fontSize="small" />}
+										{type.charAt(0).toUpperCase() + type.slice(1)}
+									</Box>
+								</MenuItem>
+							))}
+						</Select>
+					</FormControl>
+				</Box>
+			)}
+
+			{/* Categorized Skills & Tags Filter */}
+			<Box>
+				<Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ fontWeight: 600, mb: 2 }}>
+					Technologies & Skills
+				</Typography>
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+					{categorizedTags.map((category, cIdx) => (
+						<Box key={cIdx} sx={{ textAlign: 'left' }}>
+							<Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'primary.main', mb: 1, display: 'block', letterSpacing: '0.05em' }}>
+								{category.name}
+							</Typography>
+							<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8, mb: 1 }}>
+								{category.tags.map(tag => {
+									const logoUrl = tag.icon ? getDeviconUrl(tag.icon) : null;
+									const isSelected = selectedTags.includes(tag.id) || selectedTags.includes(tag.name);
+									return (
+										<Chip
+											key={tag.id}
+											label={tag.name}
+											onClick={() => handleTagToggle(tag.id)}
+											color={isSelected ? "primary" : "default"}
+											variant={isSelected ? "filled" : "outlined"}
+											size="small"
+											avatar={logoUrl ? (
+												<Box
+													component="img"
+													src={logoUrl}
+													alt={tag.name}
+													sx={{
+														width: '16px !important',
+														height: '16px !important',
+														objectFit: 'contain',
+														borderRadius: '0 !important',
+														marginLeft: '4px !important',
+														marginRight: '-4px !important'
+													}}
+												/>
+											) : null}
+											sx={{ cursor: 'pointer', borderRadius: '4px' }}
+										/>
+									);
+								})}
+							</Box>
+						</Box>
+					))}
+				</Box>
+			</Box>
+		</Box>
+	);
+
 	return (
 		<Fragment>
 			<DynamicSEO
@@ -763,10 +854,10 @@ const Index = () => {
 							<SortIcon />
 						</IconButton>
 
-						<Divider sx={{ height: 28, m: 0.5 }} orientation="vertical" />
+						<Divider sx={{ height: 28, m: 0.5, display: { xs: 'block', md: 'none' } }} orientation="vertical" />
 
 						<Button
-							onClick={() => setShowFilters(!showFilters)}
+							onClick={() => setDrawerOpen(true)}
 							startIcon={<FilterListIcon />}
 							variant={hasActiveFilters ? "contained" : "text"}
 							color={hasActiveFilters ? "primary" : "inherit"}
@@ -776,13 +867,13 @@ const Index = () => {
 								px: 2,
 								borderRadius: 3,
 								mr: 0.5,
-								display: { xs: 'none', sm: 'flex' }
+								display: { xs: 'none', sm: 'flex', md: 'none' }
 							}}
 						>
 							Filters
 						</Button>
 						<IconButton
-							onClick={() => setShowFilters(!showFilters)}
+							onClick={() => setDrawerOpen(true)}
 							color={hasActiveFilters ? "primary" : "default"}
 							sx={{ display: { xs: 'flex', sm: 'none' }, p: 1.5, mr: 0.5 }}
 						>
@@ -822,95 +913,43 @@ const Index = () => {
 						</MenuItem>
 					</Menu>
 
-					{/* Advanced Filters Panel */}
-					<Collapse in={showFilters}>
-						<Paper
-							elevation={0}
-							sx={{
+					{/* Mobile Filter Drawer */}
+					<Drawer
+						anchor="bottom"
+						open={drawerOpen}
+						onClose={() => setDrawerOpen(false)}
+						PaperProps={{
+							sx: {
+								borderTopLeftRadius: '16px',
+								borderTopRightRadius: '16px',
+								maxHeight: '85vh',
+								backgroundColor: theme.palette.background.paper,
 								p: 3,
-								mt: 2,
-								maxWidth: 800,
-								mx: 'auto',
-								borderRadius: 3,
-								border: `1px solid ${theme.palette.divider}`,
-								backgroundColor: alpha(theme.palette.background.paper, 0.5)
-							}}
-						>
-							<Grid container spacing={3}>
-								{/* Type Filter */}
-								{uniqueTypes.length > 1 && (
-									<Grid item xs={12}>
-										<FormControl fullWidth size="small">
-											<InputLabel>Project Type</InputLabel>
-											<Select
-												value={selectedType}
-												label="Project Type"
-												onChange={(e) => setSelectedType(e.target.value)}
-											>
-												<MenuItem value="">All Types</MenuItem>
-												{uniqueTypes.map(type => (
-													<MenuItem key={type} value={type}>
-														<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-															{type === 'github' && <GitHubIcon fontSize="small" />}
-															{type.charAt(0).toUpperCase() + type.slice(1)}
-														</Box>
-													</MenuItem>
-												))}
-											</Select>
-										</FormControl>
-									</Grid>
-								)}
+							}
+						}}
+					>
+						<Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+							<Typography variant="h6" fontWeight={700}>Filters</Typography>
+							<IconButton onClick={() => setDrawerOpen(false)}>
+								<CloseIcon />
+							</IconButton>
+						</Box>
+						<Box sx={{ overflowY: 'auto', pb: 4 }}>
+							{renderFilters()}
+						</Box>
+					</Drawer>
+				</Box>
 
-								{/* Categorized Skills & Tags Filter */}
-								<Grid item xs={12}>
-									<Typography variant="subtitle2" gutterBottom color="text.secondary" sx={{ fontWeight: 600, mb: 2 }}>
-										Technologies & Skills (Grouped)
-									</Typography>
-									<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, maxHeight: 300, overflowY: 'auto', pr: 1 }}>
-										{categorizedTags.map((category, cIdx) => (
-											<Box key={cIdx} sx={{ textAlign: 'left' }}>
-												<Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', color: 'primary.main', mb: 1, display: 'block', letterSpacing: '0.05em' }}>
-													{category.name}
-												</Typography>
-												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-													{category.tags.map(tag => {
-														const logoUrl = tag.icon ? getDeviconUrl(tag.icon) : null;
-														const isSelected = selectedTags.includes(tag.id) || selectedTags.includes(tag.name);
-														return (
-															<Chip
-																key={tag.id}
-																label={tag.name}
-																onClick={() => handleTagToggle(tag.id)}
-																color={isSelected ? "primary" : "default"}
-																variant={isSelected ? "filled" : "outlined"}
-																size="small"
-																avatar={logoUrl ? (
-																	<Box
-																		component="img"
-																		src={logoUrl}
-																		alt={tag.name}
-																		sx={{
-																			width: '16px !important',
-																			height: '16px !important',
-																			objectFit: 'contain',
-																			borderRadius: '0 !important',
-																			marginLeft: '4px !important',
-																			marginRight: '-4px !important'
-																		}}
-																	/>
-																) : null}
-																sx={{ cursor: 'pointer', borderRadius: '4px' }}
-															/>
-														);
-													})}
-												</Box>
-											</Box>
-										))}
-									</Box>
-								</Grid>
-							</Grid>
-						</Paper>
-					</Collapse>
+				<LayoutWrapper>
+					{/* Sidebar Filter for Desktop */}
+					<SidebarWrapper>
+						<FilterCard>
+							{renderFilters()}
+						</FilterCard>
+					</SidebarWrapper>
+
+					{/* Main projects column */}
+					<ProjectsColumn>
 
 					{/* Active Filters & Results Summary */}
 					<Box sx={{
@@ -997,24 +1036,26 @@ const Index = () => {
 							)}
 						</Box>
 					</Box>
-				</Box>
 
-				<Grid container spacing={3} component={motion.div} layout>
+				<Grid container spacing={3}>
 					<AnimatePresence mode="popLayout">
 						{filteredProjects.map((project, index) => (
 							<Grid item xs={12} md={6} lg={4} key={project.id || index}
-								component={motion.div}
-								layout
-								initial={{ opacity: 0, scale: 0.9 }}
-								animate={{ opacity: 1, scale: 1 }}
-								exit={{ opacity: 0, scale: 0.9 }}
-								transition={{
-									duration: 0.3,
-									layout: { duration: 0.3 }
-								}}
 								sx={{ display: 'flex' }}
 							>
-								<TiltCard>
+								<Box
+									component={motion.div}
+									layout
+									initial={{ opacity: 0, scale: 0.9 }}
+									animate={{ opacity: 1, scale: 1 }}
+									exit={{ opacity: 0, scale: 0.9 }}
+									transition={{
+										duration: 0.3,
+										layout: { duration: 0.3 }
+									}}
+									style={{ width: '100%', height: '100%', display: 'flex' }}
+								>
+									<TiltCard>
 									<ProjectCard
 										sx={{ minHeight: 380, display: 'flex', flexDirection: 'column' }}
 									>
@@ -1249,6 +1290,7 @@ const Index = () => {
 										</ProjectContent>
 									</ProjectCard>
 								</TiltCard>
+								</Box>
 							</Grid>
 						))}
 					</AnimatePresence>
@@ -1282,6 +1324,8 @@ const Index = () => {
 						</Box>
 					)
 				}
+						</ProjectsColumn>
+					</LayoutWrapper>
 			</ProjectsContainer >
 		</Fragment >
 	)
