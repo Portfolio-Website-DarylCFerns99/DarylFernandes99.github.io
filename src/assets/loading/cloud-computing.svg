@@ -1,73 +1,76 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
   <style>
     @keyframes float {
-      0% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-      100% { transform: translateY(0); }
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
     }
-    @keyframes sparkle {
-      0% { opacity: 0.3; }
-      50% { opacity: 1; }
-      100% { opacity: 0.3; }
+    @keyframes orbit {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-    @keyframes move {
-      0% { transform: translateX(0) translateY(0); }
-      100% { transform: translateX(0) translateY(-50px); }
+    @keyframes databasePulse {
+      0%, 100% { fill: #0891b2; }
+      50% { fill: #22d3ee; }
     }
-    @keyframes progress {
-      0% { width: 0px; }
-      100% { width: 120px; }
-    }
-    .cloud {
+    .main-cloud {
       animation: float 4s infinite ease-in-out;
+      fill: #e2e8f0;
+      stroke: #cbd5e1;
+      stroke-width: 2;
     }
-    .sparkle {
-      animation: sparkle 2s infinite;
+    .spinning-gear {
+      transform-origin: 200px 90px;
+      animation: orbit 12s infinite linear;
     }
-    .sparkle-1 { animation-delay: 0.2s; }
-    .sparkle-2 { animation-delay: 0.7s; }
-    .sparkle-3 { animation-delay: 1.1s; }
-    .packet {
-      animation: move 2.5s infinite;
-    }
-    .packet-1 { animation-delay: 0.5s; }
-    .packet-2 { animation-delay: 1.5s; }
-    .packet-3 { animation-delay: 0s; }
-    .progress-bar-fill {
-      animation: progress 5s infinite linear;
+    .db-pulse {
+      animation: databasePulse 2s infinite ease-in-out;
     }
     .text {
-      font-family: monospace;
-      font-size: 14px;
-      fill: #333;
+      font-family: 'JetBrains Mono', monospace, Courier;
+      font-size: 13px;
+      fill: #0284c7;
+      font-weight: bold;
     }
   </style>
-  
-  <!-- Cloud -->
-  <g class="cloud">
-    <path d="M190,80 Q210,50 240,70 Q270,40 300,70 Q330,65 330,90 Q350,90 350,110 Q350,130 320,130 Q320,150 300,150 Q280,160 250,140 Q230,160 200,140 Q170,160 140,130 Q120,140 120,120 Q100,110 115,90 Q110,70 130,65 Q140,50 170,65 Q180,50 190,80" fill="#f1f1f1" stroke="#ccc" stroke-width="2"/>
+
+  <!-- Background Orbit Path -->
+  <circle cx="200" cy="90" r="75" stroke="rgba(2, 132, 199, 0.15)" stroke-width="2" fill="none" stroke-dasharray="6 6" class="spinning-gear" />
+
+  <!-- Cloud Node 1 (Left) -->
+  <g transform="translate(100, 75)" style="opacity: 0.8;">
+    <circle cx="10" cy="10" r="15" fill="#bae6fd" />
+    <circle cx="25" cy="5" r="18" fill="#bae6fd" />
+    <circle cx="40" cy="12" r="14" fill="#bae6fd" />
+    <rect x="10" y="10" width="30" height="15" fill="#bae6fd" />
   </g>
-  
-  <!-- Code/Data Packets -->
-  <rect x="160" y="200" width="20" height="10" rx="2" class="packet packet-1" fill="#4a86e8"/>
-  <rect x="190" y="200" width="20" height="10" rx="2" class="packet packet-2" fill="#6aa84f"/>
-  <rect x="220" y="200" width="20" height="10" rx="2" class="packet packet-3" fill="#ff9900"/>
-  
-  <!-- Server Icon -->
-  <rect x="175" y="90" width="50" height="60" rx="3" fill="#ddd" stroke="#999"/>
-  <line x1="185" y1="100" x2="215" y2="100" stroke="#999" stroke-width="2"/>
-  <line x1="185" y1="110" x2="215" y2="110" stroke="#999" stroke-width="2"/>
-  <line x1="185" y1="120" x2="215" y2="120" stroke="#999" stroke-width="2"/>
-  
-  <!-- Sparkles -->
-  <path d="M160,80 L165,75 L170,80 L165,85 Z" class="sparkle sparkle-1" fill="#ffea00"/>
-  <path d="M260,70 L265,65 L270,70 L265,75 Z" class="sparkle sparkle-2" fill="#ffea00"/>
-  <path d="M310,115 L315,110 L320,115 L315,120 Z" class="sparkle sparkle-3" fill="#ffea00"/>
-  
-  <!-- Progress Bar -->
-  <rect x="140" y="170" width="120" height="10" rx="5" fill="#eee" stroke="#ccc"/>
-  <rect x="140" y="170" width="0" height="10" rx="5" class="progress-bar-fill" fill="#4a86e8"/>
-  
-  <!-- Loading Text -->
-  <text x="200" y="190" class="text" text-anchor="middle">DEPLOYING TO CLOUD...</text>
+
+  <!-- Cloud Node 2 (Right) -->
+  <g transform="translate(240, 75)" style="opacity: 0.8;">
+    <circle cx="10" cy="10" r="14" fill="#bae6fd" />
+    <circle cx="25" cy="5" r="18" fill="#bae6fd" />
+    <circle cx="40" cy="12" r="15" fill="#bae6fd" />
+    <rect x="10" y="10" width="30" height="15" fill="#bae6fd" />
+  </g>
+
+  <!-- Main Central Cloud System -->
+  <g class="main-cloud" transform="translate(130, 45)">
+    <!-- Central Cloud Shape -->
+    <path d="M40 70 A 25 25 0 0 1 65 35 A 35 35 0 0 1 125 40 A 25 25 0 0 1 150 70 Z" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5" />
+    <rect x="40" y="60" width="110" height="18" fill="#bae6fd" />
+    <line x1="40" y1="78" x2="150" y2="78" stroke="#0284c7" stroke-width="2.5" />
+    
+    <!-- Nested Storage Database Cylinder -->
+    <g transform="translate(80, 45)">
+      <ellipse cx="15" cy="5" rx="12" ry="4" class="db-pulse" />
+      <path d="M3,5 A12,4 0 0,0 27,5 L27,14 A12,4 0 0,1 3,14 Z" class="db-pulse" style="animation-delay: 0.5s;" />
+      <path d="M3,14 A12,4 0 0,0 27,14 L27,23 A12,4 0 0,1 3,23 Z" class="db-pulse" style="animation-delay: 1s;" />
+    </g>
+  </g>
+
+  <!-- Uplink beam dots -->
+  <circle cx="125" cy="120" r="4" fill="#0284c7" style="animation: float 2s infinite ease-in-out;" />
+  <circle cx="275" cy="120" r="4" fill="#0284c7" style="animation: float 2s infinite ease-in-out; animation-delay: 0.5s;" />
+
+  <!-- Loading text -->
+  <text x="200" y="175" class="text" text-anchor="middle">PROVISIONING CLOUD SYSTEMS...</text>
 </svg>
