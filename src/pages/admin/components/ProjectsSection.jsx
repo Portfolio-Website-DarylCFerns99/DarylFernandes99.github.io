@@ -16,6 +16,7 @@ import {
     Switch,
     MenuItem,
     Chip,
+    Autocomplete,
     useTheme,
     alpha,
     CircularProgress
@@ -42,9 +43,18 @@ import {
 } from '../../../api/services/projectCategoryService';
 import { fileToBase64 } from '../../../common/common';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import { useAdmin } from '../context/AdminContext';
 
 const ProjectsSection = () => {
-    const [projects, setProjects] = useState([]);
+    const {
+        projects,
+        setProjects,
+        categories,
+        setCategories,
+        skills,
+        loading: contextLoading
+    } = useAdmin();
+
     const [tab, setTab] = useState('categories');
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -69,7 +79,6 @@ const ProjectsSection = () => {
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [sortConfig, setSortConfig] = useState({ key: 'created_at', direction: 'desc' });
     // Categories state
-    const [categories, setCategories] = useState([]);
     const [catLoading, setCatLoading] = useState(false);
     const [catSaving, setCatSaving] = useState(false);
     const [editingCategoryId, setEditingCategoryId] = useState(null);
@@ -78,26 +87,17 @@ const ProjectsSection = () => {
 
     const theme = useTheme();
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    const skillNames = useMemo(() => {
+        return [...new Set((skills || []).map(s => s.name))].sort();
+    }, [skills]);
 
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [projectsData, categoriesData] = await Promise.all([
-                getAllProjects(),
-                getAllProjectCategories()
-            ]);
-            setProjects(projectsData);
-            setCategories(categoriesData);
+    useEffect(() => {
+        if (projects && categories) {
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching projects data:', error);
-            toast.error('Failed to load projects data');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [projects, categories, contextLoading]);
 
     // Initialize filteredProjects with all projects when component mounts
     useEffect(() => {
@@ -217,11 +217,15 @@ const ProjectsSection = () => {
         if (searchText) {
             const lowercasedFilter = searchText.toLowerCase();
             result = result.filter(project => {
+                const resolvedTagNames = (project.tags || []).map(tag => {
+                    const skill = (skills || []).find(s => s.id === tag || s.name === tag);
+                    return skill ? skill.name : tag;
+                });
                 return (
                     project.title?.toLowerCase().includes(lowercasedFilter) ||
                     project.description?.toLowerCase().includes(lowercasedFilter) ||
                     project.type?.toLowerCase().includes(lowercasedFilter) ||
-                    (project.tags && project.tags.some(tag => tag.toLowerCase().includes(lowercasedFilter)))
+                    resolvedTagNames.some(tag => tag.toLowerCase().includes(lowercasedFilter))
                 );
             });
         }
@@ -287,8 +291,7 @@ const ProjectsSection = () => {
         return html;
     };
 
-    // State for tags input
-    const [currentTag, setCurrentTag] = useState('');
+
 
     // New project template
     const emptyProject = {
@@ -449,33 +452,7 @@ const ProjectsSection = () => {
         }
     };
 
-    const handleAddTag = () => {
-        if (currentTag.trim() === '') return;
 
-        // Check if we've already reached the maximum of 2 tags
-        if (newProject.tags.length >= 2) {
-            toast.warning('Maximum 2 tags allowed per project');
-            return;
-        }
-
-        // Add the tag if it's not already in the array
-        if (!newProject.tags.includes(currentTag.trim())) {
-            setNewProject(prev => ({
-                ...prev,
-                tags: [...prev.tags, currentTag.trim()]
-            }));
-        }
-
-        // Clear the tag input
-        setCurrentTag('');
-    };
-
-    const handleRemoveTag = (tagToRemove) => {
-        setNewProject(prev => ({
-            ...prev,
-            tags: prev.tags.filter(tag => tag !== tagToRemove)
-        }));
-    };
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -608,7 +585,7 @@ const ProjectsSection = () => {
         }
     };
 
-    if (loading && projects.length === 0 && categories.length === 0) {
+    if (contextLoading && projects.length === 0 && categories.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />
@@ -979,38 +956,47 @@ const ProjectsSection = () => {
                                         </Grid>
 
                                         <Grid item xs={12}>
-                                            <Typography variant="subtitle2" gutterBottom sx={{ mt: 1 }}>
-                                                Tags (Max 2)
-                                            </Typography>
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-                                                {newProject.tags.map((tag, index) => (
-                                                    <Chip
-                                                        key={index}
-                                                        label={tag}
-                                                        onDelete={() => handleRemoveTag(tag)}
-                                                        color="primary"
-                                                        variant="outlined"
-                                                    />
-                                                ))}
-                                            </Box>
-                                            <Box sx={{ display: 'flex', gap: 1 }}>
-                                                <TextField
-                                                    size="small"
-                                                    label="Add Tag"
-                                                    value={currentTag}
-                                                    onChange={(e) => setCurrentTag(e.target.value)}
-                                                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                                                    disabled={newProject.tags.length >= 2}
-                                                    sx={{ flexGrow: 1 }}
-                                                />
-                                                <Button
-                                                    variant="outlined"
-                                                    onClick={handleAddTag}
-                                                    disabled={!currentTag.trim() || newProject.tags.length >= 2}
-                                                >
-                                                    Add
-                                                </Button>
-                                            </Box>
+                                             <Autocomplete
+                                                 multiple
+                                                 id="project-tags"
+                                                 options={skills || []}
+                                                 getOptionLabel={(option) => option.name || ''}
+                                                 isOptionEqualToValue={(option, value) => {
+                                                     const optionId = option.id;
+                                                     const valueId = typeof value === 'string' ? value : value?.id;
+                                                     return optionId === valueId;
+                                                 }}
+                                                 value={(newProject.tags || []).map(tag => {
+                                                     const found = (skills || []).find(s => s.id === tag || s.name === tag);
+                                                     return found || { id: tag, name: tag };
+                                                 })}
+                                                 onChange={(event, newValue) => {
+                                                     const tags = newValue.map(item => item.id || item);
+                                                     setNewProject(prev => ({
+                                                         ...prev,
+                                                         tags
+                                                     }));
+                                                 }}
+                                                 renderInput={(params) => (
+                                                     <TextField
+                                                         {...params}
+                                                         variant="outlined"
+                                                         label="Tags / Skills"
+                                                         placeholder="Select skills"
+                                                     />
+                                                 )}
+                                                 renderTags={(value, getTagProps) =>
+                                                     value.map((option, index) => (
+                                                         <Chip
+                                                             variant="outlined"
+                                                             label={option.name || option}
+                                                             size="small"
+                                                             color="primary"
+                                                             {...getTagProps({ index })}
+                                                         />
+                                                     ))
+                                                 }
+                                             />
                                         </Grid>
 
                                         <Grid item xs={12}>

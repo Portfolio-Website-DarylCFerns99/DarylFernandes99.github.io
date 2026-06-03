@@ -28,12 +28,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { getProfile, updateProfile } from '../../../api/services/userService';
 import {
-    getAllSkillGroups,
     createSkillGroup,
     updateSkillGroup,
     deleteSkillGroup,
     updateSkillGroupVisibility,
-    getAllSkills,
     createSkill,
     updateSkill,
     updateSkillVisibility,
@@ -42,12 +40,19 @@ import {
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 import DevIconPicker from './DevIconPicker';
 import { getDeviconUrl } from '../../../utils/deviconUtils';
+import { useAdmin } from '../context/AdminContext';
 
 const SkillsSection = () => {
     const theme = useTheme();
-    // Core data
-    const [skillGroups, setSkillGroups] = useState([]);
-    const [skillsData, setSkillsData] = useState([]);
+    const {
+        profile,
+        setProfile,
+        skills: skillsData,
+        setSkills: setSkillsData,
+        skillGroups,
+        setSkillGroups,
+        loading: contextLoading
+    } = useAdmin();
 
     // Featured skills state
     const [selectedSkills, setSelectedSkills] = useState([]);
@@ -82,31 +87,15 @@ const SkillsSection = () => {
     });
 
     useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-            const [profileData, groupsRes, skillsRes] = await Promise.all([
-                getProfile(),
-                getAllSkillGroups(),
-                getAllSkills()
-            ]);
-
-            setSkillGroups(groupsRes);
-            setSkillsData(skillsRes);
-
-            if (profileData.featured_skill_ids && Array.isArray(profileData.featured_skill_ids)) {
-                setFeaturedSkillIds(profileData.featured_skill_ids);
+        if (profile) {
+            if (profile.featured_skill_ids && Array.isArray(profile.featured_skill_ids)) {
+                setFeaturedSkillIds(profile.featured_skill_ids);
             }
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching skills data:', error);
-            toast.error('Failed to load skills data');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [profile, contextLoading]);
 
     // Map of groupId to list of skills belonging to that group
     const groupToSkillsMap = useMemo(() => {
@@ -356,7 +345,7 @@ const SkillsSection = () => {
         }
     };
 
-    if (loading && skillGroups.length === 0 && skillsData.length === 0) {
+    if (contextLoading && skillGroups.length === 0 && skillsData.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

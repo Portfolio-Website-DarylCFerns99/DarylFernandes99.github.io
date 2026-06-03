@@ -24,11 +24,13 @@ import AddIcon from '@mui/icons-material/Add';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { typeMapping, fileToBase64 } from '../../../common/common';
-import { getProfile, updateProfile } from '../../../api/services/userService';
+import { updateProfile } from '../../../api/services/userService';
+import { useAdmin } from '../context/AdminContext';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
 
 const SocialLinksSection = () => {
     const theme = useTheme();
+    const { profile, setProfile, loading: contextLoading } = useAdmin();
     const [socialLinks, setSocialLinks] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -48,21 +50,13 @@ const SocialLinksSection = () => {
     });
 
     useEffect(() => {
-        fetchSocialLinks();
-    }, []);
-
-    const fetchSocialLinks = async () => {
-        try {
-            setLoading(true);
-            const data = await getProfile();
-            setSocialLinks(data.social_links || []);
+        if (profile) {
+            setSocialLinks(profile.social_links || []);
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching social links:', error);
-            toast.error('Failed to load social links');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [profile, contextLoading]);
 
     const handleAddLink = () => {
         const firstType = Object.keys(typeMapping)?.[0];
@@ -104,11 +98,7 @@ const SocialLinksSection = () => {
             };
 
             const updatedProfile = await updateProfile(payload);
-
-            // Update state with response from server
-            if (updatedProfile.social_links) {
-                setSocialLinks(updatedProfile.social_links);
-            }
+            setProfile(updatedProfile);
 
             toast.success('Social link deleted successfully');
         } catch (error) {
@@ -180,11 +170,7 @@ const SocialLinksSection = () => {
             };
 
             const updatedProfile = await updateProfile(payload);
-
-            // Update state with response from server
-            if (updatedProfile.social_links) {
-                setSocialLinks(updatedProfile.social_links);
-            }
+            setProfile(updatedProfile);
 
             toast.success(`Social link ${editIndex >= 0 ? 'updated' : 'added'} successfully`);
             setShowForm(false);
@@ -196,7 +182,7 @@ const SocialLinksSection = () => {
         }
     };
 
-    if (loading && socialLinks.length === 0) {
+    if (contextLoading && socialLinks.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

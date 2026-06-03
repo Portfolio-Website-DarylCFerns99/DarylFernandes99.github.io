@@ -94,8 +94,9 @@ const ProjectDetail = () => {
     setTocAnchorEl(null);
   };
 
-  // Get all projects
+  // Get all projects and skillGroups
   const projects = useSelector((state) => state.user.projects || [])
+  const skillGroups = useSelector((state) => state.user.skillGroups || [])
 
   // Find the project by its name/slug instead of ID
   const project = projects.find(proj => slugify(proj.title) === name)
@@ -497,9 +498,18 @@ const ProjectDetail = () => {
                   <CodeIcon fontSize="small" /> Tags
                 </SectionTitle>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {project.tags && project.tags.map((tag, i) => (
-                    <ProjectTag key={i}>{tag}</ProjectTag>
-                  ))}
+                  {project.tags && project.tags.map((tag, i) => {
+                    let skillName = tag;
+                    skillGroups.forEach(group => {
+                      if (group.skills) {
+                        const found = group.skills.find(s => s.id === tag || s.name === tag);
+                        if (found) {
+                          skillName = found.name;
+                        }
+                      }
+                    });
+                    return <ProjectTag key={i}>{skillName}</ProjectTag>;
+                  })}
                 </Box>
               </SidebarSection>
 

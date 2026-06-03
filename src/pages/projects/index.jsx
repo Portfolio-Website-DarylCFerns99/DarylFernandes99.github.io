@@ -263,14 +263,17 @@ const Index = () => {
 
 	const skillGroups = useSelector((state) => state.user.skillGroups || []);
 
-	// Create a mapping of lowercase skill names to their icons
+	// Create a mapping of lowercase skill names and IDs to their icons
 	const tagIconsMap = useMemo(() => {
 		const mapping = {};
 		skillGroups.forEach(group => {
 			if (group.skills) {
 				group.skills.forEach(skill => {
-					if (skill.name && skill.icon) {
+					if (skill.name) {
 						mapping[skill.name.toLowerCase()] = skill.icon;
+					}
+					if (skill.id) {
+						mapping[skill.id] = skill.icon;
 					}
 				});
 			}
@@ -284,15 +287,19 @@ const Index = () => {
 
 		skillGroups.forEach(group => {
 			const groupTags = uniqueTags.filter(tag =>
-				group.skills.some(skill => skill.name.toLowerCase() === tag.toLowerCase())
+				group.skills.some(skill => skill.id === tag || skill.name.toLowerCase() === tag.toLowerCase())
 			);
 			if (groupTags.length > 0) {
 				categories.push({
 					name: group.name,
-					tags: groupTags.map(tag => ({
-						name: tag,
-						icon: tagIconsMap[tag.toLowerCase()] || null
-					}))
+					tags: groupTags.map(tag => {
+						const skill = group.skills.find(s => s.id === tag || s.name.toLowerCase() === tag.toLowerCase());
+						return {
+							id: skill ? skill.id : tag,
+							name: skill ? skill.name : tag,
+							icon: skill ? skill.icon : null
+						};
+					})
 				});
 				groupTags.forEach(tag => assignedTags.add(tag));
 			}
@@ -303,14 +310,15 @@ const Index = () => {
 			categories.push({
 				name: "Other Skills & Tags",
 				tags: otherTags.map(tag => ({
+					id: tag,
 					name: tag,
-					icon: tagIconsMap[tag.toLowerCase()] || null
+					icon: null
 				}))
 			});
 		}
 
 		return categories;
-	}, [uniqueTags, skillGroups, tagIconsMap]);
+	}, [uniqueTags, skillGroups]);
 
 	// Then apply filter panel filters on top of category-filtered projects
 	const filteredProjects = useMemo(() => {
@@ -320,12 +328,24 @@ const Index = () => {
 			if (debouncedSearchText) {
 				const searchKeywords = debouncedSearchText.toLowerCase().split(/\s+/).filter(w => w.length > 0);
 				// OR logic: check if ANY keyword matches
-				matchesSearch = searchKeywords.some(keyword =>
-					project.title?.toLowerCase().includes(keyword) ||
-					project.description?.toLowerCase().includes(keyword) ||
-					project.tags?.some(tag => tag.toLowerCase().includes(keyword)) ||
-					Object.keys(project.additional_data?.languages || {}).some(lang => lang.toLowerCase().includes(keyword))
-				);
+				matchesSearch = searchKeywords.some(keyword => {
+					const tagNames = (project.tags || []).map(tag => {
+						let name = tag;
+						skillGroups.forEach(group => {
+							if (group.skills) {
+								const found = group.skills.find(s => s.id === tag || s.name === tag);
+								if (found) name = found.name;
+							}
+						});
+						return name.toLowerCase();
+					});
+					return (
+						project.title?.toLowerCase().includes(keyword) ||
+						project.description?.toLowerCase().includes(keyword) ||
+						tagNames.some(tagName => tagName.includes(keyword)) ||
+						Object.keys(project.additional_data?.languages || {}).some(lang => lang.toLowerCase().includes(keyword))
+					);
+				});
 			}
 
 			// Type filter
@@ -333,7 +353,21 @@ const Index = () => {
 
 			// Tags filter
 			const matchesTags = selectedTags.length === 0 ||
-				(project.tags && selectedTags.some(tag => project.tags.includes(tag)))
+				(project.tags && selectedTags.some(selectedTag => {
+					if (project.tags.includes(selectedTag)) return true;
+					return project.tags.some(pt => {
+						let ptSkill = null;
+						let selectedSkill = null;
+						skillGroups.forEach(group => {
+							if (group.skills) {
+								if (!ptSkill) ptSkill = group.skills.find(s => s.id === pt || s.name === pt);
+								if (!selectedSkill) selectedSkill = group.skills.find(s => s.id === selectedTag || s.name === selectedTag);
+							}
+						});
+						if (ptSkill && selectedSkill && ptSkill.id === selectedSkill.id) return true;
+						return false;
+					});
+				}))
 
 			return matchesSearch && matchesType && matchesTags
 		})
@@ -346,14 +380,28 @@ const Index = () => {
 				let score = 0;
 				const title = (project.title || '').toLowerCase();
 				const desc = (project.description || '').toLowerCase();
-				const tags = (project.tags || []).map(t => t.toLowerCase());
+				const tags = project.tags || [];
 				const languages = Object.keys(project.additional_data?.languages || {}).map(l => l.toLowerCase());
 
 				// Calculate score from selected tags (skills)
 				if (selectedTags.length > 0) {
 					selectedTags.forEach(selectedTag => {
 						const lowerSelectedTag = selectedTag.toLowerCase();
-						if (tags.includes(lowerSelectedTag)) {
+						const hasTag = tags.some(pt => {
+							if (pt === selectedTag || pt.toLowerCase() === lowerSelectedTag) return true;
+							let ptSkillName = '';
+							let selSkillName = '';
+							skillGroups.forEach(group => {
+								if (group.skills) {
+									const f1 = group.skills.find(s => s.id === pt || s.name.toLowerCase() === pt.toLowerCase());
+									if (f1) ptSkillName = f1.name.toLowerCase();
+									const f2 = group.skills.find(s => s.id === selectedTag || s.name.toLowerCase() === lowerSelectedTag);
+									if (f2) selSkillName = f2.name.toLowerCase();
+								}
+							});
+							return ptSkillName && selSkillName && ptSkillName === selSkillName;
+						});
+						if (hasTag) {
 							score += 20; // 20 points per matching tag
 						}
 					});
@@ -366,8 +414,18 @@ const Index = () => {
 					else if (title.includes(keyword)) score += 5;
 
 					// Tag matches (medium weight)
-					if (tags.some(t => t === keyword)) score += 4;
-					else if (tags.some(t => t.includes(keyword))) score += 3;
+					const resolvedTagNames = tags.map(tag => {
+						let name = tag;
+						skillGroups.forEach(group => {
+							if (group.skills) {
+								const found = group.skills.find(s => s.id === tag || s.name === tag);
+								if (found) name = found.name;
+							}
+						});
+						return name.toLowerCase();
+					});
+					if (resolvedTagNames.some(t => t === keyword)) score += 4;
+					else if (resolvedTagNames.some(t => t.includes(keyword))) score += 3;
 
 					// Language matches (medium weight)
 					if (languages.some(l => l === keyword)) score += 4;
@@ -800,13 +858,14 @@ const Index = () => {
 												<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
 													{category.tags.map(tag => {
 														const logoUrl = tag.icon ? getDeviconUrl(tag.icon) : null;
+														const isSelected = selectedTags.includes(tag.id) || selectedTags.includes(tag.name);
 														return (
 															<Chip
-																key={tag.name}
+																key={tag.id}
 																label={tag.name}
-																onClick={() => handleTagToggle(tag.name)}
-																color={selectedTags.includes(tag.name) ? "primary" : "default"}
-																variant={selectedTags.includes(tag.name) ? "filled" : "outlined"}
+																onClick={() => handleTagToggle(tag.id)}
+																color={isSelected ? "primary" : "default"}
+																variant={isSelected ? "filled" : "outlined"}
 																size="small"
 																avatar={logoUrl ? (
 																	<Box
@@ -873,12 +932,22 @@ const Index = () => {
 										/>
 									)}
 									{selectedTags.map(tag => {
-										const iconVal = tagIconsMap[tag.toLowerCase()];
-										const logoUrl = iconVal ? getDeviconUrl(iconVal) : null;
+										let tagName = tag;
+										let tagIconVal = null;
+										skillGroups.forEach(group => {
+											if (group.skills) {
+												const found = group.skills.find(s => s.id === tag || s.name === tag);
+												if (found) {
+													tagName = found.name;
+													tagIconVal = found.icon;
+												}
+											}
+										});
+										const logoUrl = tagIconVal ? getDeviconUrl(tagIconVal) : null;
 										return (
 											<Chip
 												key={tag}
-												label={tag}
+												label={tagName}
 												size="small"
 												onDelete={() => handleTagToggle(tag)}
 												color="primary"
@@ -887,7 +956,7 @@ const Index = () => {
 													<Box
 														component="img"
 														src={logoUrl}
-														alt={tag}
+														alt={tagName}
 														sx={{
 															width: '16px !important',
 															height: '16px !important',
@@ -1015,15 +1084,26 @@ const Index = () => {
 												</Typography>
 
 												<ProjectFooter sx={{ mb: 2 }}>
-													{project.tags && project.tags.map((tag, i) => (
-														<ProjectTag
-															key={i}
-															label={tag}
-															size="small"
-															color="primary"
-															variant={theme.palette.mode === 'dark' ? 'outlined' : 'filled'}
-														/>
-													))}
+													{project.tags && project.tags.map((tag, i) => {
+														let skillName = tag;
+														skillGroups.forEach(group => {
+															if (group.skills) {
+																const found = group.skills.find(s => s.id === tag || s.name === tag);
+																if (found) {
+																	skillName = found.name;
+																}
+															}
+														});
+														return (
+															<ProjectTag
+																key={i}
+																label={skillName}
+																size="small"
+																color="primary"
+																variant={theme.palette.mode === 'dark' ? 'outlined' : 'filled'}
+															/>
+														);
+													})}
 												</ProjectFooter>
 
 												{/* Only show button if project has readme_file */}

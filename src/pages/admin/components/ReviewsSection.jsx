@@ -18,11 +18,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { getAllReviews, deleteReview, updateReviewVisibility } from '../../../api/services/reviewService';
+import { deleteReview, updateReviewVisibility } from '../../../api/services/reviewService';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import { useAdmin } from '../context/AdminContext';
 
 const ReviewsSection = () => {
-    const [reviews, setReviews] = useState([]);
+    const { reviews, setReviews, loading: contextLoading } = useAdmin();
     const [loading, setLoading] = useState(true);
     const [deleteDialog, setDeleteDialog] = useState({
         open: false,
@@ -34,21 +35,12 @@ const ReviewsSection = () => {
     const [expandedRow, setExpandedRow] = useState(null);
 
     useEffect(() => {
-        fetchReviews();
-    }, []);
-
-    const fetchReviews = async () => {
-        try {
-            setLoading(true);
-            const data = await getAllReviews();
-            setReviews(data);
+        if (reviews) {
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching reviews:', error);
-            toast.error('Failed to load reviews');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [reviews, contextLoading]);
 
     // Initialize filteredReviews with all reviews when component mounts
     useEffect(() => {
@@ -178,7 +170,7 @@ const ReviewsSection = () => {
         setExpandedRow(expandedRow === id ? null : id);
     };
 
-    if (loading && reviews.length === 0) {
+    if (contextLoading && reviews.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

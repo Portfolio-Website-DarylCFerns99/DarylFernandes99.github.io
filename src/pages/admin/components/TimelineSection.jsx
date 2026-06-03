@@ -23,12 +23,13 @@ import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
-import { getAllExperiences, createExperience, updateExperience, updateExperienceVisibility, deleteExperience } from '../../../api/services/experienceService';
+import { createExperience, updateExperience, updateExperienceVisibility, deleteExperience } from '../../../api/services/experienceService';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import { useAdmin } from '../context/AdminContext';
 
 const TimelineSection = () => {
     const theme = useTheme();
-    const [experiences, setExperiences] = useState([]);
+    const { experiences, setExperiences, loading: contextLoading } = useAdmin();
     const [tab, setTab] = useState('experience');
     const [showForm, setShowForm] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
@@ -44,21 +45,12 @@ const TimelineSection = () => {
     const [sortConfig, setSortConfig] = useState({ key: 'start_date', direction: 'desc' });
 
     useEffect(() => {
-        fetchExperiences();
-    }, []);
-
-    const fetchExperiences = async () => {
-        try {
-            setLoading(true);
-            const data = await getAllExperiences();
-            setExperiences(data);
+        if (experiences) {
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching experiences:', error);
-            toast.error('Failed to load timeline data');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [experiences, contextLoading]);
 
     // Initialize filteredExperiences with all experiences when component mounts
     useEffect(() => {
@@ -393,7 +385,7 @@ const TimelineSection = () => {
         </motion.div>
     );
 
-    if (loading && experiences.length === 0) {
+    if (contextLoading && experiences.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

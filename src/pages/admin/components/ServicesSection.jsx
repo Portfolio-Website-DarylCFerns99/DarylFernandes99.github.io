@@ -29,6 +29,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { getProfile, updateProfile } from '../../../api/services/userService';
 import DeleteConfirmationDialog from './DeleteConfirmationDialog';
+import { useAdmin } from '../context/AdminContext';
 
 const getServiceIcon = (iconName) => {
     switch (iconName) {
@@ -49,10 +50,11 @@ const iconOptions = [
 
 const ServicesSection = () => {
     const theme = useTheme();
+    const { profile, setProfile, loading: contextLoading } = useAdmin();
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    
+
     // State for form
     const [showForm, setShowForm] = useState(false);
     const [editIndex, setEditIndex] = useState(-1);
@@ -69,21 +71,13 @@ const ServicesSection = () => {
     });
 
     useEffect(() => {
-        fetchServices();
-    }, []);
-
-    const fetchServices = async () => {
-        try {
-            setLoading(true);
-            const data = await getProfile();
-            setServices(data.services || []);
+        if (profile) {
+            setServices(profile.services || []);
             setLoading(false);
-        } catch (error) {
-            console.error('Error fetching services:', error);
-            toast.error('Failed to load services');
+        } else if (!contextLoading) {
             setLoading(false);
         }
-    };
+    }, [profile, contextLoading]);
 
     const handleAddClick = () => {
         setNewService({ title: "", description: "", iconName: "Code" });
@@ -119,12 +113,7 @@ const ServicesSection = () => {
             };
 
             const updatedProfile = await updateProfile(payload);
-
-            if (updatedProfile.services) {
-                setServices(updatedProfile.services);
-            } else {
-                setServices([]);
-            }
+            setProfile(updatedProfile);
 
             toast.success('Service card deleted successfully');
         } catch (error) {
@@ -154,11 +143,11 @@ const ServicesSection = () => {
         setSaving(true);
         try {
             const serviceToSave = { ...newService };
-            
+
             // Assign numeric ID if new service
             if (editIndex === -1) {
-                const maxId = services.length > 0 
-                    ? Math.max(...services.map(s => Number(s.id) || 0)) 
+                const maxId = services.length > 0
+                    ? Math.max(...services.map(s => Number(s.id) || 0))
                     : 0;
                 serviceToSave.id = maxId + 1;
             }
@@ -175,10 +164,7 @@ const ServicesSection = () => {
             };
 
             const updatedProfile = await updateProfile(payload);
-
-            if (updatedProfile.services) {
-                setServices(updatedProfile.services);
-            }
+            setProfile(updatedProfile);
 
             toast.success(`Service card ${editIndex >= 0 ? 'updated' : 'added'} successfully`);
             setShowForm(false);
@@ -190,7 +176,7 @@ const ServicesSection = () => {
         }
     };
 
-    if (loading && services.length === 0) {
+    if (contextLoading && services.length === 0) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
                 <CircularProgress />

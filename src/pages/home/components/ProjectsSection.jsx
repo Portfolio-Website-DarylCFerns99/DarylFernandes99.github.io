@@ -9,6 +9,7 @@ import CodeIcon from '@mui/icons-material/Code';
 import HubIcon from '@mui/icons-material/Hub';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import NorthEastIcon from '@mui/icons-material/NorthEast';
+import { useSelector } from 'react-redux';
 import { slugify } from '../../../utils/stringUtils';
 
 const getProjectIcon = (title, description) => {
@@ -27,6 +28,20 @@ const getProjectIcon = (title, description) => {
 
 const ProjectsSection = React.forwardRef(({ featuredProjects }, ref) => {
   const theme = useTheme();
+  const skillGroups = useSelector((state) => state.user.skillGroups || []);
+
+  const getSkillName = (tag) => {
+    let name = tag;
+    skillGroups.forEach(group => {
+      if (group.skills) {
+        const found = group.skills.find(s => s.id === tag || s.name === tag);
+        if (found) {
+          name = found.name;
+        }
+      }
+    });
+    return name;
+  };
 
   return (
     <Box
@@ -214,7 +229,7 @@ const ProjectsSection = React.forwardRef(({ featuredProjects }, ref) => {
                           fontFamily: `'JetBrains Mono', monospace`,
                         }}
                       >
-                        {tag}
+                        {getSkillName(tag)}
                       </Box>
                     ))}
                   </Stack>
