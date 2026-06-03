@@ -16,41 +16,33 @@ export const DetailContainer = styled(Container)(({ theme }) => ({
 export const HeroSection = styled(Box)(({ theme }) => ({
   position: 'relative',
   width: '100%',
-  minHeight: '400px',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
   marginBottom: theme.spacing(6),
   borderRadius: theme.shape.borderRadius * 3,
   overflow: 'hidden',
-  boxShadow: theme.shadows[4],
+  backgroundColor: alpha(theme.palette.background.paper, 0.4),
+  backdropFilter: 'blur(10px)',
+  border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0',
+  boxShadow: 'none',
+  padding: theme.spacing(6, 4),
   [theme.breakpoints.down('md')]: {
-    minHeight: '300px',
     marginBottom: theme.spacing(4),
+    padding: theme.spacing(4, 2),
   },
 }))
 
-export const HeroBackground = styled(Box)(({ theme, image }) => ({
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundImage: image ? `url(${image})` : 'none',
-  backgroundSize: 'cover',
-  backgroundPosition: 'center',
-  filter: theme.palette.mode === 'dark' ? 'blur(4px) brightness(1)' : 'blur(4px) brightness(0.6)',
-  transform: 'scale(1.1)', // Prevent blur edges
-  zIndex: 0,
-  '&::after': {
-    content: '""',
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: `linear-gradient(to bottom, ${alpha(theme.palette.background.default, 0.2)}, ${theme.palette.background.default})`,
-  },
+export const ProjectIconContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: 48,
+  height: 48,
+  borderRadius: '8px',
+  backgroundColor: alpha(theme.palette.primary.main, 0.08),
+  color: theme.palette.primary.main,
+  margin: '0 auto 24px',
 }))
 
 export const HeroContent = styled(Box)(({ theme }) => ({
@@ -96,35 +88,33 @@ export const SidebarColumn = styled(Box)(({ theme }) => ({
 export const GlassCard = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   borderRadius: theme.shape.borderRadius * 2,
-  background: theme.palette.mode === 'dark'
-    ? alpha(theme.palette.background.paper, 0.6)
-    : alpha(theme.palette.background.paper, 0.8),
-  backdropFilter: 'blur(12px)',
-  border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-  boxShadow: theme.shadows[2],
-  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  backgroundColor: alpha(theme.palette.background.paper, 0.4),
+  backdropFilter: 'blur(10px)',
+  border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0',
+  boxShadow: 'none',
+  transition: 'all 0.3s ease',
   position: 'relative', // Allow absolute positioning of children
   overflow: 'visible', // Allow menu to spill out if needed, though MUI menu uses portal
   '&:hover': {
-    boxShadow: theme.shadows[6],
+    borderColor: theme.palette.primary.main,
+    boxShadow: theme.palette.mode === 'dark'
+        ? '0px 4px 20px rgba(245, 158, 11, 0.12)'
+        : '0px 4px 20px rgba(180, 137, 70, 0.05)',
   },
 }))
 
 export const ProjectTag = styled(Box)(({ theme }) => ({
   display: 'inline-flex',
   alignItems: 'center',
-  padding: theme.spacing(0.75, 1.5),
-  borderRadius: '12px',
-  backgroundColor: alpha(theme.palette.primary.main, 0.1),
-  color: theme.palette.primary.main,
-  fontSize: '0.8rem',
-  fontWeight: 600,
-  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+  backgroundColor: alpha(theme.palette.text.primary, 0.03),
+  border: `1px solid ${theme.palette.divider}`,
+  borderRadius: '4px',
+  padding: theme.spacing(0.5, 1.2),
+  fontSize: '0.7rem',
+  fontWeight: 500,
+  color: theme.palette.text.secondary,
+  fontFamily: `'JetBrains Mono', monospace`,
   transition: 'all 0.2s ease',
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.primary.main, 0.2),
-    transform: 'translateY(-1px)',
-  },
 }))
 
 export const BackButton = styled(Button)(({ theme }) => ({

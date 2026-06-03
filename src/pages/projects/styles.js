@@ -18,13 +18,29 @@ export const ProjectCard = styled(Card)(({ theme }) => ({
     borderRadius: theme.shape.borderRadius * 2,
     overflow: 'hidden',
     transition: 'all 0.3s ease',
-    backgroundColor: theme.palette.background.paper,
-    boxShadow: theme.shadows[2],
-    padding: theme.spacing(1),
-    // '&:hover': {
-    //   transform: 'translateY(-8px)',
-    //   boxShadow: theme.shadows[6],
-    // },
+    backgroundColor: alpha(theme.palette.background.paper, 0.4),
+    backdropFilter: 'blur(10px)',
+    border: theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.06)' : '1px solid #E2E8F0',
+    boxShadow: 'none',
+    padding: theme.spacing(4),
+    '&:hover': {
+        borderColor: theme.palette.primary.main,
+        boxShadow: theme.palette.mode === 'dark'
+            ? '0px 4px 20px rgba(245, 158, 11, 0.12)'
+            : '0px 4px 20px rgba(180, 137, 70, 0.05)',
+    }
+}))
+
+export const ProjectIconContainer = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: '8px',
+    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+    color: theme.palette.primary.main,
+    marginBottom: theme.spacing(3),
 }))
 
 export const ProjectImageContainer = styled(Box)(({ theme }) => ({
@@ -55,25 +71,16 @@ export const ProjectTags = styled(Box)(({ theme }) => ({
     marginTop: theme.spacing(1),
 }))
 
-export const ProjectTag = styled(Chip)(({ theme }) => ({
+export const ProjectTag = styled(Box)(({ theme }) => ({
+    backgroundColor: alpha(theme.palette.text.primary, 0.03),
+    border: `1px solid ${theme.palette.divider}`,
+    borderRadius: '4px',
+    padding: theme.spacing(0.5, 1.2),
     fontSize: '0.7rem',
     fontWeight: 500,
-    borderRadius: '14px',
-    backgroundColor: theme.palette.mode === 'dark'
-        ? 'transparent'
-        : alpha(theme.palette.primary.main, 0.1),
-    color: theme.palette.mode === 'dark'
-        ? theme.palette.primary.main
-        : theme.palette.primary.main,
-    border: theme.palette.mode === 'dark'
-        ? `1px solid ${alpha(theme.palette.primary.main, 0.5)}`
-        : 'none',
+    color: theme.palette.text.secondary,
+    fontFamily: `'JetBrains Mono', monospace`,
     transition: 'all 0.2s ease',
-    '&:hover': {
-        backgroundColor: theme.palette.primary.main,
-        color: theme.palette.primary.contrastText,
-        borderColor: theme.palette.primary.main,
-    }
 }))
 
 export const ProjectType = styled(Box)(({ theme, type }) => ({
@@ -98,7 +105,7 @@ export const ProjectType = styled(Box)(({ theme, type }) => ({
 }))
 
 export const ProjectContent = styled(Box)(({ theme }) => ({
-    padding: theme.spacing(2),
+    padding: 0,
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
