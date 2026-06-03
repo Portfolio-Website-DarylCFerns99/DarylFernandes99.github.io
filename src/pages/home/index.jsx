@@ -110,7 +110,7 @@ const Index = () => {
               : `linear-gradient(to right, rgba(248, 249, 255, 0.95) 25%, rgba(248, 249, 255, 0.3) 55%, rgba(248, 249, 255, 0) 100%), url(${userData.avatar || ''})`
           },
           backgroundSize: 'cover',
-          backgroundPosition: { xs: '35% center', md: 'right center' },
+          backgroundPosition: { xs: '50% center', md: 'right center' },
           backgroundRepeat: 'no-repeat',
         })}
       >

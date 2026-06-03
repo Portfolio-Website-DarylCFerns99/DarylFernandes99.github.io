@@ -39,6 +39,7 @@ import ProjectsSection from './components/ProjectsSection';
 import ReviewsSection from './components/ReviewsSection';
 import ChatHistorySection from './components/ChatHistorySection';
 import ServicesSection from './components/ServicesSection';
+import RagExtraInfoSection from './components/RagExtraInfoSection';
 import Sidebar from './components/Sidebar';
 import WorkIcon from '@mui/icons-material/Work';
 
@@ -55,6 +56,7 @@ const sections = [
   { id: 'timeline', name: 'Timeline', icon: <TimelineIcon /> },
   { id: 'projects', name: 'Projects', icon: <AppsIcon /> },
   { id: 'reviews', name: 'Reviews', icon: <ArticleIcon /> },
+  { id: 'rag', name: 'RAG Extra Info', icon: <StorageIcon /> },
   { id: 'chat', name: 'Chat History', icon: <ChatIcon /> }
 ];
 
@@ -314,6 +316,16 @@ const DashboardPage = ({ themeMode, setThemeMode }) => {
                   Reviews
                 </Typography>
                 <ReviewsSection />
+              </Card>
+            </Box>
+
+            {/* RAG Extra Info Section */}
+            <Box ref={el => sectionRefs.current['rag'] = el} sx={{ mb: 6, scrollMarginTop: '100px' }}>
+              <Card sx={{ p: 3 }}>
+                <Typography variant="h5" fontWeight="bold" gutterBottom color="primary" sx={{ mb: 3 }}>
+                  RAG Extra Info
+                </Typography>
+                <RagExtraInfoSection />
               </Card>
             </Box>
 
